@@ -46,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -54,7 +55,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
-import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
@@ -396,24 +396,37 @@ internal fun DrawScope.drawCelestialAurora(t: Float, tilt: Offset, p: BackdropPa
 
   val topInset = AURORA_TOP_INSET_DP.dp.toPx()
   val bottomInset = AURORA_BOTTOM_INSET_DP.dp.toPx()
-  // Picker thumbnails are shorter than the 172dp reserved for app bars; a negative inset size crashes.
-  // Draw those edge-to-edge. Full-screen backdrops keep the exact same inset (position unchanged).
+  // Picker thumbnails are shorter than the 172dp reserved for app bars: draw those edge-to-edge.
   if (size.height <= topInset + bottomInset) {
-    drawCelestialAuroraScene(t, p, path)
+    drawCelestialAuroraScene(t, tilt, p, path)
     return
   }
 
-  // Celestial drew this only in the content area (below top bar, above bottom bar); Replay's backdrop
-  // is full-screen, so inset the scene to the same region.
-  inset(0f, topInset, 0f, bottomInset) {
-    drawCelestialAuroraScene(t, p, path)
+  // Original Celestial position: scene laid out for the content area between top bar and nav bar.
+  // Translate + shrink the scene size WITHOUT clipping (DrawScope.inset() clips and cut the aurora
+  // under the top bar), so ribbons/glows bleed under the bars and nothing crashes.
+  val fullSize = drawContext.size
+  translate(0f, topInset) {
+    drawContext.size = Size(fullSize.width, fullSize.height - topInset - bottomInset)
+    try {
+      drawCelestialAuroraScene(t, tilt, p, path, padTop = topInset, padBottom = bottomInset)
+    } finally {
+      drawContext.size = fullSize
+    }
   }
 }
 
 private const val AURORA_TOP_INSET_DP = 92f
 private const val AURORA_BOTTOM_INSET_DP = 80f
 
-private fun DrawScope.drawCelestialAuroraScene(t: Float, p: BackdropPalette, path: Path) {
+private fun DrawScope.drawCelestialAuroraScene(
+  t: Float,
+  tilt: Offset,
+  p: BackdropPalette,
+  path: Path,
+  padTop: Float = 0f,
+  padBottom: Float = 0f,
+) {
   val w = size.width
   val h = size.height
   // Triangle waves reproduce the old reverse-repeat transitions (12s drift, 6s glow, 2.6s twinkle).
@@ -424,7 +437,7 @@ private fun DrawScope.drawCelestialAuroraScene(t: Float, p: BackdropPalette, pat
   val drift = tri(t / 24f)
   val glowPulse = tri(t / 12f)
   val twinkle = tri(t / 5.2f)
-  val parallax = Offset.Zero // Celestial's aurora ignored device tilt
+  val parallax = Offset(tilt.x * 18.dp.toPx(), tilt.y * 12.dp.toPx())
   val shift = h * 0.05f * (drift - 0.5f) + parallax.y
 
   drawRect(
@@ -434,7 +447,8 @@ private fun DrawScope.drawCelestialAuroraScene(t: Float, p: BackdropPalette, pat
         center = Offset(w * 0.82f, h * 0.06f) + parallax * 0.4f,
         radius = w * (0.75f + 0.10f * glowPulse),
       ),
-    size = size,
+    topLeft = Offset(0f, -padTop),
+    size = Size(w, h + padTop + padBottom),
   )
   drawRect(
     brush =
@@ -443,7 +457,8 @@ private fun DrawScope.drawCelestialAuroraScene(t: Float, p: BackdropPalette, pat
         center = Offset(w * 0.10f, h * 0.85f),
         radius = w * 0.7f,
       ),
-    size = size,
+    topLeft = Offset(0f, -padTop),
+    size = Size(w, h + padTop + padBottom),
   )
 
   fun ribbon(color: Color, yStart: Float, yEnd: Float, alpha: Float, strokeWidth: Float, glow: Boolean = false) {
@@ -473,7 +488,7 @@ private fun DrawScope.drawCelestialAuroraScene(t: Float, p: BackdropPalette, pat
   CELESTIAL_SPARKLES.forEachIndexed { index, (fx, fy) ->
     val phase = (twinkle + index * 0.19f) % 1f
     val a = 0.12f + 0.42f * sin(phase * Math.PI).toFloat()
-    drawCircle(Color.White.copy(alpha = a.coerceIn(0f, 1f)), radius = 1.4.dp.toPx(), center = Offset(w * fx, h * fy) + parallax * 0.3f)
+    drawCircle(p.ink.copy(alpha = a.coerceIn(0f, 1f)), radius = 1.4.dp.toPx(), center = Offset(w * fx, h * fy) + parallax * 0.3f)
   }
 }
 
