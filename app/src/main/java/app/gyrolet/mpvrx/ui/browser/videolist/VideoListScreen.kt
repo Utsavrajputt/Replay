@@ -111,7 +111,6 @@ import app.gyrolet.mpvrx.utils.history.RecentlyPlayedOps
 import app.gyrolet.mpvrx.utils.media.CopyPasteOps
 import app.gyrolet.mpvrx.utils.media.MediaUtils
 import app.gyrolet.mpvrx.utils.sort.SortUtils
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -779,7 +778,6 @@ internal fun VideoListContent(
         val rememberedListOffset = rememberSaveable { mutableIntStateOf(0) }
         val rememberedGridIndex = rememberSaveable { mutableIntStateOf(0) }
         val rememberedGridOffset = rememberSaveable { mutableIntStateOf(0) }
-        var isScrollbarDragging by remember { mutableStateOf(false) }
         
         val initialListIndex = if (rememberedListIndex.intValue > 0) {
             rememberedListIndex.intValue
@@ -817,26 +815,14 @@ internal fun VideoListContent(
             initialFirstVisibleItemScrollOffset = rememberedGridOffset.intValue
         )
         
-        // Persist only after navigation settles. Updating saveable state for every
-        // pixel invalidated the whole list while fast-scrolling large folders.
-        LaunchedEffect(listState) {
-          snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
-            .distinctUntilChanged()
-            .collectLatest { (index, offset) ->
-              delay(SCROLL_POSITION_SETTLE_MILLIS)
-              rememberedListIndex.intValue = index
-              rememberedListOffset.intValue = offset
-            }
+        LaunchedEffect(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset) {
+            rememberedListIndex.intValue = listState.firstVisibleItemIndex
+            rememberedListOffset.intValue = listState.firstVisibleItemScrollOffset
         }
-
-        LaunchedEffect(gridState) {
-          snapshotFlow { gridState.firstVisibleItemIndex to gridState.firstVisibleItemScrollOffset }
-            .distinctUntilChanged()
-            .collectLatest { (index, offset) ->
-              delay(SCROLL_POSITION_SETTLE_MILLIS)
-              rememberedGridIndex.intValue = index
-              rememberedGridOffset.intValue = offset
-            }
+        
+        LaunchedEffect(gridState.firstVisibleItemIndex, gridState.firstVisibleItemScrollOffset) {
+            rememberedGridIndex.intValue = gridState.firstVisibleItemIndex
+            rememberedGridOffset.intValue = gridState.firstVisibleItemScrollOffset
         }
 
         val latestVideosWithInfo by rememberUpdatedState(videosWithInfo)
@@ -858,14 +844,8 @@ internal fun VideoListContent(
           mediaLayoutMode,
           thumbnailListKey,
           videoGridColumns,
-          isScrollbarDragging,
         ) {
-          if (!showVideoThumbnails || latestVideosWithInfo.isEmpty() || isScrollbarDragging) {
-            if (isScrollbarDragging) {
-              thumbnailRepository.cancelFolderThumbnailGeneration("$folderId:${mediaLayoutMode.name}")
-            }
-            return@LaunchedEffect
-          }
+          if (!showVideoThumbnails || latestVideosWithInfo.isEmpty()) return@LaunchedEffect
 
           snapshotFlow {
             val itemCount = latestVideosWithInfo.size
@@ -904,9 +884,6 @@ internal fun VideoListContent(
               indices.mapNotNull { index -> currentVideos.getOrNull(index)?.video }
             }
             .collectLatest { visibleVideos ->
-              // A scroll jump can replace the viewport several times in quick
-              // succession. Start I/O only for the viewport that remains visible.
-              delay(THUMBNAIL_SCROLL_SETTLE_MILLIS)
               thumbnailRepository.startFolderThumbnailGeneration(
                 folderId = "$folderId:${mediaLayoutMode.name}",
                 videos = visibleVideos,
@@ -1003,7 +980,6 @@ internal fun VideoListContent(
                       thumbnailHeightPx = thumbHeightPx,
                       showSubtitleIndicator = showSubtitleIndicator,
                       allowThumbnailGeneration = false,
-                      allowThumbnailLoading = !isScrollbarDragging,
                       uiConfig = videoCardUiConfig,
                     )
                   }
@@ -1016,7 +992,6 @@ internal fun VideoListContent(
                   dragLabelProvider = { index ->
                     fastScrollGlyph(videosWithInfo.getOrNull(index)?.video?.displayName)
                   },
-                  onDragStateChanged = { isDragging -> isScrollbarDragging = isDragging },
                   modifier =
                     Modifier
                       .align(Alignment.CenterEnd)
@@ -1073,7 +1048,6 @@ internal fun VideoListContent(
                       isGridMode = false,
                       showSubtitleIndicator = showSubtitleIndicator,
                       allowThumbnailGeneration = false,
-                      allowThumbnailLoading = !isScrollbarDragging,
                       uiConfig = videoCardUiConfig,
                     )
                   }
@@ -1086,7 +1060,6 @@ internal fun VideoListContent(
                   dragLabelProvider = { index ->
                     fastScrollGlyph(videosWithInfo.getOrNull(index)?.video?.displayName)
                   },
-                  onDragStateChanged = { isDragging -> isScrollbarDragging = isDragging },
                   modifier =
                     Modifier
                       .align(Alignment.CenterEnd)
@@ -1117,9 +1090,6 @@ private fun visibleVideoWindow(
   val end = (lastVisibleIndex + prefetchAfter).coerceAtMost(itemCount - 1)
   return (start..end).toList()
 }
-
-private const val SCROLL_POSITION_SETTLE_MILLIS = 150L
-private const val THUMBNAIL_SCROLL_SETTLE_MILLIS = 100L
 
 
 
