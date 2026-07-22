@@ -1081,12 +1081,12 @@ class PlayerActivity :
 
     if (keepBackgroundPlaybackAlive || !isFinishing) return
 
-    // Destroy MPV only when background playback is not being kept alive.
+    // finish() clears isReady before onDestroy(). Always ask libmpv to quit here;
+    // otherwise an active audio core can be destroyed while its dispatch queue is
+    // still running, causing a native crash when leaving the player.
     runCatching {
-      if (isReady) {
-        MPVLib.setPropertyBoolean("pause", true)
-        MPVLib.command("quit")
-      }
+      MPVLib.setPropertyBoolean("pause", true)
+      MPVLib.command("quit")
     }.onFailure { e ->
       Log.e(TAG, "Error quitting MPV", e)
     }
