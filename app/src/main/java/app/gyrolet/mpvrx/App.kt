@@ -10,6 +10,7 @@ import app.gyrolet.mpvrx.di.FileManagerModule
 import app.gyrolet.mpvrx.di.PreferencesModule
 import app.gyrolet.mpvrx.presentation.crash.CrashActivity
 import app.gyrolet.mpvrx.presentation.crash.GlobalExceptionHandler
+import app.gyrolet.mpvrx.ui.player.AndroidNativeCompat
 import app.gyrolet.mpvrx.utils.media.MediaLibraryEvents
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,11 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
 
   override fun onCreate() {
     super.onCreate()
+
+    // Apply this before app-owned worker threads and either native MPV entry point start. Bionic's
+    // fdsan level setter is intended for single-threaded setup, and the bundled libmpv's raw-clone
+    // subprocess path otherwise corrupts its ownership bookkeeping on Android 16.
+    AndroidNativeCompat.applyMpvSubprocessWorkaround()
 
     // Initialize Koin
     startKoin {

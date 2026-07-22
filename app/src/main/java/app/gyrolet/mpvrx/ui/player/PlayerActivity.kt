@@ -863,10 +863,7 @@ class PlayerActivity :
           }
           PlayerControls(
             viewModel = viewModel,
-            onBackPress = {
-              isUserFinishing = true
-              finish()
-            },
+            onBackPress = ::handleBackPress,
             modifier = Modifier,
           )
         }
@@ -1049,12 +1046,13 @@ class PlayerActivity :
         mediaPlaybackService = null
       }
 
-      cleanupMPV(keepBackgroundPlaybackAlive)
       if (!keepBackgroundPlaybackAlive) {
         cleanupAudio()
       }
       cleanupReceivers()
       releaseMediaSession()
+      // Schedule native destruction last so no Activity-owned callback can race the worker.
+      cleanupMPV(keepBackgroundPlaybackAlive)
     }.onFailure { e ->
       Log.e(TAG, "Error during onDestroy", e)
     }
@@ -1067,40 +1065,49 @@ class PlayerActivity :
 
     player.isExiting = true
     mpvInitialized = false
+    player.onSurfaceReady = null
     intentSubtitleJob?.cancel()
     videoParamRefreshJob?.cancel()
     backgroundServiceSyncJob?.cancel()
     deferredFontSyncJob?.cancel()
+    mediaLoadJob?.cancel()
+    eofAdvanceJob?.cancel()
+    resumeAfterUnlockJob?.cancel()
+    viewModel.onMpvCoreStopping()
 
     runCatching { MPVLib.removeObserver(playerObserver) }
       .onFailure { e -> Log.e(TAG, "Error removing MPV observer", e) }
 
     if (!keepBackgroundPlaybackAlive) {
+      MediaPlaybackService.prepareForMpvShutdown()
       endBackgroundPlayback()
     }
 
     if (keepBackgroundPlaybackAlive || !isFinishing) return
 
-    // finish() clears isReady before onDestroy(). Always ask libmpv to quit here;
-    // otherwise an active audio core can be destroyed while its dispatch queue is
-    // still running, causing a native crash when leaving the player.
-    runCatching {
-      MPVLib.setPropertyBoolean("pause", true)
-      MPVLib.command("quit")
-    }.onFailure { e ->
-      Log.e(TAG, "Error quitting MPV", e)
-    }
+    // SurfaceView teardown is delivered after Activity.onDestroy(). Remove the callback now so it
+    // cannot call detachSurface() after the worker has already freed libmpv's renderer state.
+    runCatching { player.holder.removeCallback(player) }
+      .onFailure { e -> Log.e(TAG, "Error removing MPV surface callback", e) }
     destroyMpvAfterCommandDrain("player cleanup")
   }
 
   private fun destroyMpvAfterCommandDrain(reason: String) {
-    // mpv's quit command is asynchronous. Destroying the core immediately can abort
-    // inside libmpv's dispatch queue while stream/subtitle work is still unwinding.
-    android.os.SystemClock.sleep(MPV_DESTROY_DRAIN_DELAY_MS)
-    runCatching {
-      MPVLib.destroy()
-    }.onFailure { e ->
-      Log.e(TAG, "Error destroying MPV after $reason", e)
+    MpvTeardownCoordinator.destroyAsync(reason) {
+      runCatching { MPVLib.setPropertyBoolean("pause", true) }
+        .onFailure { e -> Log.e(TAG, "Error pausing MPV during $reason", e) }
+      runCatching { MPVLib.setPropertyString("vo", "null") }
+        .onFailure { e -> Log.e(TAG, "Error disabling video output during $reason", e) }
+      runCatching { MPVLib.detachSurface() }
+        .onFailure { e -> Log.e(TAG, "Error detaching MPV surface during $reason", e) }
+      runCatching { MPVLib.command("quit") }
+        .onFailure { e -> Log.e(TAG, "Error quitting MPV during $reason", e) }
+
+      // mpv's quit command is asynchronous. Keep its short drain off the main thread so Android
+      // can finish Window/HWUI teardown before the renderer's native mutexes are destroyed.
+      android.os.SystemClock.sleep(MPV_DESTROY_DRAIN_DELAY_MS)
+      runCatching { MPVLib.destroy() }
+        .onFailure { e -> Log.e(TAG, "Error destroying MPV after $reason", e) }
     }
   }
 
@@ -1491,16 +1498,11 @@ class PlayerActivity :
     if (!MediaPlaybackService.isRunning()) return
 
     Log.d(TAG, "Stopping detached background playback before fresh player launch")
+    MediaPlaybackService.prepareForMpvShutdown()
     runCatching {
       stopService(Intent(this, MediaPlaybackService::class.java))
     }.onFailure { e ->
       Log.e(TAG, "Error stopping detached playback service", e)
-    }
-    runCatching {
-      MPVLib.setPropertyBoolean("pause", true)
-      MPVLib.command("quit")
-    }.onFailure { e ->
-      Log.e(TAG, "Error quitting detached MPV session", e)
     }
     destroyMpvAfterCommandDrain("detached background session")
   }
@@ -1513,6 +1515,10 @@ class PlayerActivity :
    * CRITICAL: Must copy config and scripts BEFORE initializing MPV, as MPV loads scripts during init.
    */
   private fun setupMPV() {
+    // libmpv owns one process-global core. A quick reopen must wait for the previous Activity's
+    // worker teardown rather than racing initialize() against destroy().
+    MpvTeardownCoordinator.awaitIdle()
+
     // Prepare config and user MPV assets before initializing MPV.
     runCatching {
       syncBundledAssetsIfNeeded()
@@ -5441,7 +5447,7 @@ class PlayerActivity :
     private const val MILLISECONDS_TO_SECONDS = 1000
 
     /**
-     * Lets mpv drain asynchronous quit/HTTPS stream work before destroying the native core.
+     * Lets mpv drain asynchronous quit/HTTPS stream work on the teardown worker.
      */
     private const val MPV_DESTROY_DRAIN_DELAY_MS = 200L
 
