@@ -1,6 +1,8 @@
 package app.gyrolet.mpvrx
 
 import android.app.Application
+import android.app.Activity
+import android.os.Bundle
 import android.util.Log
 import app.gyrolet.mpvrx.database.repository.VideoMetadataCacheRepository
 import app.gyrolet.mpvrx.di.DatabaseModule
@@ -23,8 +25,9 @@ import org.koin.core.context.GlobalContext
 import `is`.xyz.mpv.FastThumbnails
 
 @OptIn(KoinExperimentalAPI::class)
-class App : Application() {
+class App : Application(), Application.ActivityLifecycleCallbacks {
   private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+  private var startedActivityCount = 0
 
   companion object {
     private const val LAUNCH_SCAN_PREFS = "launch_media_scan"
@@ -45,6 +48,7 @@ class App : Application() {
         app.gyrolet.mpvrx.di.domainModule,
       )
     }
+    registerActivityLifecycleCallbacks(this)
 
     Thread.setDefaultUncaughtExceptionHandler(GlobalExceptionHandler(applicationContext, CrashActivity::class.java))
 
@@ -96,6 +100,25 @@ class App : Application() {
       }
     }
   }
+
+  override fun onActivityStarted(activity: Activity) {
+    if (startedActivityCount++ == 0) {
+      getKoin().get<app.gyrolet.mpvrx.domain.syncplay.SyncplayManager>().onAppForegrounded()
+    }
+  }
+
+  override fun onActivityStopped(activity: Activity) {
+    startedActivityCount = (startedActivityCount - 1).coerceAtLeast(0)
+    if (startedActivityCount == 0 && !activity.isChangingConfigurations) {
+      getKoin().get<app.gyrolet.mpvrx.domain.syncplay.SyncplayManager>().onAppBackgrounded()
+    }
+  }
+
+  override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
+  override fun onActivityResumed(activity: Activity) = Unit
+  override fun onActivityPaused(activity: Activity) = Unit
+  override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
+  override fun onActivityDestroyed(activity: Activity) = Unit
 
   /**
    * Resolves [org.koin.core.Koin] from the global context. Safe to call only
