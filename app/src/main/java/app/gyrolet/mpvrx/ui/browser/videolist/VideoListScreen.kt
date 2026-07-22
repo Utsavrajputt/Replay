@@ -111,6 +111,7 @@ import app.gyrolet.mpvrx.utils.history.RecentlyPlayedOps
 import app.gyrolet.mpvrx.utils.media.CopyPasteOps
 import app.gyrolet.mpvrx.utils.media.MediaUtils
 import app.gyrolet.mpvrx.utils.sort.SortUtils
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -774,56 +775,28 @@ internal fun VideoListContent(
         val thumbWidthPx = with(density) { thumbWidthDp.roundToPx() }
         val thumbHeightPx = (thumbWidthPx / aspect).roundToInt()
 
-        val rememberedListIndex = rememberSaveable { mutableIntStateOf(0) }
-        val rememberedListOffset = rememberSaveable { mutableIntStateOf(0) }
-        val rememberedGridIndex = rememberSaveable { mutableIntStateOf(0) }
-        val rememberedGridOffset = rememberSaveable { mutableIntStateOf(0) }
-        
-        val initialListIndex = if (rememberedListIndex.intValue > 0) {
-            rememberedListIndex.intValue
-        } else if (autoScrollToLastPlayed && recentlyPlayedFilePath != null && videosWithInfo.isNotEmpty()) {
-            var foundIndex = 0
-            for (i in videosWithInfo.indices) {
-                if (videosWithInfo[i].video.path == recentlyPlayedFilePath) {
-                    foundIndex = i
-                    break
-                }
+        // Lazy list/grid states already save their own index and offset. Mirroring every pixel into
+        // rememberSaveable state made this whole content scope recompose continuously while scrolling
+        // and repeated the O(n) last-played lookup for large libraries.
+        val initialScrollIndex =
+          remember(autoScrollToLastPlayed, recentlyPlayedFilePath, videosWithInfo) {
+            if (autoScrollToLastPlayed && recentlyPlayedFilePath != null) {
+              videosWithInfo
+                .indexOfFirst { it.video.path == recentlyPlayedFilePath }
+                .coerceAtLeast(0)
+            } else {
+              0
             }
-            foundIndex
-        } else 0
-        
-        val initialGridIndex = if (rememberedGridIndex.intValue > 0) {
-            rememberedGridIndex.intValue
-        } else if (autoScrollToLastPlayed && recentlyPlayedFilePath != null && videosWithInfo.isNotEmpty()) {
-            var foundIndex = 0
-            for (i in videosWithInfo.indices) {
-                if (videosWithInfo[i].video.path == recentlyPlayedFilePath) {
-                    foundIndex = i
-                    break
-                }
-            }
-            foundIndex
-        } else 0
-        
+          }
+
         val listState = rememberLazyListState(
-            initialFirstVisibleItemIndex = initialListIndex,
-            initialFirstVisibleItemScrollOffset = rememberedListOffset.intValue
+            initialFirstVisibleItemIndex = initialScrollIndex,
         )
-        
+
         val gridState = rememberLazyGridState(
-            initialFirstVisibleItemIndex = initialGridIndex,
-            initialFirstVisibleItemScrollOffset = rememberedGridOffset.intValue
+            initialFirstVisibleItemIndex = initialScrollIndex,
         )
-        
-        LaunchedEffect(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset) {
-            rememberedListIndex.intValue = listState.firstVisibleItemIndex
-            rememberedListOffset.intValue = listState.firstVisibleItemScrollOffset
-        }
-        
-        LaunchedEffect(gridState.firstVisibleItemIndex, gridState.firstVisibleItemScrollOffset) {
-            rememberedGridIndex.intValue = gridState.firstVisibleItemIndex
-            rememberedGridOffset.intValue = gridState.firstVisibleItemScrollOffset
-        }
+        var isScrollbarDragging by remember { mutableStateOf(false) }
 
         val latestVideosWithInfo by rememberUpdatedState(videosWithInfo)
         val thumbnailListKey = remember(videosWithInfo) {
@@ -844,8 +817,15 @@ internal fun VideoListContent(
           mediaLayoutMode,
           thumbnailListKey,
           videoGridColumns,
+          isScrollbarDragging,
         ) {
-          if (!showVideoThumbnails || latestVideosWithInfo.isEmpty()) return@LaunchedEffect
+          val generationId = "$folderId:${mediaLayoutMode.name}"
+          if (!showVideoThumbnails || latestVideosWithInfo.isEmpty() || isScrollbarDragging) {
+            if (isScrollbarDragging) {
+              thumbnailRepository.cancelFolderThumbnailGeneration(generationId)
+            }
+            return@LaunchedEffect
+          }
 
           snapshotFlow {
             val itemCount = latestVideosWithInfo.size
@@ -884,8 +864,10 @@ internal fun VideoListContent(
               indices.mapNotNull { index -> currentVideos.getOrNull(index)?.video }
             }
             .collectLatest { visibleVideos ->
+              // Ignore transient viewports while a fling/jump is still replacing composed cards.
+              delay(THUMBNAIL_SCROLL_SETTLE_MILLIS)
               thumbnailRepository.startFolderThumbnailGeneration(
-                folderId = "$folderId:${mediaLayoutMode.name}",
+                folderId = generationId,
                 videos = visibleVideos,
                 widthPx = thumbWidthPx,
                 heightPx = thumbHeightPx,
@@ -980,6 +962,7 @@ internal fun VideoListContent(
                       thumbnailHeightPx = thumbHeightPx,
                       showSubtitleIndicator = showSubtitleIndicator,
                       allowThumbnailGeneration = false,
+                      allowThumbnailLoading = !isScrollbarDragging,
                       uiConfig = videoCardUiConfig,
                     )
                   }
@@ -992,6 +975,7 @@ internal fun VideoListContent(
                   dragLabelProvider = { index ->
                     fastScrollGlyph(videosWithInfo.getOrNull(index)?.video?.displayName)
                   },
+                  onDragStateChanged = { isDragging -> isScrollbarDragging = isDragging },
                   modifier =
                     Modifier
                       .align(Alignment.CenterEnd)
@@ -1048,6 +1032,7 @@ internal fun VideoListContent(
                       isGridMode = false,
                       showSubtitleIndicator = showSubtitleIndicator,
                       allowThumbnailGeneration = false,
+                      allowThumbnailLoading = !isScrollbarDragging,
                       uiConfig = videoCardUiConfig,
                     )
                   }
@@ -1060,6 +1045,7 @@ internal fun VideoListContent(
                   dragLabelProvider = { index ->
                     fastScrollGlyph(videosWithInfo.getOrNull(index)?.video?.displayName)
                   },
+                  onDragStateChanged = { isDragging -> isScrollbarDragging = isDragging },
                   modifier =
                     Modifier
                       .align(Alignment.CenterEnd)
@@ -1086,10 +1072,19 @@ private fun visibleVideoWindow(
   val safeColumns = columns.coerceAtLeast(1)
   val prefetchBefore = safeColumns * 2
   val prefetchAfter = safeColumns * 6
-  val start = (firstVisibleIndex - prefetchBefore).coerceAtLeast(0)
-  val end = (lastVisibleIndex + prefetchAfter).coerceAtMost(itemCount - 1)
-  return (start..end).toList()
+  val visibleStart = firstVisibleIndex.coerceIn(0, itemCount - 1)
+  val visibleEnd = lastVisibleIndex.coerceIn(visibleStart, itemCount - 1)
+  val beforeStart = (visibleStart - prefetchBefore).coerceAtLeast(0)
+  val afterEnd = (visibleEnd + prefetchAfter).coerceAtMost(itemCount - 1)
+
+  return buildList {
+    addAll(visibleStart..visibleEnd)
+    if (visibleEnd < afterEnd) addAll((visibleEnd + 1)..afterEnd)
+    if (beforeStart < visibleStart) addAll(beforeStart until visibleStart)
+  }
 }
+
+private const val THUMBNAIL_SCROLL_SETTLE_MILLIS = 100L
 
 
 

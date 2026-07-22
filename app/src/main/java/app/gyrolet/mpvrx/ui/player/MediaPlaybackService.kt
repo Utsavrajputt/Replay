@@ -422,6 +422,13 @@ class MediaPlaybackService :
         mediaUri?.let { putExtra("uri", it) }
         putExtra("title", mediaTitle)
         putExtra("media_identifier", mediaIdentifier)
+        putExtra(
+          "position",
+          (currentPositionSeconds * 1000.0)
+            .toLong()
+            .coerceIn(0L, Int.MAX_VALUE.toLong())
+            .toInt(),
+        )
         putExtra("launch_source", "notification")
         putExtra("internal_launch", true)
         flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -918,6 +925,9 @@ class MediaPlaybackService :
     } finally {
       isServiceRunning = false
       if (activeInstance === this) activeInstance = null
+      // If the Activity was destroyed after handing this service the live process-global core,
+      // the service is its final owner and must serialize native destruction before disappearing.
+      MpvTeardownCoordinator.destroyDetachedCoreAsync("detached playback service shutdown")
       super.onDestroy()
     }
   }

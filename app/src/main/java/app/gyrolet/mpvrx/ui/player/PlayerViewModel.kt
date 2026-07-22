@@ -994,6 +994,7 @@ class PlayerViewModel(
   fun onMpvCoreStopping() {
     _isMpvCoreReady.value = false
     isMpvReadyForCustomButtons = false
+    runCatching { syncplayManager.clearPlayerBindings() }
     mpvStateCollectorsJob?.cancel()
     mpvStateCollectorsJob = null
     androidSystemInfoBridgeJob?.cancel()
