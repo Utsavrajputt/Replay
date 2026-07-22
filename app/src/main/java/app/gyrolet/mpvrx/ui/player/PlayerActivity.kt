@@ -53,6 +53,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import app.gyrolet.mpvrx.R
@@ -77,8 +78,13 @@ import app.gyrolet.mpvrx.ui.cast.CastMediaSnapshot
 import app.gyrolet.mpvrx.ui.cast.CastPlaybackController
 import app.gyrolet.mpvrx.preferences.preference.collectAsState
 import app.gyrolet.mpvrx.ui.player.controls.PlayerControls
+import app.gyrolet.mpvrx.preferences.AudioVisualizerStyle
 import app.gyrolet.mpvrx.ui.player.visualizer.BlobOverlay
+import app.gyrolet.mpvrx.ui.player.visualizer.GalaxyOverlay
+import app.gyrolet.mpvrx.ui.player.visualizer.VisualizerPalette
 import app.gyrolet.mpvrx.ui.player.ytdlp.YtdlpManager
+import app.gyrolet.mpvrx.ui.theme.AppTheme
+import app.gyrolet.mpvrx.ui.theme.DarkMode
 import app.gyrolet.mpvrx.ui.theme.MpvrxTheme
 import app.gyrolet.mpvrx.utils.history.RecentlyPlayedOps
 import app.gyrolet.mpvrx.utils.media.HttpUtils
@@ -852,12 +858,25 @@ class PlayerActivity :
       MpvrxTheme {
         val isAudioOnly by viewModel.isAudioOnly.collectAsState()
         val audioBlobEnabled by audioPreferences.audioBlobEnabled.collectAsState()
+        val audioVisualizerStyle by audioPreferences.audioVisualizerStyle.collectAsState()
         val paused by MPVLib.propBoolean["pause"].collectAsState()
+        val appTheme by appearancePreferences.appTheme.collectAsState()
+        val darkMode by appearancePreferences.darkMode.collectAsState()
+        val amoledMode by appearancePreferences.amoledMode.collectAsState()
+        val useDarkTheme = when (darkMode) {
+          DarkMode.Dark -> true
+          DarkMode.Light -> false
+          DarkMode.System -> isSystemInDarkTheme()
+        }
+        val palette = appTheme.toVisualizerPalette(useDarkTheme, amoledMode)
         Box(modifier = Modifier.fillMaxSize()) {
           // This setting is explicit: when enabled, visualize every audio-only track,
           // including files that also have embedded artwork.
           if (isAudioOnly && audioBlobEnabled) {
-            BlobOverlay(isPlaying = paused == false)
+            when (audioVisualizerStyle) {
+              AudioVisualizerStyle.Galaxy -> GalaxyOverlay(isPlaying = paused == false, palette = palette)
+              AudioVisualizerStyle.Blob -> BlobOverlay(isPlaying = paused == false, palette = palette)
+            }
           }
           PlayerControls(
             viewModel = viewModel,

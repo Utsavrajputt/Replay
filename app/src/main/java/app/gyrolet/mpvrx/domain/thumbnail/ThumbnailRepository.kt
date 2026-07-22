@@ -419,7 +419,7 @@ class ThumbnailRepository(
           throw cancellation
         } catch (_: Exception) {
           continue
-        }
+        } ?: continue
 
       if (mode == ThumbnailMode.Smart && isMostlySolidThumbnail(bitmap)) {
         lastSolidBitmap?.takeUnless { it.isRecycled }?.recycle()
