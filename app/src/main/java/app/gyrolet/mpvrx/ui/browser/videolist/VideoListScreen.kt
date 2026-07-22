@@ -157,6 +157,7 @@ data class VideoListScreen(
     // Sorting
     val videoSortType by browserPreferences.videoSortType.collectAsState()
     val videoSortOrder by browserPreferences.videoSortOrder.collectAsState()
+    val mediaLayoutMode by browserPreferences.folderViewVideoLayoutMode.collectAsState()
     val sortedVideosWithInfo =
       remember(videosWithPlaybackInfo, videoSortType, videoSortOrder) {
         val infoById = videosWithPlaybackInfo.associateBy { it.video.id }
@@ -401,6 +402,7 @@ data class VideoListScreen(
           isFabVisible = isFabVisible,
           modifier = Modifier.padding(padding),
           showFloatingBottomBar = showFloatingBottomBar,
+          mediaLayoutMode = mediaLayoutMode,
         )
         
         // Floating Material 3 Button Group overlay with animation
@@ -660,12 +662,12 @@ internal fun VideoListContent(
   isFabVisible: androidx.compose.runtime.MutableState<Boolean>,
   modifier: Modifier = Modifier,
   showFloatingBottomBar: Boolean = false,
+  mediaLayoutMode: app.gyrolet.mpvrx.preferences.MediaLayoutMode,
 ) {
   val thumbnailRepository = koinInject<ThumbnailRepository>()
   val gesturePreferences = koinInject<GesturePreferences>()
   val browserPreferences = koinInject<BrowserPreferences>()
   val appearancePreferences = koinInject<AppearancePreferences>()
-  val mediaLayoutMode by browserPreferences.folderViewVideoLayoutMode.collectAsState()
   val configuration = androidx.compose.ui.platform.LocalConfiguration.current
   val isTablet = configuration.smallestScreenWidthDp >= 600
   val bottomPadding = if (showFloatingBottomBar) {
