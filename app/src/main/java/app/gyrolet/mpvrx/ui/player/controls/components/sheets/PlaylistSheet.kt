@@ -58,8 +58,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import app.gyrolet.mpvrx.domain.media.model.Video
+import app.gyrolet.mpvrx.presentation.components.RemoteImage
 import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.draggableHandle
+import sh.calvin.reorderable.ReorderableCollectionItemScope
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import app.gyrolet.mpvrx.domain.thumbnail.ThumbnailRepository
 import app.gyrolet.mpvrx.presentation.components.PlayerSheet
@@ -81,6 +82,7 @@ data class PlaylistItem(
   val duration: String = "", // Duration in formatted string (e.g., "10:30")
   val resolution: String = "", // Resolution (e.g., "1920x1080")
   val isAudio: Boolean = false,
+  val tvgLogo: String = "", // M3U channel logo URL for fallback
 )
 
 @Composable
@@ -138,12 +140,20 @@ private fun PlaylistThumbnail(
     }
   }
 
-  bitmap?.let { thumbnail ->
+  val currentThumbnail = bitmap
+  if (currentThumbnail != null) {
     androidx.compose.foundation.Image(
-      bitmap = thumbnail.asImageBitmap(),
+      bitmap = currentThumbnail.asImageBitmap(),
       contentDescription = contentDescription,
       modifier = modifier,
       contentScale = contentScale,
+    )
+  } else if (item.tvgLogo.isNotBlank()) {
+    RemoteImage(
+      url = item.tvgLogo,
+      contentDescription = contentDescription,
+      contentScale = ContentScale.Fit,
+      modifier = modifier.padding(4.dp),
     )
   }
 }
@@ -318,7 +328,7 @@ fun PlaylistSheet(
                     skipThumbnail = false,
                     accentColor = accentColor,
                     dragHandle = {
-                      DragHandle(isDragging = isDragging)
+                      DragHandle(scope = this, isDragging = isDragging)
                     }
                   )
                 }
@@ -362,6 +372,7 @@ fun PlaylistSheet(
 
 @Composable
 private fun DragHandle(
+  scope: ReorderableCollectionItemScope,
   isDragging: Boolean,
   modifier: Modifier = Modifier,
 ) {
@@ -376,9 +387,11 @@ private fun DragHandle(
 
   IconButton(
     onClick = { },
-    modifier = modifier
-      .size(40.dp)
-      .draggableHandle(),
+    modifier = with(scope) {
+      modifier
+        .size(40.dp)
+        .draggableHandle()
+    },
   ) {
     Icon(
       imageVector = Icons.RoundedFilled.DragHandle,

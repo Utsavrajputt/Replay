@@ -2581,6 +2581,9 @@ class PlayerActivity :
     return extractFileNameFromUri(uri)
   }
 
+  internal fun getPlaylistItemTvgLogo(index: Int): String? =
+    playlistItems.getOrNull(index)?.tvgLogo
+
   private fun getPlaylistItemByIndex(index: Int): PlaylistItemEntity? = playlistItems.getOrNull(index)
 
   private fun getPlaylistItemByUri(uri: Uri): PlaylistItemEntity? {

@@ -3903,6 +3903,7 @@ class PlayerViewModel(
         duration = durationStr,
         resolution = resolutionStr,
         isAudio = isAudio,
+        tvgLogo = activity.getPlaylistItemTvgLogo(index) ?: "",
       )
     }
   }
