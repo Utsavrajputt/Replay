@@ -21,6 +21,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -365,7 +366,11 @@ private fun TelegramPillNavigationBar(
                 .weight(1f)
                 .height(56.dp)
                 .clip(CircleShape)
-                .clickable { onTabSelected(tab) },
+                .clickable(
+                  interactionSource = remember { MutableInteractionSource() },
+                  indication = null,
+                  onClick = { onTabSelected(tab) }
+                ),
               contentAlignment = Alignment.Center
             ) {
               Column(
