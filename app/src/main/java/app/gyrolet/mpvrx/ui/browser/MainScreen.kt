@@ -182,6 +182,17 @@ object MainScreen : Screen {
     val screenWidth = configuration.screenWidthDp.dp
     val targetNavBarWidth = (screenWidth - 64.dp).coerceAtMost(320.dp)
 
+    val targetOffsetFraction = if (isDualPaneFolderSelected) 0.2f else 0.5f
+
+    val animatedOffsetFraction by animateFloatAsState(
+      targetValue = targetOffsetFraction,
+      animationSpec = spring(
+        dampingRatio = Spring.DampingRatioNoBouncy,
+        stiffness = Spring.StiffnessMediumLow
+      ),
+      label = "nav_bar_position"
+    )
+
     val navBarWidth by animateDpAsState(
       targetValue = targetNavBarWidth,
       animationSpec = spring(
@@ -243,28 +254,30 @@ object MainScreen : Screen {
             ),
             targetOffsetY = { fullHeight -> fullHeight }
           ),
-          modifier = (if (isDualPaneFolderSelected) {
-            Modifier
-              .fillMaxWidth(0.4f)
-              .align(Alignment.BottomStart)
-          } else {
-            Modifier
-              .fillMaxWidth()
-              .align(Alignment.BottomCenter)
-          })
+          modifier = Modifier
+            .fillMaxWidth()
+            .align(Alignment.BottomStart)
             .navigationBarsPadding()
             .padding(bottom = 12.dp)
         ) {
-          Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
-          ) {
-            TelegramPillNavigationBar(
-              visibleTabs = visibleTabs,
-              selectedTab = selectedTab,
-              onTabSelected = { selectedTab = it },
-              modifier = Modifier.width(navBarWidth)
-            )
+          BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            val containerWidth = maxWidth
+            val targetCenter = containerWidth * animatedOffsetFraction
+            val leftPadding = (targetCenter - (navBarWidth / 2)).coerceAtLeast(0.dp)
+
+            Box(
+              modifier = Modifier
+                .padding(start = leftPadding)
+                .width(navBarWidth),
+              contentAlignment = Alignment.Center
+            ) {
+              TelegramPillNavigationBar(
+                visibleTabs = visibleTabs,
+                selectedTab = selectedTab,
+                onTabSelected = { selectedTab = it },
+                modifier = Modifier.fillMaxWidth()
+              )
+            }
           }
         }
       }
