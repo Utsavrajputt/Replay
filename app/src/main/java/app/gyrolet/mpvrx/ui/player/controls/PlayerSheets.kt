@@ -381,6 +381,9 @@ fun PlayerSheets(
           onItemClick = { item ->
             viewModel.playPlaylistItem(item.index)
           },
+          onReorder = { from, to ->
+            viewModel.reorderPlaylistItem(from, to)
+          },
           totalCount = totalCount,
           isM3UPlaylist = isM3U,
           playerPreferences = playerPreferences,

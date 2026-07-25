@@ -4112,6 +4112,11 @@ class PlayerViewModel(
     activity.playPlaylistItem(index)
   }
 
+  fun reorderPlaylistItem(from: Int, to: Int) {
+    val activity = host as? PlayerActivity ?: return
+    activity.movePlaylistItem(from, to)
+  }
+
   /**
    * Refreshes the playlist items to update the currently playing indicator.
    * Called when a new video starts playing to update the playlist UI.

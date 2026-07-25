@@ -50,11 +50,17 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import app.gyrolet.mpvrx.domain.media.model.Video
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.draggableHandle
+import sh.calvin.reorderable.rememberReorderableLazyListState
 import app.gyrolet.mpvrx.domain.thumbnail.ThumbnailRepository
 import app.gyrolet.mpvrx.presentation.components.PlayerSheet
 import app.gyrolet.mpvrx.preferences.preference.collectAsState
@@ -150,6 +156,7 @@ fun PlaylistSheet(
   playlist: ImmutableList<PlaylistItem>,
   onDismissRequest: () -> Unit,
   onItemClick: (PlaylistItem) -> Unit,
+  onReorder: ((Int, Int) -> Unit)? = null,
   totalCount: Int = playlist.size,
   isM3UPlaylist: Boolean = false,
   playerPreferences: app.gyrolet.mpvrx.preferences.PlayerPreferences,
@@ -289,18 +296,41 @@ fun PlaylistSheet(
         // Conditional rendering based on view mode
         if (isListMode) {
           // Vertical list mode (original implementation)
+          val showDragHandle = onReorder != null && !isM3UPlaylist && playlist.size > 1
+          val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+            if (showDragHandle) {
+              onReorder?.invoke(from.index, to.index)
+            }
+          }
+
           LazyColumn(
             state = lazyListState,
             modifier = Modifier.fillMaxWidth()
           ) {
-            items(playlist, key = { it.uri.toString() }) { item ->
-              PlaylistTrackListItem(
-                item = item,
-                thumbnailRepository = thumbnailRepository,
-                onClick = { onItemClick(item) },
-                skipThumbnail = false,
-                accentColor = accentColor
-              )
+            items(playlist.size, key = { index -> playlist[index].uri.toString() }) { index ->
+              val item = playlist[index]
+              if (showDragHandle) {
+                ReorderableItem(reorderableLazyListState, key = item.uri.toString()) { isDragging ->
+                  PlaylistTrackListItem(
+                    item = item,
+                    thumbnailRepository = thumbnailRepository,
+                    onClick = { onItemClick(item) },
+                    skipThumbnail = false,
+                    accentColor = accentColor,
+                    dragHandle = {
+                      DragHandle(isDragging = isDragging)
+                    }
+                  )
+                }
+              } else {
+                PlaylistTrackListItem(
+                  item = item,
+                  thumbnailRepository = thumbnailRepository,
+                  onClick = { onItemClick(item) },
+                  skipThumbnail = false,
+                  accentColor = accentColor
+                )
+              }
             }
           }
         } else {
@@ -331,6 +361,39 @@ fun PlaylistSheet(
 }
 
 @Composable
+private fun DragHandle(
+  isDragging: Boolean,
+  modifier: Modifier = Modifier,
+) {
+  val alpha by animateFloatAsState(
+    targetValue = if (isDragging) 1f else 0.3f,
+    animationSpec = androidx.compose.animation.core.spring(
+      dampingRatio = 0.6f,
+      stiffness = 300f,
+    ),
+    label = "dragHandleAlpha",
+  )
+
+  IconButton(
+    onClick = { },
+    modifier = modifier
+      .size(40.dp)
+      .draggableHandle(),
+  ) {
+    Icon(
+      imageVector = Icons.RoundedFilled.DragHandle,
+      contentDescription = "Drag to reorder",
+      tint = if (isDragging) {
+        MaterialTheme.colorScheme.primary
+      } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+      },
+      modifier = Modifier.graphicsLayer { this.alpha = alpha },
+    )
+  }
+}
+
+@Composable
 fun PlaylistTrackListItem(
   item: PlaylistItem,
   thumbnailRepository: ThumbnailRepository,
@@ -338,6 +401,7 @@ fun PlaylistTrackListItem(
   skipThumbnail: Boolean = false,
   accentColor: Color,
   modifier: Modifier = Modifier,
+  dragHandle: @Composable () -> Unit = {},
 ) {
   // Use theme colors dynamically
   val accentSecondary = MaterialTheme.colorScheme.tertiary
@@ -506,6 +570,8 @@ fun PlaylistTrackListItem(
         }
 
       }
+
+      dragHandle()
     }
   }
 }
