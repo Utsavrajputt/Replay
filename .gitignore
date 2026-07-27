@@ -153,3 +153,8 @@ lint/tmp/
 # Profiling
 # =========================
 *.hprof
+release.keystore
+keystore-base64.txt
+*.jks
+*.p12
+keystore.properties
