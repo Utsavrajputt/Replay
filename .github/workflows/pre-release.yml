@@ -7,6 +7,12 @@ on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+-preview.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to use for this pre-release (e.g. v1.5.0-preview.6)'
+        required: true
+        type: string
 
 jobs:
   release-for-github:
@@ -32,8 +38,12 @@ jobs:
         run: ./gradlew assembleStandardPreview --stacktrace
 
       - name: Get tag name
-        if: startsWith(github.ref, 'refs/tags/')
-        run: echo "VERSION_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "VERSION_TAG=${{ inputs.tag }}" >> $GITHUB_ENV
+          else
+            echo "VERSION_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+          fi
 
       - name: Verify build output
         run: |
