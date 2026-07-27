@@ -86,7 +86,7 @@ jobs:
 
           for abi in "${apks[@]}"; do
             src="app/build/outputs/apk/standard/preview/app-standard-${abi}-preview.apk"
-            dest="preview/mpvRx-preview-${abi}-${{ env.VERSION_TAG }}.apk"
+            dest="preview/Replay-preview-${abi}-${{ env.VERSION_TAG }}.apk"
             if [ -f "$src" ]; then
               cp "$src" "$dest"
               sha=$(sha256sum "$dest" | awk '{ print $1 }')
@@ -137,15 +137,15 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.VERSION_TAG }}
-          name: "mpvRx ${{ env.VERSION_TAG }}"
+          name: "Replay ${{ env.VERSION_TAG }}"
           body_path: pre-release-notes.md
           generate_release_notes: true
           files: |
-            preview/mpvRx-preview-universal-${{ env.VERSION_TAG }}.apk
-            preview/mpvRx-preview-arm64-v8a-${{ env.VERSION_TAG }}.apk
-            preview/mpvRx-preview-armeabi-v7a-${{ env.VERSION_TAG }}.apk
-            preview/mpvRx-preview-x86-${{ env.VERSION_TAG }}.apk
-            preview/mpvRx-preview-x86_64-${{ env.VERSION_TAG }}.apk
+            preview/Replay-preview-universal-${{ env.VERSION_TAG }}.apk
+            preview/Replay-preview-arm64-v8a-${{ env.VERSION_TAG }}.apk
+            preview/Replay-preview-armeabi-v7a-${{ env.VERSION_TAG }}.apk
+            preview/Replay-preview-x86-${{ env.VERSION_TAG }}.apk
+            preview/Replay-preview-x86_64-${{ env.VERSION_TAG }}.apk
 
           draft: false
           prerelease: true
