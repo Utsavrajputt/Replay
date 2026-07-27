@@ -1,0 +1,93 @@
+name: Sync Upstream
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  schedule:
+    # Runs every day at 03:00 UTC. Change or remove if you only want manual runs.
+    - cron: '0 3 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    name: "Sync fork with upstream"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Use the default token so pushes/PRs are attributed correctly
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          if ! git remote | grep -q '^upstream$'; then
+            git remote add upstream https://github.com/Riteshp2001/mpvRx.git
+          fi
+          git fetch upstream
+
+      - name: Detect default branch
+        id: branch
+        run: |
+          current_branch="${GITHUB_REF#refs/heads/}"
+          echo "current_branch=$current_branch" >> "$GITHUB_OUTPUT"
+          upstream_default=$(git remote show upstream | sed -n '/HEAD branch/s/.*: //p')
+          echo "upstream_default=$upstream_default" >> "$GITHUB_OUTPUT"
+
+      - name: Try fast-forward / rebase merge into a sync branch
+        id: merge
+        run: |
+          set -e
+          sync_branch="sync/upstream-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$sync_branch"
+
+          # Merge upstream changes. --no-edit uses default merge commit message.
+          if git merge "upstream/${{ steps.branch.outputs.upstream_default }}" --no-edit; then
+            echo "conflict=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "conflict=true" >> "$GITHUB_OUTPUT"
+            git merge --abort || true
+          fi
+
+          echo "sync_branch=$sync_branch" >> "$GITHUB_OUTPUT"
+
+      - name: Push sync branch
+        if: steps.merge.outputs.conflict == 'false'
+        run: |
+          git push origin "${{ steps.merge.outputs.sync_branch }}"
+
+      - name: Open pull request with upstream changes
+        if: steps.merge.outputs.conflict == 'false'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ steps.merge.outputs.sync_branch }}
+          base: ${{ steps.branch.outputs.current_branch }}
+          title: "Sync with upstream (Riteshp2001/mpvRx)"
+          body: |
+            Automated sync from upstream `Riteshp2001/mpvRx`.
+
+            This PR merges the latest upstream commits into this fork.
+            Please review before merging — check that Replay branding
+            (app name, icon, applicationId, workflow names) has not been
+            overwritten by upstream changes.
+          labels: |
+            upstream-sync
+
+      - name: Report conflict (manual resolution needed)
+        if: steps.merge.outputs.conflict == 'true'
+        run: |
+          echo "::warning::Merge conflict with upstream. Please resolve manually:"
+          echo "  git fetch upstream"
+          echo "  git checkout ${{ steps.branch.outputs.current_branch }}"
+          echo "  git merge upstream/${{ steps.branch.outputs.upstream_default }}"
+          echo "Then fix conflicts, keeping Replay branding where it conflicts with upstream defaults."
