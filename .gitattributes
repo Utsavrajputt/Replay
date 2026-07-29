@@ -1,1 +1,5 @@
 # LFS tracking removed to allow pushing to public fork
+app/build.gradle.kts merge=ours
+build.gradle.kts merge=ours
+README.md merge=ours
+CHANGELOG.md merge=ours
