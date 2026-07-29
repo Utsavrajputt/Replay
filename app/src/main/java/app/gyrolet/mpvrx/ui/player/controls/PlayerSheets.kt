@@ -1,3 +1,10 @@
+/*
+ * SPDX-License-Identifier: CC-BY-NC-4.0
+ *
+ * This work is licensed under Creative Commons Attribution-NonCommercial 4.0 International License.
+ * To view a copy of this license, visit https://creativecommons.org/licenses/by-nc/4.0/
+ */
+
 package app.gyrolet.mpvrx.ui.player.controls
 
 import android.net.Uri
@@ -367,13 +374,23 @@ fun PlayerSheets(
 
       // Observe playlist updates
       val playlist by viewModel.playlistItems.collectAsState()
+      val isAudioOnly by viewModel.isAudioOnly.collectAsState()
       val playerPreferences = koinInject<app.gyrolet.mpvrx.preferences.PlayerPreferences>()
       val isPlaylistSwipeActive by viewModel.isPlaylistSwipeActive.collectAsState()
       val playlistSwipeOffset by viewModel.playlistSwipeOffset.collectAsState()
 
-      if (playlist.isNotEmpty()) {
-        val playlistImmutable = playlist.toImmutableList()
-        val totalCount = viewModel.getPlaylistTotalCount()
+      val filteredPlaylist = remember(playlist, isAudioOnly) {
+        if (isAudioOnly) {
+          val audioOnly = playlist.filter { it.isAudio || isAudioOnly }
+          audioOnly.ifEmpty { playlist }
+        } else {
+          playlist
+        }
+      }
+
+      if (filteredPlaylist.isNotEmpty()) {
+        val playlistImmutable = filteredPlaylist.toImmutableList()
+        val totalCount = filteredPlaylist.size
         val isM3U = viewModel.isPlaylistM3U()
         PlaylistSheet(
           playlist = playlistImmutable,
@@ -389,6 +406,7 @@ fun PlayerSheets(
           playerPreferences = playerPreferences,
           isSwipeActive = isPlaylistSwipeActive,
           swipeOffset = playlistSwipeOffset,
+          isAudioOnly = isAudioOnly,
         )
       }
     }
@@ -396,6 +414,26 @@ fun PlayerSheets(
     Sheets.AmbientConfig -> {
       AmbientSheet(
         viewModel = viewModel,
+        onDismissRequest = onDismissRequest
+      )
+    }
+
+    Sheets.Equalizer -> {
+      val equalizerState by viewModel.equalizerState.collectAsState()
+      app.gyrolet.mpvrx.ui.player.controls.components.sheets.EqualizerSheet(
+        state = equalizerState,
+        onEnabledChanged = viewModel::setEqualizerEnabled,
+        onPresetSelected = viewModel::applyEqualizerPreset,
+        onBandChanged = viewModel::setEqualizerBandGain,
+        onVolumeBoostChanged = viewModel::setEqualizerVolumeBoost,
+        onDismissRequest = onDismissRequest
+      )
+    }
+
+    Sheets.AudioProperties -> {
+      val properties = remember { viewModel.getAudioPropertiesData() }
+      app.gyrolet.mpvrx.ui.player.controls.components.sheets.AudioPropertiesSheet(
+        properties = properties,
         onDismissRequest = onDismissRequest
       )
     }

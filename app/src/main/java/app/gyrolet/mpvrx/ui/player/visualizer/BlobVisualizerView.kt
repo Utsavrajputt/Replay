@@ -1,6 +1,14 @@
+/*
+ * SPDX-License-Identifier: CC-BY-NC-4.0
+ *
+ * This work is licensed under Creative Commons Attribution-NonCommercial 4.0 International License.
+ * To view a copy of this license, visit https://creativecommons.org/licenses/by-nc/4.0/
+ */
+
 package app.gyrolet.mpvrx.ui.player.visualizer
 
 import android.content.Context
+import android.graphics.PixelFormat
 import android.opengl.GLSurfaceView
 import android.view.MotionEvent
 
@@ -22,7 +30,9 @@ internal class BlobVisualizerView(
 
     init {
         setEGLContextClientVersion(3)
-        setEGLConfigChooser(8, 8, 8, 8, 0, 0)
+        setEGLConfigChooser(8, 8, 8, 8, 16, 0)
+        holder.setFormat(PixelFormat.TRANSLUCENT)
+        setZOrderOnTop(true)
         preserveEGLContextOnPause = true
         setRenderer(blobRenderer)
         renderMode = RENDERMODE_CONTINUOUSLY

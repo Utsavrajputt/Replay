@@ -375,4 +375,16 @@ If you'd like to support the original mpvRx developer whose work this project is
 
 ## License
 
-Distributed under the **Apache License 2.0**. See `LICENSE` for more information.
+Distributed under **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**. See `LICENSE` for more information.
+
+---
+
+## Star History
+
+<a href="https://www.star-history.com/#Riteshp2001/mpvRx&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Riteshp2001/mpvRx&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Riteshp2001/mpvRx&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Riteshp2001/mpvRx&type=date&legend=top-left" />
+ </picture>
+</a>

@@ -1,3 +1,10 @@
+/*
+ * SPDX-License-Identifier: CC-BY-NC-4.0
+ *
+ * This work is licensed under Creative Commons Attribution-NonCommercial 4.0 International License.
+ * To view a copy of this license, visit https://creativecommons.org/licenses/by-nc/4.0/
+ */
+
 package app.gyrolet.mpvrx.ui.player.controls
 
 import app.gyrolet.mpvrx.ui.icons.Icon
@@ -297,6 +304,83 @@ fun PlayerControls(
     }
   }
 
+  val isAudioOnly by viewModel.isAudioOnly.collectAsState()
+  if (isAudioOnly) {
+    val rawMediaTitle by MPVLib.propString["media-title"].collectAsState()
+    val activity = LocalActivity.current as? PlayerActivity
+    val mediaTitle = remember(rawMediaTitle, activity) {
+      rawMediaTitle?.takeIf { it.isNotBlank() } ?: activity?.getTitleForControls()
+    }
+
+    val sheetShown by viewModel.sheetShown.collectAsState()
+    val subtitles by viewModel.subtitleTracks.collectAsState(persistentListOf())
+    val audioTracks by viewModel.audioTracks.collectAsState(persistentListOf())
+    val sleepTimerTimeRemaining by viewModel.remainingTime.collectAsState()
+    val speedPresets by playerPreferences.speedPresets.collectAsState()
+    val sortedSpeedPresets = remember(speedPresets) { speedPresets.map { it.toFloat() }.sorted() }
+
+    Box(modifier = modifier.fillMaxSize()) {
+      AudioPlayerControls(
+        viewModel = viewModel,
+        mediaTitle = mediaTitle,
+        onBackPress = onBackPress,
+        onOpenSheet = onOpenSheet,
+        onOpenPanel = onOpenPanel,
+      )
+
+      PlayerSheets(
+        viewModel = viewModel,
+        sheetShown = sheetShown,
+        subtitles = subtitles.toImmutableList(),
+        onAddSubtitle = viewModel::addSubtitle,
+        onToggleSubtitle = viewModel::toggleSubtitle,
+        isSubtitleSelected = viewModel::isSubtitleSelected,
+        subtitleSelectionIndicator = viewModel::subtitleSelectionIndicator,
+        onRemoveSubtitle = viewModel::removeSubtitle,
+        audioTracks = audioTracks.toImmutableList(),
+        onAddAudio = viewModel::addAudio,
+        onSelectAudio = {
+          if (getTrackSelectionId("aid") == it.id) {
+            setTrackSelectionId("aid", null)
+          } else {
+            setTrackSelectionId("aid", it.id)
+          }
+        },
+        chapter = chapters.getOrNull(currentChapter ?: 0),
+        chapters = chapters.toImmutableList(),
+        onSeekToChapter = {
+          MPVLib.setPropertyInt("chapter", it)
+          viewModel.unpause()
+        },
+        decoder = decoder,
+        onUpdateDecoder = { MPVLib.setPropertyString("hwdec", it.value) },
+        speed = playbackSpeed ?: playerPreferences.defaultSpeed.get(),
+        onSpeedChange = { MPVLib.setPropertyFloat("speed", it.toFixed(2)) },
+        onMakeDefaultSpeed = { playerPreferences.defaultSpeed.set(it.toFixed(2)) },
+        onAddSpeedPreset = { playerPreferences.speedPresets += it.toFixed(2).toString() },
+        onRemoveSpeedPreset = { playerPreferences.speedPresets -= it.toFixed(2).toString() },
+        onResetSpeedPresets = playerPreferences.speedPresets::delete,
+        speedPresets = sortedSpeedPresets,
+        onResetDefaultSpeed = {
+          MPVLib.setPropertyFloat("speed", playerPreferences.defaultSpeed.deleteAndGet().toFixed(2))
+        },
+        sleepTimerTimeRemaining = sleepTimerTimeRemaining,
+        onStartSleepTimer = viewModel::startTimer,
+        onOpenPanel = onOpenPanel,
+        onShowSheet = onOpenSheet,
+        onDismissRequest = { onOpenSheet(Sheets.None) },
+      )
+
+      val panel by viewModel.panelShown.collectAsState()
+      PlayerPanels(
+        panelShown = panel,
+        viewModel = viewModel,
+        onDismissRequest = { onOpenPanel(Panels.None) },
+      )
+    }
+    return
+  }
+
   val topRightControlsPref by appearancePreferences.topRightControls.collectAsState()
   val bottomRightControlsPref by appearancePreferences.bottomRightControls.collectAsState()
   val bottomLeftControlsPref by appearancePreferences.bottomLeftControls.collectAsState()
@@ -328,8 +412,9 @@ fun PlayerControls(
     resetControlsTimestamp,
     areControlsLocked,
     isUnlockSliderDragging,
+    isAudioOnly,
   ) {
-    if (controlsShown && paused == false && !isSeeking && !isUnlockSliderDragging) {
+    if (!isAudioOnly && controlsShown && paused == false && !isSeeking && !isUnlockSliderDragging) {
       // Use 2 second delay when controls are locked, otherwise use user preference
       val delayTime = if (areControlsLocked) 2000L else playerTimeToDisappear.toLong()
       delay(delayTime)
@@ -415,12 +500,7 @@ fun PlayerControls(
               .fillMaxSize()
               .onSizeChanged { controlsLayoutHeightPx = it.height }
               .background(
-                Brush.verticalGradient(
-                  Pair(0f, Color.Black),
-                  Pair(.4f, Color.Transparent),
-                  Pair(.6f, Color.Transparent),
-                  Pair(1f, Color.Black),
-                ),
+                FullScreenScrimBrush,
                 alpha = transparentOverlay,
               )
               .then(safeAreaInsetModifier)
@@ -1090,12 +1170,7 @@ fun PlayerControls(
             }
 
             else -> {
-              val buttonShadow =
-                Brush.radialGradient(
-                  0.0f to Color.Black.copy(alpha = 0.3f),
-                  0.7f to Color.Transparent,
-                  1.0f to Color.Transparent,
-                )
+              val buttonShadow = PlaySkipButtonShadowBrush
 
               val hasPlaylistControls =
                 playlistMode && (playlistItems.size > 1 || viewModel.getPlaylistTotalCount() > 1)
@@ -1983,6 +2058,19 @@ private fun OutlinedText(
     )
   }
 }
+
+private val FullScreenScrimBrush = Brush.verticalGradient(
+  Pair(0f, Color.Black),
+  Pair(.4f, Color.Transparent),
+  Pair(.6f, Color.Transparent),
+  Pair(1f, Color.Black),
+)
+
+private val PlaySkipButtonShadowBrush = Brush.radialGradient(
+  0.0f to Color.Black.copy(alpha = 0.3f),
+  0.7f to Color.Transparent,
+  1.0f to Color.Transparent,
+)
 
 @Composable
 private fun OutlinedLabeled(

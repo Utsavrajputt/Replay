@@ -1,3 +1,10 @@
+/*
+ * SPDX-License-Identifier: CC-BY-NC-4.0
+ *
+ * This work is licensed under Creative Commons Attribution-NonCommercial 4.0 International License.
+ * To view a copy of this license, visit https://creativecommons.org/licenses/by-nc/4.0/
+ */
+
 package app.gyrolet.mpvrx.ui.player
 
 import android.content.Context
@@ -134,7 +141,7 @@ class MPVView(
     val hdrScreenMode = decoderPreferences.hdrScreenMode.get().let { mode ->
       if (mode == HdrScreenMode.OFF && decoderPreferences.hdrScreenOutput.get()) HdrScreenMode.defaultEnabledMode else mode
     }
-    val hdrPipelineReady = useVulkan && backend.vo == "gpu-next"
+    val hdrPipelineReady = true
     applyHdrScreenOutputOptions(
       mode = hdrScreenMode,
       pipelineReady = hdrPipelineReady,

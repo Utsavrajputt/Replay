@@ -1,3 +1,10 @@
+/*
+ * SPDX-License-Identifier: CC-BY-NC-4.0
+ *
+ * This work is licensed under Creative Commons Attribution-NonCommercial 4.0 International License.
+ * To view a copy of this license, visit https://creativecommons.org/licenses/by-nc/4.0/
+ */
+
 package app.gyrolet.mpvrx.ui.player
 
 import android.content.Context
@@ -42,9 +49,14 @@ import app.gyrolet.mpvrx.repository.ai.SubtitleGenerationService
 import app.gyrolet.mpvrx.repository.wyzie.WyzieSearchRepository
 import app.gyrolet.mpvrx.utils.media.ChecksumUtils
 import app.gyrolet.mpvrx.utils.media.MediaInfoParser
+import app.gyrolet.mpvrx.utils.media.AudioEqualizerManager
 import app.gyrolet.mpvrx.utils.media.ParsedMediaInfo
 import app.gyrolet.mpvrx.utils.media.SubtitleHashUtils
 import app.gyrolet.mpvrx.utils.media.resolveSubtitleLookupDirectories
+import app.gyrolet.mpvrx.ui.player.controls.components.sheets.EQ_MAX_DB
+import app.gyrolet.mpvrx.ui.player.controls.components.sheets.EQ_MIN_DB
+import app.gyrolet.mpvrx.ui.player.controls.components.sheets.EqualizerPreset
+import app.gyrolet.mpvrx.ui.player.controls.components.sheets.EqualizerState
 import app.gyrolet.mpvrx.utils.storage.FileTypeUtils
 import `is`.xyz.mpv.MPVLib
 import kotlinx.collections.immutable.persistentListOf
@@ -486,11 +498,25 @@ class PlayerViewModel(
       }.stateIn(viewModelScope, SharingStarted.Lazily, persistentListOf())
 
   val isAudioOnly: StateFlow<Boolean> =
-    MPVLib.propNode["track-list"]
-      .map { node ->
-        val tracks = node?.toObject<List<TrackNode>>(json).orEmpty()
-        tracks.any { it.isAudio } && tracks.none { it.isVideo && !it.isAlbumArtwork }
-      }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    combine(
+      MPVLib.propNode["track-list"],
+      MPVLib.propString["path"],
+      MPVLib.propString["stream-open-filename"],
+    ) { node, path, streamPath ->
+      val currentPath = path?.takeIf { it.isNotBlank() } ?: streamPath
+      val isFileAudioExt = currentPath?.let { p ->
+        val ext = p.substringBefore('?').substringBefore('#').substringAfterLast('.', "").lowercase()
+        ext in FileTypeUtils.AUDIO_EXTENSIONS
+      } ?: false
+
+      val tracks = node?.toObject<List<TrackNode>>(json).orEmpty()
+      if (tracks.isEmpty()) {
+        isFileAudioExt
+      } else {
+        (tracks.any { it.isAudio } && tracks.none { it.isVideo && !it.isAlbumArtwork }) ||
+          (isFileAudioExt && tracks.none { it.isVideo && !it.isAlbumArtwork })
+      }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, host.isCurrentMediaKnownAudio())
 
   val hasAlbumArt: StateFlow<Boolean> =
     MPVLib.propNode["track-list"]
@@ -505,6 +531,165 @@ class PlayerViewModel(
         node?.toObject<List<ChapterNode>>(json)?.map { it.toSegment() }?.toImmutableList()
           ?: persistentListOf()
       }.stateIn(viewModelScope, SharingStarted.Lazily, persistentListOf())
+
+  // Audio player UI state
+  val albumArtBounds = MutableStateFlow<android.graphics.Rect?>(null)
+  val showVisualizerInAudioPlayer = MutableStateFlow(audioPreferences.audioBlobEnabled.get())
+  val equalizerState = MutableStateFlow(EqualizerState())
+  private val audioEqualizerManager = AudioEqualizerManager()
+  private var equalizerMpvDebounceJob: Job? = null
+
+  fun setEqualizerEnabled(enabled: Boolean) {
+    equalizerState.value = equalizerState.value.copy(isEnabled = enabled)
+    applyEqualizerMpvFilters(immediate = true)
+  }
+
+  fun applyEqualizerPreset(preset: EqualizerPreset) {
+    if (preset == EqualizerPreset.CUSTOM) return
+    equalizerState.value = equalizerState.value.copy(
+      currentPreset = preset,
+      bandGains = preset.gains
+    )
+    applyEqualizerMpvFilters(immediate = true)
+  }
+
+  fun setEqualizerBandGain(index: Int, gainDb: Int) {
+    val currentGains = equalizerState.value.bandGains.toMutableList()
+    if (index in currentGains.indices && currentGains[index] != gainDb) {
+      currentGains[index] = gainDb.coerceIn(EQ_MIN_DB, EQ_MAX_DB)
+      equalizerState.value = equalizerState.value.copy(
+        currentPreset = EqualizerPreset.CUSTOM,
+        bandGains = currentGains
+      )
+      applyEqualizerMpvFilters(immediate = false)
+    }
+  }
+
+  fun setEqualizerVolumeBoost(db: Int) {
+    if (equalizerState.value.volumeBoostDb != db) {
+      equalizerState.value = equalizerState.value.copy(volumeBoostDb = db.coerceIn(0, 10))
+      applyEqualizerMpvFilters(immediate = false)
+    }
+  }
+
+  fun applyEqualizerMpvFilters(immediate: Boolean = false) {
+    val state = equalizerState.value
+
+    // 1. Hardware Android AudioFx (Equalizer & LoudnessEnhancer matching AFinity)
+    audioEqualizerManager.updateState(
+      enabled = state.isEnabled,
+      bandGains = state.bandGains,
+      volumeBoostDb = state.volumeBoostDb
+    )
+
+    // 2. MPV Audio Filter Fallback
+    // Changing MPV "af" filter property during playback causes MPV to recreate audio filter graph.
+    // Debouncing while dragging prevents audio stutter/breaking.
+    equalizerMpvDebounceJob?.cancel()
+    if (immediate) {
+      updateMpvAfProperty(state)
+    } else {
+      equalizerMpvDebounceJob = viewModelScope.launch(Dispatchers.Default) {
+        delay(150)
+        updateMpvAfProperty(state)
+      }
+    }
+  }
+
+  private fun updateMpvAfProperty(state: EqualizerState) {
+    if (!state.isEnabled) {
+      MPVLib.setPropertyString("af", "")
+      return
+    }
+    val freqs = listOf(60, 230, 910, 3600, 14000)
+    val filterList = mutableListOf<String>()
+
+    // Apply pre-amp attenuation for positive gains to prevent clipping distortion
+    val maxGain = state.bandGains.maxOrNull() ?: 0
+    if (maxGain > 0) {
+      filterList.add("volume=volume=${-maxGain}dB")
+    }
+
+    for (i in 0 until 5) {
+      val gain = state.bandGains.getOrElse(i) { 0 }
+      if (gain != 0) {
+        filterList.add("equalizer=f=${freqs[i]}:width_type=o:width=1.5:g=$gain")
+      }
+    }
+    if (state.volumeBoostDb > 0) {
+      filterList.add("volume=volume=${state.volumeBoostDb}dB")
+    }
+    val afString = filterList.joinToString(",")
+    MPVLib.setPropertyString("af", afString)
+  }
+
+  fun updateAlbumArtBounds(rect: android.graphics.Rect?) {
+    albumArtBounds.value = rect
+  }
+
+  fun toggleAudioVisualizer() {
+    val newValue = !showVisualizerInAudioPlayer.value
+    showVisualizerInAudioPlayer.value = newValue
+    audioPreferences.audioBlobEnabled.set(newValue)
+  }
+
+  fun getAudioPropertiesData(): List<app.gyrolet.mpvrx.ui.player.controls.components.sheets.AudioPropertyItem> {
+    val title = currentMediaTitle.takeIf { it.isNotBlank() }
+      ?: MPVLib.getPropertyString("metadata/by-key/Title")
+      ?: MPVLib.getPropertyString("media-title")
+      ?: "Unknown Title"
+
+    val artist = MPVLib.getPropertyString("metadata/by-key/Artist")
+      ?: MPVLib.getPropertyString("metadata/by-key/ARTIST")
+      ?: MPVLib.getPropertyString("metadata/by-key/album_artist")
+      ?: "Unknown Artist"
+
+    val album = MPVLib.getPropertyString("metadata/by-key/Album")
+      ?: MPVLib.getPropertyString("metadata/by-key/ALBUM")
+      ?: "Unknown Album"
+
+    val codec = MPVLib.getPropertyString("audio-codec-name")?.uppercase() ?: "Unknown"
+    val samplerateInt = MPVLib.getPropertyInt("audio-params/samplerate") ?: 0
+    val sampleRateStr = if (samplerateInt > 0) String.format(java.util.Locale.US, "%.1f kHz", samplerateInt / 1000f) else "Unknown"
+
+    val channelsInt = MPVLib.getPropertyInt("audio-params/channel-count") ?: 0
+    val channelsStr = when (channelsInt) {
+      1 -> "Mono (1.0)"
+      2 -> "Stereo (2.0)"
+      6 -> "5.1 Surround"
+      8 -> "7.1 Surround"
+      else -> if (channelsInt > 0) "$channelsInt Channels" else "Unknown"
+    }
+
+    val bitrateInt = MPVLib.getPropertyInt("audio-bitrate") ?: 0
+    val bitrateStr = if (bitrateInt > 0) "${bitrateInt / 1000} kbps" else "Variable / Unknown"
+
+    val path = MPVLib.getPropertyString("path") ?: MPVLib.getPropertyString("stream-open-filename") ?: ""
+    val fileSizeStr = if (path.isNotBlank() && !path.startsWith("content://") && !path.startsWith("http")) {
+      runCatching {
+        val bytes = java.io.File(path.removePrefix("file://")).length()
+        if (bytes > 0) String.format(java.util.Locale.US, "%.2f MB", bytes / (1024f * 1024f)) else ""
+      }.getOrDefault("")
+    } else ""
+
+    val formatExt = path.substringBefore('?').substringBefore('#').substringAfterLast('.', "").uppercase()
+
+    return buildList {
+      add(app.gyrolet.mpvrx.ui.player.controls.components.sheets.AudioPropertyItem("Title", title))
+      add(app.gyrolet.mpvrx.ui.player.controls.components.sheets.AudioPropertyItem("Artist", artist))
+      add(app.gyrolet.mpvrx.ui.player.controls.components.sheets.AudioPropertyItem("Album", album))
+      add(app.gyrolet.mpvrx.ui.player.controls.components.sheets.AudioPropertyItem("Format / Codec", if (formatExt.isNotBlank()) "$formatExt ($codec)" else codec))
+      add(app.gyrolet.mpvrx.ui.player.controls.components.sheets.AudioPropertyItem("Sample Rate", sampleRateStr))
+      add(app.gyrolet.mpvrx.ui.player.controls.components.sheets.AudioPropertyItem("Bitrate", bitrateStr))
+      add(app.gyrolet.mpvrx.ui.player.controls.components.sheets.AudioPropertyItem("Channels", channelsStr))
+      if (fileSizeStr.isNotBlank()) {
+        add(app.gyrolet.mpvrx.ui.player.controls.components.sheets.AudioPropertyItem("File Size", fileSizeStr))
+      }
+      if (path.isNotBlank()) {
+        add(app.gyrolet.mpvrx.ui.player.controls.components.sheets.AudioPropertyItem("File Location", path))
+      }
+    }
+  }
 
   // Audio state
   val maxVolume = host.audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
@@ -708,11 +893,16 @@ class PlayerViewModel(
   private var ambientShaderSeq = 0
   private var ambientShaderFile: java.io.File? = null
   /**
-   * Caches the last compiled GLSL shader source. When [updateAmbientStretch] is called
-   * but every parameter is identical to the previously compiled shader, the expensive
-   * file-write + MPV shader-reload cycle is skipped entirely.
+   * Caches the [AmbientShaderSpec] that was last compiled into a GLSL file.
+   * When [updateAmbientStretch] is called but every parameter is identical to
+   * the previously compiled spec, the expensive string-build + file-write +
+   * MPV shader-reload cycle is skipped entirely.
+   *
+   * Using the spec data class (instead of the raw GLSL String) as the cache
+   * key avoids allocating the multi-KB shader string and running
+   * buildSpiralTapTable trig math before the early-return guard fires.
    */
-  private var lastCompiledShaderCode: String? = null
+  private var lastCompiledSpec: AmbientShaderSpec? = null
   /**
    * Latest device thermal headroom reading ([0f] = at thermal limit, [1f] = cool).
    * Sampled every 10 s by the thermal-monitor coroutine and used to cap the ambient
@@ -855,9 +1045,9 @@ class PlayerViewModel(
           if (kotlin.math.abs(newHeadroom - thermalHeadroom) > 0.08f) {
             thermalHeadroom = newHeadroom
             if (_isAmbientEnabled.value) {
-              // Invalidate the shader cache so the new budget cap is applied on the
+              // Invalidate the spec cache so the new budget cap is applied on the
               // next scheduled ambient update.
-              lastCompiledShaderCode = null
+              lastCompiledSpec = null
               scheduleAmbientUpdate()
             }
             Log.d(TAG, "Thermal headroom updated: %.2f".format(newHeadroom))
@@ -1094,6 +1284,7 @@ class PlayerViewModel(
       }
     }
     syncplayManager.updateFileInfo(currentSyncplayFileInfo())
+    applyEqualizerMpvFilters()
   }
 
   private fun currentSyncplayPlaybackState(): SyncplayPlaybackState =
@@ -2037,10 +2228,12 @@ class PlayerViewModel(
       skipSegmentsSnapshot.firstOrNull { segment ->
         positionSeconds in segment.startSeconds..segment.endSeconds && (segment.endSeconds - positionSeconds) >= 1.0
       }
-    runCatching {
+    val showChip = activeSegment != null && (positionSeconds - activeSegment.startSeconds) < AUTO_SHOW_SKIP_CHIP_DURATION
+    if (_currentSkippableSegment.value != activeSegment) {
       _currentSkippableSegment.value = activeSegment
-      _showSkipChipAuto.value =
-        activeSegment != null && (positionSeconds - activeSegment.startSeconds) < AUTO_SHOW_SKIP_CHIP_DURATION
+    }
+    if (_showSkipChipAuto.value != showChip) {
+      _showSkipChipAuto.value = showChip
     }
 
     if (paused == true || activeSegment == null) return
@@ -2944,29 +3137,33 @@ class PlayerViewModel(
 
   fun showControls() {
     if (sheetShown.value != Sheets.None || panelShown.value != Panels.None) return
-    try {
-      if (playerPreferences.showSystemStatusBar.get()) {
-        host.windowInsetsController.show(WindowInsetsCompat.Type.statusBars())
-        host.windowInsetsController.isAppearanceLightStatusBars = false
+    if (!isAudioOnly.value) {
+      try {
+        if (playerPreferences.showSystemStatusBar.get()) {
+          host.windowInsetsController.show(WindowInsetsCompat.Type.statusBars())
+          host.windowInsetsController.isAppearanceLightStatusBars = false
+        }
+        if (playerPreferences.showSystemNavigationBar.get()) {
+          host.windowInsetsController.show(WindowInsetsCompat.Type.navigationBars())
+        }
+      } catch (e: Exception) {
+        // Defensive: InsetsController animation can crash under FD pressure
+        // (e.g. during high-res HEVC playback on certain devices)
+        Log.e(TAG, "Failed to show system bars", e)
       }
-      if (playerPreferences.showSystemNavigationBar.get()) {
-        host.windowInsetsController.show(WindowInsetsCompat.Type.navigationBars())
-      }
-    } catch (e: Exception) {
-      // Defensive: InsetsController animation can crash under FD pressure
-      // (e.g. during high-res HEVC playback on certain devices)
-      Log.e(TAG, "Failed to show system bars", e)
     }
     _controlsShown.value = true
     controlsVisibleForPolling = true
   }
 
   fun hideControls() {
-    try {
-      host.windowInsetsController.hide(WindowInsetsCompat.Type.statusBars())
-      host.windowInsetsController.hide(WindowInsetsCompat.Type.navigationBars())
-    } catch (e: Exception) {
-      Log.e(TAG, "Failed to hide system bars", e)
+    if (!isAudioOnly.value) {
+      try {
+        host.windowInsetsController.hide(WindowInsetsCompat.Type.statusBars())
+        host.windowInsetsController.hide(WindowInsetsCompat.Type.navigationBars())
+      } catch (e: Exception) {
+        Log.e(TAG, "Failed to hide system bars", e)
+      }
     }
     _controlsShown.value = false
     _seekBarShown.value = false
@@ -2975,11 +3172,13 @@ class PlayerViewModel(
   }
 
   fun autoHideControls() {
-    try {
-      host.windowInsetsController.hide(WindowInsetsCompat.Type.statusBars())
-      host.windowInsetsController.hide(WindowInsetsCompat.Type.navigationBars())
-    } catch (e: Exception) {
-      Log.e(TAG, "Failed to hide system bars", e)
+    if (!isAudioOnly.value) {
+      try {
+        host.windowInsetsController.hide(WindowInsetsCompat.Type.statusBars())
+        host.windowInsetsController.hide(WindowInsetsCompat.Type.navigationBars())
+      } catch (e: Exception) {
+        Log.e(TAG, "Failed to hide system bars", e)
+      }
     }
     _controlsShown.value = false
     _seekBarShown.value = true
@@ -3366,7 +3565,7 @@ class PlayerViewModel(
     brightnessSliderTimestamp.value = System.currentTimeMillis()
   }
 
-  fun changeVolumeBy(change: Int) {
+  fun changeVolumeBy(change: Int, showUi: Boolean = false) {
     val currentSystemVolume = syncCurrentSystemVolume()
     val mpvVolume = MPVLib.getPropertyInt("volume") ?: 100
     val absoluteMaxVolume = volumeBoostCap ?: (audioPreferences.volumeBoostCap.get() + 100)
@@ -3377,7 +3576,7 @@ class PlayerViewModel(
 
     if (absoluteMaxVolume > 100 && currentSystemVolume == maxVolume) {
       if (mpvVolume == 100 && change < 0) {
-        changeVolumeTo(currentSystemVolume + change)
+        changeVolumeTo(currentSystemVolume + change, showUi)
       }
       val finalMPVVolume = (mpvVolume + change).coerceAtLeast(100)
       if (finalMPVVolume in 100..absoluteMaxVolume) {
@@ -3385,13 +3584,14 @@ class PlayerViewModel(
       }
     }
 
-    changeVolumeTo(currentSystemVolume + change)
+    changeVolumeTo(currentSystemVolume + change, showUi)
   }
 
   fun changeVolumePercentTo(volumePercent: Int) {
     val newPercent = volumePercent.coerceIn(0, 100)
     val newVolume = percentToSystemVolume(newPercent)
-    host.audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0)
+    val flags = if (isAudioOnly.value) AudioManager.FLAG_SHOW_UI else 0
+    host.audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, flags)
     currentVolume.value = syncCurrentSystemVolume()
     currentVolumePercent.value = newPercent
 
@@ -3403,9 +3603,10 @@ class PlayerViewModel(
     }
   }
 
-  fun changeVolumeTo(volume: Int) {
+  fun changeVolumeTo(volume: Int, showUi: Boolean = false) {
     val newVolume = volume.coerceIn(0..maxVolume)
-    host.audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0)
+    val flags = if (showUi || isAudioOnly.value) AudioManager.FLAG_SHOW_UI else 0
+    host.audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, flags)
     currentVolume.value = syncCurrentSystemVolume()
 
     if (currentVolume.value < maxVolume) {
@@ -3885,7 +4086,10 @@ class PlayerViewModel(
           .substringBefore('?')
           .substringBefore('#')
           .substringAfterLast('.', "")
-          .lowercase() in FileTypeUtils.AUDIO_EXTENSIONS
+          .lowercase() in FileTypeUtils.AUDIO_EXTENSIONS ||
+          resolvedUri.toString().lowercase().contains("audio") ||
+          uri.toString().lowercase().contains("audio") ||
+          isAudioOnly.value
       val isCurrentlyPlaying = index == activity.playlistIndex
 
       // Try to get from cache first (synchronized access)
@@ -4347,13 +4551,6 @@ class PlayerViewModel(
 
   fun setHdrScreenMode(mode: HdrScreenMode) {
     val pipelineReady = isHdrScreenOutputAvailable(mode)
-    if (mode != HdrScreenMode.OFF && !pipelineReady) {
-      val message = if (mode == HdrScreenMode.LINEAR) "Linear HDR needs GPU Next + Vulkan"
-                    else "HDR Screen output needs GPU Next"
-      playerUpdate.value = PlayerUpdates.ShowText(message)
-      applyHdrScreenOutput(HdrScreenMode.OFF)
-      return
-    }
 
     _hdrScreenMode.value = mode
     _isHdrScreenOutputEnabled.value = pipelineReady && mode != HdrScreenMode.OFF
@@ -4364,12 +4561,7 @@ class PlayerViewModel(
   }
 
   private fun isHdrScreenOutputAvailable(mode: HdrScreenMode = _hdrScreenMode.value): Boolean {
-    val needsVulkan = mode == HdrScreenMode.LINEAR
-    return if (needsVulkan) {
-      decoderPreferences.useVulkan.get() && decoderPreferences.gpuNext.get()
-    } else {
-      decoderPreferences.gpuNext.get()
-    }
+    return true
   }
 
   private fun initialHdrScreenMode(): HdrScreenMode {
@@ -4491,7 +4683,7 @@ class PlayerViewModel(
     ambientShaderFile = null
     // Reset the shader cache and scale tracking so a subsequent enable always
     // compiles a fresh shader and recalculates the correct video-scale offsets.
-    lastCompiledShaderCode = null
+    lastCompiledSpec = null
     lastAmbientScaleX = -1.0
     lastAmbientScaleY = -1.0
     runCatching {
@@ -4536,7 +4728,7 @@ class PlayerViewModel(
     ambientShaderFile = null
     lastAmbientScaleX = -1.0         // Force scale recalculation
     lastAmbientScaleY = -1.0
-    lastCompiledShaderCode = null    // Invalidate cache — the old file is gone, must recompile
+    lastCompiledSpec = null    // Invalidate cache — the old file is gone, must recompile
     // Small delay to let Anime4K shaders settle
     ambientDebounceJob?.cancel()
     ambientDebounceJob = viewModelScope.launch(renderPrepDispatcher) {
@@ -4832,7 +5024,7 @@ class PlayerViewModel(
       val opacity = _ambientOpacity.value
 
       // ── Generate GLSL shader ───────────────────────────────────────────────
-      val shaderCode = buildAmbientShader(
+      val spec = buildAmbientSpec(
         sx = sx, sy = sy,
         blurSamples = samples, maxRadius = radius,
         glowIntensity = glow, satBoost = sat,
@@ -4841,19 +5033,20 @@ class PlayerViewModel(
         fadeCurve = curve, opacity = opacity,
       )
 
-      // ── Shader parameter cache ─────────────────────────────────────────────
-      // If every baked-in #define is identical to the last compiled shader AND the
-      // shader file still exists on disk, skip the remove+write+reload cycle.
-      // This prevents redundant GPU shader recompilation on no-op refreshes (e.g.
-      // orientation callbacks that fire with unchanged video dimensions, or thermal
-      // monitor ticks that don't change the effective sample budget).
-      if (shaderCode == lastCompiledShaderCode && ambientShaderFile?.exists() == true) {
+      // ── Shader parameter cache ──────────────────────────────────────────────────────
+      // Compare the AmbientShaderSpec data class (cheap equality) before building
+      // the GLSL string. This avoids allocating the multi-KB shader string and
+      // running buildSpiralTapTable trig math on no-op refreshes (e.g. thermal
+      // monitor ticks that don't change the effective sample budget, orientation
+      // callbacks that fire with unchanged video dimensions).
+      if (spec == lastCompiledSpec && ambientShaderFile?.exists() == true) {
         return
       }
-      lastCompiledShaderCode = shaderCode
+      lastCompiledSpec = spec
 
       // Each reload gets a unique filename so MPV never reuses a cached
       // compiled shader — incrementing seq guarantees a fresh compile every time.
+      val shaderCode = AmbientShaderBuilder.build(spec)
       val newFile = File(host.context.cacheDir, "ambient_${++ambientShaderSeq}.glsl")
       newFile.writeText(shaderCode)
       ambientShaderFile?.let { oldFile ->
@@ -4868,21 +5061,19 @@ class PlayerViewModel(
   }
 
   /**
-   * Builds the True Ambient GLSL shader string with all parameters baked in
-   * as `#define` constants. The shader:
-   *   1. Detects the video region using aspect-ratio correction (SCALE_X/Y).
-   *   2. For interior pixels — returns the original (unscaled) video pixel.
-   *   3. For ambient pixels — samples the nearest video-edge with a
-   *      Fibonacci-spiral blur kernel and composites the glowing result.
+   * Builds an [AmbientShaderSpec] from the current ambient parameter values.
+   * The spec is a lightweight data class that captures all shader inputs;
+   * [AmbientShaderBuilder.build] converts it to a GLSL string only when the
+   * spec has actually changed from the last compiled version.
    */
-  private fun buildAmbientShader(
+  private fun buildAmbientSpec(
     sx: Double, sy: Double,
     blurSamples: Int, maxRadius: Float,
     glowIntensity: Float, satBoost: Float,
     ditherNoise: Float, bezelDepth: Float,
     vignetteStrength: Float, warmth: Float,
     fadeCurve: Float, opacity: Float,
-  ): String {
+  ): AmbientShaderSpec {
     val context = AmbientRenderContext(scaleX = sx, scaleY = sy)
     val shared =
       AmbientSharedShaderConfig(
@@ -4891,37 +5082,34 @@ class PlayerViewModel(
         opacity = opacity,
       )
 
-    val spec: AmbientShaderSpec =
-      when (_ambientVisualMode.value) {
-        AmbientVisualMode.GLOW ->
-          AmbientGlowShaderSpec(
-            context = context,
-            shared = shared,
-            blurSamples = blurSamples,
-            maxRadius = maxRadius,
-            glowIntensity = glowIntensity,
-            satBoost = satBoost,
-            warmth = warmth,
-            fadeCurve = fadeCurve,
-          )
-        AmbientVisualMode.FRAME_EXTEND ->
-          AmbientFrameExtendShaderSpec(
-            context = context,
-            shared = shared,
-            sampleBudget = blurSamples,
-            extendStrength = _frameExtendStrength.value,
-            detailProtection = _frameExtendDetailProtection.value,
-            glowMix = _frameExtendGlowMix.value,
-            ditherNoise = ditherNoise,
-          )
-        AmbientVisualMode.YOUTUBE ->
-          AmbientYouTubeShaderSpec(
-            context = context,
-            shared = shared,
-          )
-      }
-
-    return AmbientShaderBuilder.build(spec)
+    return when (_ambientVisualMode.value) {
+      AmbientVisualMode.GLOW ->
+        AmbientGlowShaderSpec(
+          context = context,
+          shared = shared,
+          blurSamples = blurSamples,
+          maxRadius = maxRadius,
+          glowIntensity = glowIntensity,
+          satBoost = satBoost,
+          warmth = warmth,
+          fadeCurve = fadeCurve,
+        )
+      AmbientVisualMode.FRAME_EXTEND ->
+        AmbientFrameExtendShaderSpec(
+          context = context,
+          shared = shared,
+          sampleBudget = blurSamples,
+          extendStrength = _frameExtendStrength.value,
+          detailProtection = _frameExtendDetailProtection.value,
+          glowMix = _frameExtendGlowMix.value,
+          ditherNoise = ditherNoise,
+        )
+      AmbientVisualMode.YOUTUBE ->
+        AmbientYouTubeShaderSpec(
+          context = context,
+          shared = shared,
+        )
+    }
   }
 
   // ==================== Utility ====================
@@ -4953,6 +5141,7 @@ class PlayerViewModel(
     runCatching { metadataCache.evictAll() }
 
     runCatching { syncplayManager.clearPlayerBindings() }
+    runCatching { audioEqualizerManager.release() }
 
     super.onCleared()
   }

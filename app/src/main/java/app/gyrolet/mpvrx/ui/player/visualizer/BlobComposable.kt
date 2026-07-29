@@ -1,3 +1,10 @@
+/*
+ * SPDX-License-Identifier: CC-BY-NC-4.0
+ *
+ * This work is licensed under Creative Commons Attribution-NonCommercial 4.0 International License.
+ * To view a copy of this license, visit https://creativecommons.org/licenses/by-nc/4.0/
+ */
+
 package app.gyrolet.mpvrx.ui.player.visualizer
 
 import android.Manifest
@@ -30,10 +37,12 @@ internal fun BlobOverlay(
     modifier: Modifier = Modifier,
     isPlaying: Boolean = false,
     palette: VisualizerPalette,
+    isSheetOpen: Boolean = false,
 ) = VisualizerOverlay(
     modifier = modifier,
     isPlaying = isPlaying,
     palette = palette,
+    isSheetOpen = isSheetOpen,
     factory = { ctx, features, p -> BlobVisualizerView(ctx, features, p) },
 )
 
@@ -42,10 +51,12 @@ internal fun GalaxyOverlay(
     modifier: Modifier = Modifier,
     isPlaying: Boolean = false,
     palette: VisualizerPalette,
+    isSheetOpen: Boolean = false,
 ) = VisualizerOverlay(
     modifier = modifier,
     isPlaying = isPlaying,
     palette = palette,
+    isSheetOpen = isSheetOpen,
     factory = { ctx, features, p -> GalaxyVisualizerView(ctx, features, p) },
 )
 
@@ -58,6 +69,7 @@ private fun <T> VisualizerOverlay(
     modifier: Modifier = Modifier,
     isPlaying: Boolean = false,
     palette: VisualizerPalette,
+    isSheetOpen: Boolean = false,
     factory: (android.content.Context, AudioFeatures, VisualizerPalette) -> T,
 ) where T : GLSurfaceView, T : PaletteConsumer {
     val context = LocalContext.current
@@ -141,6 +153,13 @@ private fun <T> VisualizerOverlay(
         update = { view ->
             view.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
             view.updatePalette(palette)
+            if (isSheetOpen) {
+                view.setZOrderOnTop(false)
+                view.setZOrderMediaOverlay(true)
+            } else {
+                view.setZOrderMediaOverlay(false)
+                view.setZOrderOnTop(true)
+            }
         },
     )
 }

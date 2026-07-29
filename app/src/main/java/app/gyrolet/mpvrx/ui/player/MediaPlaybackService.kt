@@ -1,3 +1,11 @@
+/*
+ * SPDX-License-Identifier: CC-BY-NC-4.0
+ *
+ * This work is licensed under Creative Commons Attribution-NonCommercial 4.0 International License.
+ * To view a copy of this license, visit https://creativecommons.org/licenses/by-nc/4.0/
+ */
+
+
 @file:Suppress("DEPRECATION")
 
 package app.gyrolet.mpvrx.ui.player
@@ -562,6 +570,7 @@ class MediaPlaybackService :
       .setLargeIcon(thumbnail)
       .setContentIntent(buildContentIntent())
       .setOngoing(!paused)
+      .setRequestPromotedOngoing(true)
       .setAutoCancel(false)
       .setSilent(true)
       .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
@@ -601,6 +610,7 @@ class MediaPlaybackService :
       .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
       .setOnlyAlertOnce(true)
       .setOngoing(!paused)
+      .setRequestPromotedOngoing(true)
       .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
       .setColor(DEFAULT_ACCENT_COLOR)
       .setColorized(false)
@@ -938,4 +948,3 @@ class MediaPlaybackService :
     super.onTaskRemoved(rootIntent)
   }
 }
-
