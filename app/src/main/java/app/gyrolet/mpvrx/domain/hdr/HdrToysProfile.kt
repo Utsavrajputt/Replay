@@ -18,37 +18,60 @@ enum class HdrToysProfile(
     configSection = "bt.2100-pq",
     targetPrim = "bt.2020",
     targetTrc = "pq",
-    shaderPaths = listOf(
-      "hdr-toys/utils/clip_both.glsl",
-      "hdr-toys/transfer-function/pq_inv.glsl",
-      "hdr-toys/tone-mapping/astra.glsl",
-      "hdr-toys/gamut-mapping/bottosson.glsl",
-      "hdr-toys/transfer-function/bt1886.glsl",
-    ),
-    shaderOptions = listOf("auto_exposure_limit_postive" to "1.02"),
+    shaderPaths =
+      listOf(
+        "hdr-toys/utils/clip_both.glsl",
+        "hdr-toys/transfer-function/pq_inv.glsl",
+        "hdr-toys/tone-mapping/astra.glsl",
+        "hdr-toys/gamut-mapping/bottosson.glsl",
+        "hdr-toys/transfer-function/bt1886.glsl",
+      ),
+    shaderOptions = listOf("auto_exposure_limit_positive" to "1.02"),
   ),
   BT_2100_HLG(
     configSection = "bt.2100-hlg",
     targetPrim = "bt.2020",
     targetTrc = "hlg",
-    shaderPaths = listOf(
-      "hdr-toys/utils/clip_both.glsl",
-      "hdr-toys/transfer-function/hlg_inv.glsl",
-      "hdr-toys/tone-mapping/astra.glsl",
-      "hdr-toys/gamut-mapping/bottosson.glsl",
-      "hdr-toys/transfer-function/bt1886.glsl",
-    ),
+    shaderPaths =
+      listOf(
+        "hdr-toys/utils/clip_both.glsl",
+        "hdr-toys/transfer-function/hlg_inv.glsl",
+        "hdr-toys/tone-mapping/astra.glsl",
+        "hdr-toys/gamut-mapping/bottosson.glsl",
+        "hdr-toys/transfer-function/bt1886.glsl",
+      ),
   ),
   BT_2020(
     configSection = "bt.2020",
     targetPrim = "bt.2020",
     targetTrc = "bt.1886",
-    shaderPaths = listOf(
-      "hdr-toys/transfer-function/bt1886_inv.glsl",
-      "hdr-toys/gamut-mapping/bottosson.glsl",
-      "hdr-toys/transfer-function/bt1886.glsl",
-    ),
-  );
+    shaderPaths =
+      listOf(
+        "hdr-toys/transfer-function/bt1886_inv.glsl",
+        "hdr-toys/gamut-mapping/bottosson.glsl",
+        "hdr-toys/transfer-function/bt1886.glsl",
+      ),
+  ),
+  LINEAR(
+    configSection = "linear",
+    targetPrim = "bt.2020",
+    targetTrc = "linear",
+    shaderPaths =
+      listOf(
+        "hdr-toys/utils/clip_black.glsl",
+        "hdr-toys/utils/clip_alpha.glsl",
+        "hdr-toys/tone-mapping/astra.glsl",
+        "hdr-toys/gamut-mapping/bottosson.glsl",
+        "hdr-toys/transfer-function/bt1886.glsl",
+      ),
+    shaderOptions =
+      listOf(
+        "spatial_stable_iterations" to "0",
+        "temporal_stable_window" to "0",
+        "enable_metering" to "1",
+      ),
+  ),
+  ;
 
   /** Comma-separated key=value string passed to mpv's glsl-shader-opts. */
   val shaderOptionsValue: String
@@ -62,13 +85,15 @@ enum class HdrToysProfile(
     private const val MPV_SHADER_PREFIX = "~~/shaders/"
 
     /** Deduplicated set of relative shader paths across all profiles. */
-    val allShaderPaths: Set<String> = entries
-      .flatMap { it.shaderPaths }
-      .toSet()
+    val allShaderPaths: Set<String> =
+      entries
+        .flatMap { it.shaderPaths }
+        .toSet()
 
     /** Deduplicated set of absolute mpv shader paths across all profiles. */
-    val allMpvShaderPaths: Set<String> = allShaderPaths
-      .map { path -> "$MPV_SHADER_PREFIX$path" }
-      .toSet()
+    val allMpvShaderPaths: Set<String> =
+      allShaderPaths
+        .map { path -> "$MPV_SHADER_PREFIX$path" }
+        .toSet()
   }
 }

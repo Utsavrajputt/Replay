@@ -7,37 +7,42 @@
 
 package app.gyrolet.mpvrx
 
-import android.app.Application
 import android.app.Activity
+import android.app.Application
+import android.content.ComponentName
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
+import android.media.MediaScannerConnection
 import app.gyrolet.mpvrx.database.repository.VideoMetadataCacheRepository
 import app.gyrolet.mpvrx.di.DatabaseModule
 import app.gyrolet.mpvrx.di.FileManagerModule
 import app.gyrolet.mpvrx.di.PreferencesModule
+import app.gyrolet.mpvrx.preferences.PlayerPreferences
 import app.gyrolet.mpvrx.presentation.crash.CrashActivity
 import app.gyrolet.mpvrx.presentation.crash.GlobalExceptionHandler
 import app.gyrolet.mpvrx.ui.player.AndroidNativeCompat
 import app.gyrolet.mpvrx.utils.media.MediaLibraryEvents
+import `is`.xyz.mpv.FastThumbnails
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.startKoin
 import org.koin.core.annotation.KoinExperimentalAPI
-import app.gyrolet.mpvrx.preferences.PlayerPreferences
-import android.content.ComponentName
-import android.content.pm.PackageManager
 import org.koin.core.context.GlobalContext
-import `is`.xyz.mpv.FastThumbnails
+import org.koin.core.context.startKoin
 
 @OptIn(KoinExperimentalAPI::class)
-class App : Application(), Application.ActivityLifecycleCallbacks {
+class App :
+  Application(),
+  Application.ActivityLifecycleCallbacks {
   private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
   private var startedActivityCount = 0
 
   companion object {
+    private const val TAG = "App"
     private const val LAUNCH_SCAN_PREFS = "launch_media_scan"
     private const val LAST_LAUNCH_SCAN_MS = "last_launch_scan_ms"
     private const val LAUNCH_SCAN_INTERVAL_MS = 24L * 60L * 60L * 1000L
@@ -73,18 +78,19 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
         val preferences: PlayerPreferences = getKoin().get()
         val enableMediaInfo = preferences.enableMediaInfoIntent.get()
         val componentName = ComponentName(this@App, "app.gyrolet.mpvrx.ui.mediainfo.MediaInfoActivityAlias")
-        val newState = if (enableMediaInfo) {
-          PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-        } else {
-          PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-        }
+        val newState =
+          if (enableMediaInfo) {
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+          } else {
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+          }
         packageManager.setComponentEnabledSetting(
           componentName,
           newState,
-          PackageManager.DONT_KILL_APP
+          PackageManager.DONT_KILL_APP,
         )
       }.onFailure { error ->
-        Log.e("App", "Failed to initialize MediaInfoActivityAlias setting on launch", error)
+        Log.e(TAG, "Failed to initialize MediaInfoActivityAlias setting on launch", error)
       }
     }
 
@@ -127,10 +133,20 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
     }
   }
 
-  override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
+  override fun onActivityCreated(
+    activity: Activity,
+    savedInstanceState: Bundle?,
+  ) = Unit
+
   override fun onActivityResumed(activity: Activity) = Unit
+
   override fun onActivityPaused(activity: Activity) = Unit
-  override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
+
+  override fun onActivitySaveInstanceState(
+    activity: Activity,
+    outState: Bundle,
+  ) = Unit
+
   override fun onActivityDestroyed(activity: Activity) = Unit
 
   /**
@@ -143,24 +159,24 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
   private fun triggerMediaScanOnLaunch() {
     try {
       if (!shouldRunLaunchMediaScan()) {
-        android.util.Log.d("App", "Skipped launch media scan; last scan was recent")
+        Log.d(TAG, "Skipped launch media scan; last scan was recent")
         return
       }
 
-      val externalStorage = android.os.Environment.getExternalStorageDirectory()
+      val externalStorage = Environment.getExternalStorageDirectory()
 
-      android.media.MediaScannerConnection.scanFile(
+      MediaScannerConnection.scanFile(
         this,
         arrayOf(externalStorage.absolutePath),
         null,
       ) { path, _ ->
-        android.util.Log.d("App", "Launch media scan completed for: $path")
+        Log.d(TAG, "Launch media scan completed for: $path")
         MediaLibraryEvents.notifyChanged()
       }
 
-      android.util.Log.d("App", "Triggered media scan on app launch")
+      Log.d(TAG, "Triggered media scan on app launch")
     } catch (error: Exception) {
-      android.util.Log.e("App", "Failed to trigger media scan on launch", error)
+      Log.e(TAG, "Failed to trigger media scan on launch", error)
     }
   }
 
@@ -174,6 +190,4 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
     prefs.edit().putLong(LAST_LAUNCH_SCAN_MS, now).apply()
     return true
   }
-
 }
-

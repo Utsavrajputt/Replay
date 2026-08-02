@@ -22,12 +22,13 @@ internal data class Anime4KSelection(
 internal fun selectThermalSafeAnime4K(
   mode: Anime4KManager.Mode,
   quality: Anime4KManager.Quality,
+  enableIn4k: Boolean = false,
 ): Anime4KSelection {
   val width = MPVLib.getPropertyInt("video-params/w") ?: 0
   val height = MPVLib.getPropertyInt("video-params/h") ?: 0
   val pixels = width.toLong() * height.toLong()
 
-  if (pixels >= 3840L * 2160L) {
+  if (!enableIn4k && pixels >= 3840L * 2160L) {
     return Anime4KSelection(
       mode = Anime4KManager.Mode.OFF,
       quality = Anime4KManager.DEFAULT_QUALITY,
@@ -45,8 +46,9 @@ internal fun selectRuntimeStableAnime4K(
   mode: Anime4KManager.Mode,
   quality: Anime4KManager.Quality,
   context: Context? = null,
+  enableIn4k: Boolean = false,
 ): Anime4KSelection {
-  val staticSelection = selectThermalSafeAnime4K(mode, quality)
+  val staticSelection = selectThermalSafeAnime4K(mode, quality, enableIn4k)
   if (staticSelection.mode == Anime4KManager.Mode.OFF) {
     return staticSelection
   }
@@ -78,11 +80,12 @@ internal fun selectRuntimeStableAnime4K(
 
   // Runtime pressure guard:
   // If renderer starts falling behind for sustained periods, aggressively lower Anime4K load.
+  // Lowered thresholds for 4K HDR content which requires faster reaction to prevent stutter.
   val highRuntimeLoad =
-    droppedFrames >= 45 ||
-      delayedFrames >= 60 ||
-      mistimedFrames >= 100 ||
-      voRenderMs >= 18.0
+    droppedFrames >= 15 ||
+      delayedFrames >= 25 ||
+      mistimedFrames >= 40 ||
+      voRenderMs >= 12.0
 
   if (!highRuntimeLoad) {
     return staticSelection
@@ -144,12 +147,16 @@ private inline fun withPreservedVideoGeometry(block: () -> Unit) {
 
 private fun captureVideoGeometry(): VideoGeometrySnapshot =
   VideoGeometrySnapshot(
-    doubles = VIDEO_GEOMETRY_DOUBLE_PROPS.mapNotNull { prop ->
-      MPVLib.getPropertyDouble(prop)?.let { prop to it }
-    }.toMap(),
-    strings = VIDEO_GEOMETRY_STRING_PROPS.mapNotNull { prop ->
-      MPVLib.getPropertyString(prop)?.takeIf { it.isNotBlank() }?.let { prop to it }
-    }.toMap(),
+    doubles =
+      VIDEO_GEOMETRY_DOUBLE_PROPS
+        .mapNotNull { prop ->
+          MPVLib.getPropertyDouble(prop)?.let { prop to it }
+        }.toMap(),
+    strings =
+      VIDEO_GEOMETRY_STRING_PROPS
+        .mapNotNull { prop ->
+          MPVLib.getPropertyString(prop)?.takeIf { it.isNotBlank() }?.let { prop to it }
+        }.toMap(),
   )
 
 private fun restoreVideoGeometry(snapshot: VideoGeometrySnapshot) {
@@ -161,28 +168,31 @@ private fun restoreVideoGeometry(snapshot: VideoGeometrySnapshot) {
   }
 }
 
-private val VIDEO_GEOMETRY_DOUBLE_PROPS = listOf(
-  "video-zoom",
-  "video-pan-x",
-  "video-pan-y",
-  "video-align-x",
-  "video-align-y",
-  "video-aspect-override",
-  "panscan",
-  "brightness",
-  "contrast",
-  "saturation",
-  "gamma",
-  "hue",
-  "sharpen",
-)
+private val VIDEO_GEOMETRY_DOUBLE_PROPS =
+  listOf(
+    "video-zoom",
+    "video-pan-x",
+    "video-pan-y",
+    "video-align-x",
+    "video-align-y",
+    "video-aspect-override",
+    "panscan",
+    "brightness",
+    "contrast",
+    "saturation",
+    "gamma",
+    "hue",
+    "sharpen",
+  )
 
-private val VIDEO_GEOMETRY_STRING_PROPS = listOf(
-  "video-unscaled",
-)
+private val VIDEO_GEOMETRY_STRING_PROPS =
+  listOf(
+    "video-unscaled",
+  )
 
 private fun currentShaderList(): List<String> =
-  MPVLib.getPropertyString("glsl-shaders")
+  MPVLib
+    .getPropertyString("glsl-shaders")
     ?.split(":")
     ?.map { it.trim() }
     ?.filter { it.isNotEmpty() }

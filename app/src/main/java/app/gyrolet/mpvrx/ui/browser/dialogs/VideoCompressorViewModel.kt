@@ -11,11 +11,13 @@ import android.app.Application
 import android.content.ContentValues
 import android.content.Context
 import android.content.SharedPreferences
-import android.media.MediaScannerConnection
+import android.media.MediaCodecInfo
 import android.media.MediaCodecList
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMetadataRetriever
+import android.media.MediaScannerConnection
+import android.media.metrics.LogSessionId
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -25,14 +27,22 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.C
+import androidx.media3.common.ColorInfo
 import androidx.media3.common.Effect
+import androidx.media3.common.Format
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
+import androidx.media3.common.audio.GainProcessor
+import androidx.media3.common.util.Clock
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.effect.FrameDropEffect
 import androidx.media3.effect.Presentation
 import androidx.media3.transformer.AudioEncoderSettings
+import androidx.media3.transformer.Codec
 import androidx.media3.transformer.Composition
+import androidx.media3.transformer.DefaultAssetLoaderFactory
+import androidx.media3.transformer.DefaultDecoderFactory
 import androidx.media3.transformer.DefaultEncoderFactory
 import androidx.media3.transformer.EditedMediaItem
 import androidx.media3.transformer.EditedMediaItemSequence
@@ -110,7 +120,17 @@ data class VideoCompressorUiState(
   val preserveMetadata: Boolean = false,
   val removeAudio: Boolean = false,
   val audioBitrate: Int = 128_000,
+  val audioVolume: Float = 1.0f,
   val warnings: List<String> = emptyList(),
+  val totalSavedBytes: Long = 0L,
+  val showStorageSaved: Boolean = true,
+  val showTargetSizePreset: Boolean = true,
+  val targetSizePresets: List<TargetSizePreset> = defaultTargetSizePresets,
+  val highPresetConfig: QualityPresetConfig = defaultHighPresetConfig,
+  val mediumPresetConfig: QualityPresetConfig = defaultMediumPresetConfig,
+  val lowPresetConfig: QualityPresetConfig = defaultLowPresetConfig,
+  val defaultVideoConfig: DefaultVideoConfig = DefaultVideoConfig(),
+  val defaultAudioConfig: DefaultAudioConfig = DefaultAudioConfig(),
 ) {
   private val minBitrate: Long
     get() {
@@ -202,6 +222,9 @@ data class VideoCompressorUiState(
 
   val formattedCurrentOutputSize: String
     get() = formatCompressionFileSize(currentOutputSize)
+
+  val formattedTotalSaved: String
+    get() = formatCompressionFileSize(totalSavedBytes)
 
   val isBatch: Boolean
     get() = queueSize > 1
@@ -348,6 +371,7 @@ class VideoCompressorViewModel(
     val targetFps: Int,
     val removeAudio: Boolean,
     val audioBitrate: Int,
+    val audioVolume: Float,
     val showBitrate: Boolean,
     val useMbps: Boolean,
     val preserveMetadata: Boolean,
@@ -370,12 +394,24 @@ class VideoCompressorViewModel(
       val showBitrate = prefs.getBoolean("show_bitrate", false)
       val useMbps = prefs.getBoolean("use_mbps", false)
       val preserveMetadata = prefs.getBoolean("preserve_metadata", false)
+      val showStorageSaved = prefs.getBoolean("show_storage_saved", true)
+      val showTargetSizePreset = prefs.getBoolean("show_target_size_preset", true)
+      val totalSavedBytes = prefs.getLong("total_saved_bytes", 0L)
 
       _uiState.update {
         it.copy(
           showBitrate = showBitrate,
           useMbps = useMbps,
           preserveMetadata = preserveMetadata,
+          showStorageSaved = showStorageSaved,
+          showTargetSizePreset = showTargetSizePreset,
+          totalSavedBytes = totalSavedBytes,
+          highPresetConfig = loadHighPresetConfig(prefs),
+          mediumPresetConfig = loadMediumPresetConfig(prefs),
+          lowPresetConfig = loadLowPresetConfig(prefs),
+          targetSizePresets = loadTargetSizePresets(prefs),
+          defaultVideoConfig = loadDefaultVideoConfig(prefs),
+          defaultAudioConfig = loadDefaultAudioConfig(prefs),
         )
       }
       checkSupportedCodecs()
@@ -494,13 +530,47 @@ class VideoCompressorViewModel(
     } catch (_: Exception) {
     }
 
-    val defaultTargetMb = if (size > 0L) (size / (1024.0 * 1024.0) * 0.7).toFloat() else 10f
     val currentState = _uiState.value
+    val videoConfig = currentState.defaultVideoConfig
+    val audioConfig = currentState.defaultAudioConfig
+
+    val defaultTargetMb =
+      if (size > 0L) {
+        (size / (1024.0 * 1024.0) * videoConfig.defaultSizeRatio).toFloat().coerceAtLeast(0.1f)
+      } else {
+        10f
+      }
     val defaultCodec =
-      if (currentState.supportedCodecs.contains(MimeTypes.VIDEO_H265)) {
+      if (currentState.supportedCodecs.contains(videoConfig.defaultVideoCodec)) {
+        videoConfig.defaultVideoCodec
+      } else if (currentState.supportedCodecs.contains(MimeTypes.VIDEO_H265)) {
         MimeTypes.VIDEO_H265
       } else {
         MimeTypes.VIDEO_H264
+      }
+    val isVertical = height > width
+
+    fun targetHeightFor(shortSide: Int): Int {
+      if (width <= 0 || height <= 0) return height
+      return if (isVertical) {
+        val targetWidth = minOf(shortSide, width)
+        (targetWidth.toDouble() * height / width).toInt()
+      } else {
+        minOf(shortSide, height)
+      }
+    }
+
+    val targetHeight =
+      if (videoConfig.defaultTargetResolutionHeight > 0) {
+        targetHeightFor(videoConfig.defaultTargetResolutionHeight)
+      } else {
+        height
+      }
+    val targetFpsVal =
+      if (videoConfig.defaultTargetFps > 0 && fps >= videoConfig.defaultTargetFps) {
+        videoConfig.defaultTargetFps
+      } else {
+        0
       }
 
     return VideoCompressorUiState(
@@ -516,14 +586,17 @@ class VideoCompressorViewModel(
       originalDate = originalDate,
       originalName = originalName,
       targetSizeMb = defaultTargetMb,
-      targetResolutionHeight = height,
+      targetResolutionHeight = targetHeight,
+      targetFps = targetFpsVal,
       activePreset = VideoCompressionPreset.HIGH,
       showBitrate = currentState.showBitrate,
       useMbps = currentState.useMbps,
       preserveMetadata = currentState.preserveMetadata,
       supportedCodecs = currentState.supportedCodecs,
       videoCodec = defaultCodec,
-      audioBitrate = if (audioBitrate > 0) minOf(audioBitrate, 320_000) else 128_000,
+      audioBitrate = if (audioConfig.defaultAudioBitrate > 0) audioConfig.defaultAudioBitrate else 128_000,
+      audioVolume = audioConfig.defaultAudioVolume,
+      removeAudio = audioConfig.defaultRemoveAudio,
       queueSize = queuedVideos.size.coerceAtLeast(1),
     ).autoAdjust(defaultTargetMb)
   }
@@ -538,30 +611,37 @@ class VideoCompressorViewModel(
     val configuredState =
       when (template.preset) {
         VideoCompressionPreset.CUSTOM -> {
-          baseState.copy(
-            activePreset = VideoCompressionPreset.CUSTOM,
-            targetSizeMb = template.targetSizeMb,
-            targetResolutionHeight = template.targetResolutionHeight,
-            targetFps = template.targetFps,
-            videoCodec = template.videoCodec,
-            removeAudio = template.removeAudio,
-            audioBitrate = template.audioBitrate,
-            showBitrate = template.showBitrate,
-            useMbps = template.useMbps,
-            preserveMetadata = template.preserveMetadata,
-          ).autoAdjust(template.targetSizeMb)
+          baseState
+            .copy(
+              activePreset = VideoCompressionPreset.CUSTOM,
+              targetSizeMb = template.targetSizeMb,
+              targetResolutionHeight = template.targetResolutionHeight,
+              targetFps = template.targetFps,
+              videoCodec = template.videoCodec,
+              removeAudio = template.removeAudio,
+              audioBitrate = template.audioBitrate,
+              audioVolume = template.audioVolume,
+              showBitrate = template.showBitrate,
+              useMbps = template.useMbps,
+              preserveMetadata = template.preserveMetadata,
+            ).autoAdjust(template.targetSizeMb)
         }
 
-        else -> applyPresetToState(
-          baseState.copy(
-            activePreset = template.preset,
+        else ->
+          applyPresetToState(
+            baseState.copy(
+              activePreset = template.preset,
+              videoCodec = template.videoCodec,
+              showBitrate = template.showBitrate,
+              useMbps = template.useMbps,
+              preserveMetadata = template.preserveMetadata,
+            ),
+            template.preset,
+          ).copy(
             videoCodec = template.videoCodec,
-            showBitrate = template.showBitrate,
-            useMbps = template.useMbps,
             preserveMetadata = template.preserveMetadata,
-          ),
-          template.preset,
-        ).copy(videoCodec = template.videoCodec, preserveMetadata = template.preserveMetadata)
+            audioVolume = template.audioVolume,
+          )
       }
 
     return configuredState.copy(
@@ -605,6 +685,7 @@ class VideoCompressorViewModel(
 
     val current = state
     val isVertical = current.originalHeight > current.originalWidth
+
     fun targetHeight(targetShortSide: Int): Int {
       if (current.originalWidth <= 0 || current.originalHeight <= 0) return current.originalHeight
       return if (isVertical) {
@@ -615,42 +696,43 @@ class VideoCompressorViewModel(
       }
     }
 
+    fun applyConfig(config: QualityPresetConfig): VideoCompressorUiState {
+      val targetMb =
+        if (config.sizeRatio > 0f) {
+          (current.originalSize / (1024.0 * 1024.0) * config.sizeRatio).toFloat().coerceAtLeast(0.1f)
+        } else {
+          (current.originalSize / (1024.0 * 1024.0)).toFloat()
+        }
+      return current
+        .copy(
+          targetResolutionHeight =
+            if (config.resolutionShortSide > 0) {
+              targetHeight(config.resolutionShortSide)
+            } else {
+              current.originalHeight
+            },
+          targetFps =
+            if (config.targetFps > 0 && current.originalFps >= config.targetFps) {
+              config.targetFps
+            } else {
+              0
+            },
+          targetSizeMb = targetMb,
+          audioBitrate = if (config.audioBitrate > 0) config.audioBitrate else current.audioBitrate,
+          removeAudio = false,
+        )
+        .autoAdjust(targetMb, lockAudioBitrate = true, allowUpward = false)
+    }
+
     return when (preset) {
-      VideoCompressionPreset.HIGH -> {
-        val targetMb = (current.originalSize / (1024.0 * 1024.0) * 0.7).toFloat().coerceAtLeast(0.1f)
-        current.copy(
-          activePreset = VideoCompressionPreset.HIGH,
-          targetResolutionHeight = current.originalHeight,
-          targetFps = 0,
-          targetSizeMb = targetMb,
-          audioBitrate = 320_000,
-          removeAudio = false,
-        ).autoAdjust(targetMb, lockAudioBitrate = true, allowUpward = false)
-      }
+      VideoCompressionPreset.HIGH ->
+        applyConfig(current.highPresetConfig).copy(activePreset = VideoCompressionPreset.HIGH)
 
-      VideoCompressionPreset.MEDIUM -> {
-        val targetMb = (current.originalSize / (1024.0 * 1024.0) * 0.4).toFloat().coerceAtLeast(0.1f)
-        current.copy(
-          activePreset = VideoCompressionPreset.MEDIUM,
-          targetResolutionHeight = targetHeight(1080),
-          targetFps = if (current.originalFps < 30f) 0 else 30,
-          targetSizeMb = targetMb,
-          audioBitrate = 192_000,
-          removeAudio = false,
-        ).autoAdjust(targetMb, lockAudioBitrate = true, allowUpward = false)
-      }
+      VideoCompressionPreset.MEDIUM ->
+        applyConfig(current.mediumPresetConfig).copy(activePreset = VideoCompressionPreset.MEDIUM)
 
-      VideoCompressionPreset.LOW -> {
-        val targetMb = (current.originalSize / (1024.0 * 1024.0) * 0.2).toFloat().coerceAtLeast(0.1f)
-        current.copy(
-          activePreset = VideoCompressionPreset.LOW,
-          targetResolutionHeight = targetHeight(720),
-          targetFps = if (current.originalFps < 30f) 0 else 30,
-          targetSizeMb = targetMb,
-          audioBitrate = 128_000,
-          removeAudio = false,
-        ).autoAdjust(targetMb, lockAudioBitrate = true, allowUpward = false)
-      }
+      VideoCompressionPreset.LOW ->
+        applyConfig(current.lowPresetConfig).copy(activePreset = VideoCompressionPreset.LOW)
 
       VideoCompressionPreset.CUSTOM -> current
     }
@@ -658,10 +740,6 @@ class VideoCompressorViewModel(
 
   fun applyPreset(preset: VideoCompressionPreset) {
     _uiState.update { applyPresetToState(it, preset) }
-  }
-
-  fun setTargetSize(mb: Float) {
-    _uiState.update { it.copy(targetSizeMb = mb, activePreset = VideoCompressionPreset.CUSTOM).autoAdjust(mb) }
   }
 
   fun setVideoCodec(codec: String) {
@@ -718,7 +796,7 @@ class VideoCompressorViewModel(
   fun setAudioBitrate(bitrate: Int) {
     _uiState.update {
       val next = it.copy(audioBitrate = bitrate, activePreset = VideoCompressionPreset.CUSTOM)
-      next.autoAdjust(next.targetSizeMb)
+      next.autoAdjust(next.targetSizeMb, lockAudioBitrate = true)
     }
   }
 
@@ -737,6 +815,132 @@ class VideoCompressorViewModel(
 
   fun setFps(fps: Int) {
     _uiState.update { it.copy(targetFps = fps, activePreset = VideoCompressionPreset.CUSTOM) }
+  }
+
+  fun updateAudioVolume(volume: Float) {
+    _uiState.update {
+      it.copy(audioVolume = volume.coerceIn(0f, 2f), activePreset = VideoCompressionPreset.CUSTOM)
+    }
+  }
+
+  fun toggleShowStorageSaved() {
+    _uiState.update {
+      val newValue = !it.showStorageSaved
+      prefs.edit().putBoolean("show_storage_saved", newValue).apply()
+      it.copy(showStorageSaved = newValue)
+    }
+  }
+
+  fun toggleShowTargetSizePreset() {
+    _uiState.update {
+      val newValue = !it.showTargetSizePreset
+      prefs.edit().putBoolean("show_target_size_preset", newValue).apply()
+      it.copy(showTargetSizePreset = newValue)
+    }
+  }
+
+  fun setTargetSizePreset(sizeMb: Float) {
+    _uiState.update {
+      it.copy(targetSizeMb = sizeMb, activePreset = VideoCompressionPreset.CUSTOM)
+        .autoAdjust(sizeMb, allowUpward = false)
+    }
+  }
+
+  fun saveTargetSizePreset(targetSizePreset: TargetSizePreset) {
+    viewModelScope.launch(Dispatchers.IO) {
+      val updated = _uiState.value.targetSizePresets.toMutableList().apply {
+        val existingIndex = indexOfFirst { it.id == targetSizePreset.id }
+        if (existingIndex >= 0) {
+          this[existingIndex] = targetSizePreset
+        } else {
+          add(targetSizePreset)
+        }
+      }
+      saveTargetSizePresets(prefs, updated)
+      _uiState.update { it.copy(targetSizePresets = updated) }
+    }
+  }
+
+  fun deleteTargetSizePreset(targetSizePreset: TargetSizePreset) {
+    viewModelScope.launch(Dispatchers.IO) {
+      val updated = _uiState.value.targetSizePresets.filterNot { it.id == targetSizePreset.id }
+      saveTargetSizePresets(prefs, updated)
+      _uiState.update { it.copy(targetSizePresets = updated) }
+    }
+  }
+
+  fun resetTargetSizePresets() {
+    viewModelScope.launch(Dispatchers.IO) {
+      clearSavedTargetSizePresets(prefs)
+      _uiState.update { it.copy(targetSizePresets = defaultTargetSizePresets) }
+    }
+  }
+
+  fun saveQualityPreset(preset: VideoCompressionPreset, config: QualityPresetConfig) {
+    if (preset == VideoCompressionPreset.CUSTOM) return
+    viewModelScope.launch(Dispatchers.IO) {
+      when (preset) {
+        VideoCompressionPreset.HIGH -> saveHighPresetConfig(prefs, config)
+        VideoCompressionPreset.MEDIUM -> saveMediumPresetConfig(prefs, config)
+        VideoCompressionPreset.LOW -> saveLowPresetConfig(prefs, config)
+        VideoCompressionPreset.CUSTOM -> return@launch
+      }
+      _uiState.update {
+        when (preset) {
+          VideoCompressionPreset.HIGH -> it.copy(highPresetConfig = config)
+          VideoCompressionPreset.MEDIUM -> it.copy(mediumPresetConfig = config)
+          VideoCompressionPreset.LOW -> it.copy(lowPresetConfig = config)
+          VideoCompressionPreset.CUSTOM -> it
+        }
+      }
+    }
+  }
+
+  fun resetQualityPresets() {
+    viewModelScope.launch(Dispatchers.IO) {
+      clearSavedQualityPresets(prefs)
+      _uiState.update {
+        it.copy(
+          highPresetConfig = defaultHighPresetConfig,
+          mediumPresetConfig = defaultMediumPresetConfig,
+          lowPresetConfig = defaultLowPresetConfig,
+        )
+      }
+    }
+  }
+
+  fun saveDefaultVideoConfig(config: DefaultVideoConfig) {
+    viewModelScope.launch(Dispatchers.IO) {
+      saveDefaultVideoConfig(prefs, config)
+      _uiState.update { it.copy(defaultVideoConfig = config) }
+    }
+  }
+
+  fun resetDefaultVideoConfig() {
+    viewModelScope.launch(Dispatchers.IO) {
+      clearSavedDefaultVideoConfig(prefs)
+      _uiState.update { it.copy(defaultVideoConfig = DefaultVideoConfig()) }
+    }
+  }
+
+  fun saveDefaultAudioConfig(config: DefaultAudioConfig) {
+    viewModelScope.launch(Dispatchers.IO) {
+      saveDefaultAudioConfig(prefs, config)
+      _uiState.update { it.copy(defaultAudioConfig = config) }
+    }
+  }
+
+  fun resetDefaultAudioConfig() {
+    viewModelScope.launch(Dispatchers.IO) {
+      clearSavedDefaultAudioConfig(prefs)
+      _uiState.update { it.copy(defaultAudioConfig = DefaultAudioConfig()) }
+    }
+  }
+
+  fun setTargetSize(mb: Float) {
+    _uiState.update {
+      it.copy(targetSizeMb = mb, activePreset = VideoCompressionPreset.CUSTOM).autoAdjust(mb, allowUpward = false)
+    }
   }
 
   fun cancelCompression() {
@@ -772,6 +976,15 @@ class VideoCompressorViewModel(
         preserveMetadata = current.preserveMetadata,
         videoCodec = defaultCodec,
         saveMode = current.saveMode,
+        showStorageSaved = current.showStorageSaved,
+        showTargetSizePreset = current.showTargetSizePreset,
+        totalSavedBytes = current.totalSavedBytes,
+        targetSizePresets = current.targetSizePresets,
+        highPresetConfig = current.highPresetConfig,
+        mediumPresetConfig = current.mediumPresetConfig,
+        lowPresetConfig = current.lowPresetConfig,
+        defaultVideoConfig = current.defaultVideoConfig,
+        defaultAudioConfig = current.defaultAudioConfig,
       )
   }
 
@@ -788,6 +1001,7 @@ class VideoCompressorViewModel(
         targetFps = _uiState.value.targetFps,
         removeAudio = _uiState.value.removeAudio,
         audioBitrate = _uiState.value.audioBitrate,
+        audioVolume = _uiState.value.audioVolume,
         showBitrate = _uiState.value.showBitrate,
         useMbps = _uiState.value.useMbps,
         preserveMetadata = _uiState.value.preserveMetadata,
@@ -860,9 +1074,14 @@ class VideoCompressorViewModel(
           lastFinalFile = finalFile
           lastPreviewFile = compressedFile
 
+          val savedBytes = (itemState.originalSize - finalFile.length()).coerceAtLeast(0L)
+          val totalSavedBytes =
+            _uiState.value.totalSavedBytes + savedBytes
+          prefs.edit().putLong("total_saved_bytes", totalSavedBytes).apply()
+
           val warnings =
             buildList {
-              addAll(itemState.warnings)
+              addAll(_uiState.value.warnings)
               if (finalFile.length() > itemState.originalSize) {
                 add("Compressed output is larger than the original for ${itemState.originalName ?: video.displayName}.")
               }
@@ -880,6 +1099,7 @@ class VideoCompressorViewModel(
               savedOutputPaths = savedPaths.toList(),
               completedCount = index + 1,
               warnings = warnings,
+              totalSavedBytes = totalSavedBytes,
             )
           }
         }
@@ -906,6 +1126,7 @@ class VideoCompressorViewModel(
     state: VideoCompressorUiState,
     queueIndex: Int,
     queueSize: Int,
+    forceRemoveAudio: Boolean = false,
   ): File? {
     val inputUri = state.sourceUri ?: return null
     val outputDir = File(context.cacheDir, "compressed_videos")
@@ -921,7 +1142,39 @@ class VideoCompressorViewModel(
         state.audioBitrate
       }
 
-    val encoderFactory =
+    val plan =
+      buildCompressionPlan(
+        inputUri = inputUri,
+        videoCodec = state.videoCodec,
+        targetResolution = state.targetResolutionHeight,
+        targetFps = state.targetFps,
+        removeAudio = state.removeAudio || forceRemoveAudio,
+        sourceWidth = state.originalWidth,
+        sourceHeight = state.originalHeight,
+        sourceFps = state.originalFps,
+      )
+    val videoMimeType = plan.outputVideoMimeType
+
+    _uiState.update { it.copy(warnings = plan.warnings) }
+    plan.blockingError?.let { error ->
+      _uiState.update {
+        it.copy(
+          isCompressing = false,
+          error = error,
+          errorLog = null,
+          progressAvailable = false,
+        )
+      }
+      return null
+    }
+
+    val decoderFactory =
+      DefaultDecoderFactory
+        .Builder(context)
+        .setEnableDecoderFallback(true)
+        .build()
+
+    val cbrEncoderFactory =
       DefaultEncoderFactory
         .Builder(context)
         .setEnableFallback(true)
@@ -929,6 +1182,7 @@ class VideoCompressorViewModel(
           VideoEncoderSettings
             .Builder()
             .setBitrate(targetBitrate.toInt())
+            .setBitrateMode(MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR)
             .build(),
         ).setRequestedAudioEncoderSettings(
           AudioEncoderSettings
@@ -937,43 +1191,99 @@ class VideoCompressorViewModel(
             .build(),
         ).build()
 
+    val vbrEncoderFactory =
+      DefaultEncoderFactory
+        .Builder(context)
+        .setEnableFallback(true)
+        .setRequestedVideoEncoderSettings(
+          VideoEncoderSettings
+            .Builder()
+            .setBitrate(targetBitrate.toInt())
+            .setBitrateMode(MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR)
+            .build(),
+        ).setRequestedAudioEncoderSettings(
+          AudioEncoderSettings
+            .Builder()
+            .setBitrate(audioBitrateToUse)
+            .build(),
+        ).build()
+
+    val isMediaTek = isMediaTekDeviceOrEncoder(videoMimeType)
+    val primaryEncoderFactory = if (isMediaTek) vbrEncoderFactory else cbrEncoderFactory
+    val fallbackEncoderFactory = if (isMediaTek) cbrEncoderFactory else vbrEncoderFactory
+
+    val encoderFactory =
+      object : Codec.EncoderFactory {
+        override fun createForAudioEncoding(format: Format, logSessionId: LogSessionId?): Codec =
+          primaryEncoderFactory.createForAudioEncoding(format, logSessionId)
+
+        override fun createForVideoEncoding(format: Format, logSessionId: LogSessionId?): Codec {
+          val targetFps = if (plan.outputFps > 0) plan.outputFps.toFloat() else state.originalFps
+          var modifiedFormatBuilder = format.buildUpon()
+          if (targetFps > 0f) {
+            modifiedFormatBuilder.setFrameRate(targetFps)
+          }
+          if (format.colorInfo == null || !ColorInfo.isTransferHdr(format.colorInfo)) {
+            modifiedFormatBuilder.setColorInfo(null)
+          }
+          val modifiedFormat = modifiedFormatBuilder.build()
+          return try {
+            primaryEncoderFactory.createForVideoEncoding(modifiedFormat, logSessionId)
+          } catch (error: Exception) {
+            fallbackEncoderFactory.createForVideoEncoding(modifiedFormat, logSessionId)
+          }
+        }
+
+        override fun audioNeedsEncoding(): Boolean = primaryEncoderFactory.audioNeedsEncoding()
+        override fun videoNeedsEncoding(): Boolean = primaryEncoderFactory.videoNeedsEncoding()
+      }
+
     val videoEffects = mutableListOf<Effect>()
-    if (state.targetResolutionHeight > 0 && state.targetResolutionHeight != state.originalHeight) {
+    if (plan.outputHeight > 0 && plan.outputHeight != state.originalHeight) {
       val aspectRatio =
         if (state.originalHeight > 0) {
           state.originalWidth.toFloat() / state.originalHeight
         } else {
           16f / 9f
         }
-      var targetWidth = (state.targetResolutionHeight * aspectRatio).toInt()
-      var targetHeight = state.targetResolutionHeight
+      var targetWidth = (plan.outputHeight * aspectRatio).toInt()
+      var targetHeight = plan.outputHeight
       if (targetWidth % 2 != 0) targetWidth -= 1
       if (targetHeight % 2 != 0) targetHeight -= 1
       if (targetWidth > 0 && targetHeight > 0) {
-        videoEffects += Presentation.createForWidthAndHeight(targetWidth, targetHeight, Presentation.LAYOUT_SCALE_TO_FIT)
+        videoEffects +=
+          Presentation.createForWidthAndHeight(targetWidth, targetHeight, Presentation.LAYOUT_SCALE_TO_FIT)
       }
     }
 
-    if (state.targetFps > 0 && state.originalFps > 0f && state.targetFps != state.originalFps.toInt()) {
-      videoEffects += FrameDropEffect.createSimpleFrameDropEffect(state.originalFps, state.targetFps.toFloat())
+    if (plan.outputFps > 0 && state.originalFps > 0f && plan.outputFps != state.originalFps.toInt()) {
+      videoEffects += FrameDropEffect.createSimpleFrameDropEffect(state.originalFps, plan.outputFps.toFloat())
     }
+
+    val audioEffects =
+      if (!plan.removeAudio && state.audioVolume != 1.0f) {
+        listOf(GainProcessor(ConstantGainProvider(state.audioVolume)))
+      } else {
+        emptyList()
+      }
 
     val editedMediaItem =
       EditedMediaItem
         .Builder(MediaItem.fromUri(inputUri))
-        .setEffects(Effects(emptyList(), videoEffects))
-        .setRemoveAudio(state.removeAudio)
+        .setEffects(Effects(audioEffects, videoEffects))
+        .setRemoveAudio(plan.removeAudio)
         .build()
 
     var hdrMode = Composition.HDR_MODE_KEEP_HDR
     if (Build.MANUFACTURER.equals("Google", ignoreCase = true) && Build.MODEL.contains("Pixel 10", ignoreCase = true)) {
-      if (state.videoCodec == MimeTypes.VIDEO_H265 || state.videoCodec == MimeTypes.VIDEO_H264) {
+      if (videoMimeType == MimeTypes.VIDEO_H265 || videoMimeType == MimeTypes.VIDEO_H264) {
         val hdrVideo = isHdr(context, inputUri)
         if (hdrVideo) {
           hdrMode = Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL
           _uiState.update {
             it.copy(
-              warnings = listOf("HDR video was tone-mapped to SDR to avoid encoder issues on this device."),
+              warnings =
+                it.warnings + listOf("HDR video was tone-mapped to SDR to avoid encoder issues on this device."),
             )
           }
         }
@@ -990,8 +1300,9 @@ class VideoCompressorViewModel(
       val transformer =
         Transformer
           .Builder(context)
-          .setVideoMimeType(state.videoCodec)
+          .setVideoMimeType(videoMimeType)
           .setAudioMimeType(MimeTypes.AUDIO_AAC)
+          .setAssetLoaderFactory(DefaultAssetLoaderFactory(context, decoderFactory, Clock.DEFAULT, null))
           .setEncoderFactory(encoderFactory)
           .addListener(
             object : Transformer.Listener {
@@ -1011,6 +1322,36 @@ class VideoCompressorViewModel(
                 exportException: ExportException,
               ) {
                 activeTransformer = null
+                val logStr = exportException.stackTraceToString()
+                val isAudioDecoderError =
+                  exportException.codecInfo?.isVideo == false ||
+                    logStr.contains("AudioDecoder", ignoreCase = true) ||
+                    logStr.contains("audio/eac3", ignoreCase = true) ||
+                    logStr.contains("audio/ac3", ignoreCase = true) ||
+                    logStr.contains("audio/dts", ignoreCase = true) ||
+                    (exportException.message?.contains("AudioDecoder", ignoreCase = true) == true)
+
+                if (!plan.removeAudio && isAudioDecoderError && !forceRemoveAudio) {
+                  _uiState.update {
+                    it.copy(
+                      warnings = it.warnings + listOf("Audio decoding is not supported on this device. Retried compression with audio muted."),
+                    )
+                  }
+                  if (continuation.isActive) {
+                    viewModelScope.launch {
+                      val retryResult = compressSingleVideo(
+                        context = context,
+                        state = state,
+                        queueIndex = queueIndex,
+                        queueSize = queueSize,
+                        forceRemoveAudio = true,
+                      )
+                      continuation.resume(retryResult)
+                    }
+                  }
+                  return
+                }
+
                 _uiState.update {
                   val isCodecError =
                     exportException.errorCode == ExportException.ERROR_CODE_DECODER_INIT_FAILED ||
@@ -1020,6 +1361,8 @@ class VideoCompressorViewModel(
                     when {
                       isMuxerError && Build.MANUFACTURER.equals("HUAWEI", ignoreCase = true) ->
                         "This issue may be caused by your specific device. Try restarting the device."
+                      isAudioDecoderError ->
+                        "The audio codec of this video is not supported by your device hardware. Enable 'Remove Audio' to compress."
                       isCodecError ->
                         "This video codec is not supported by your device hardware."
                       else ->
@@ -1044,9 +1387,20 @@ class VideoCompressorViewModel(
         viewModelScope.launch(Dispatchers.IO) {
           while (continuation.isActive) {
             val progressHolder = ProgressHolder()
-            val progressState = runCatching { transformer.getProgress(progressHolder) }.getOrDefault(Transformer.PROGRESS_STATE_NOT_STARTED)
+            val progressState =
+              runCatching {
+                transformer.getProgress(progressHolder)
+              }.getOrDefault(Transformer.PROGRESS_STATE_NOT_STARTED)
             val isAvailable = progressState == Transformer.PROGRESS_STATE_AVAILABLE
-            val itemProgress = if (isAvailable) (progressHolder.progress / 100f).coerceIn(0f, 1f) else _uiState.value.currentItemProgress
+            val itemProgress =
+              if (isAvailable) {
+                (progressHolder.progress / 100f).coerceIn(
+                  0f,
+                  1f,
+                )
+              } else {
+                _uiState.value.currentItemProgress
+              }
             val overallProgress = ((queueIndex + itemProgress) / queueSize.toFloat()).coerceIn(0f, 0.999f)
             val currentSize = if (outputFile.exists()) outputFile.length() else 0L
             _uiState.update {
@@ -1073,6 +1427,35 @@ class VideoCompressorViewModel(
       }.onFailure { error ->
         progressJob.cancel()
         activeTransformer = null
+        val logStr = error.stackTraceToString()
+        val isAudioDecoderError =
+          logStr.contains("AudioDecoder", ignoreCase = true) ||
+            logStr.contains("audio/eac3", ignoreCase = true) ||
+            logStr.contains("audio/ac3", ignoreCase = true) ||
+            logStr.contains("audio/dts", ignoreCase = true) ||
+            (error.message?.contains("AudioDecoder", ignoreCase = true) == true)
+
+        if (!plan.removeAudio && isAudioDecoderError && !forceRemoveAudio) {
+          _uiState.update {
+            it.copy(
+              warnings = it.warnings + listOf("Audio decoding is not supported on this device. Retried compression with audio muted."),
+            )
+          }
+          if (continuation.isActive) {
+            viewModelScope.launch {
+              val retryResult = compressSingleVideo(
+                context = context,
+                state = state,
+                queueIndex = queueIndex,
+                queueSize = queueSize,
+                forceRemoveAudio = true,
+              )
+              continuation.resume(retryResult)
+            }
+          }
+          return@suspendCancellableCoroutine
+        }
+
         _uiState.update {
           it.copy(
             isCompressing = false,
@@ -1086,6 +1469,295 @@ class VideoCompressorViewModel(
         }
       }
     }
+  }
+
+  private class ConstantGainProvider(private val gain: Float) : GainProcessor.GainProvider {
+    override fun getGainFactorAtSamplePosition(samplePosition: Long, channelCount: Int): Float = gain
+
+    override fun isUnityUntil(samplePosition: Long, channelCount: Int): Long =
+      if (gain == 1f) C.TIME_END_OF_SOURCE else C.TIME_UNSET
+  }
+
+  private data class VideoTrackInfo(
+    val mimeType: String,
+    val width: Int,
+    val height: Int,
+    val frameRate: Float,
+  )
+
+  private data class CompressionPlan(
+    val outputVideoMimeType: String,
+    val outputHeight: Int,
+    val outputFps: Int,
+    val removeAudio: Boolean,
+    val warnings: List<String>,
+    val blockingError: String?,
+  )
+
+  private fun getAudioTrackMimeType(context: Context, uri: Uri): String? {
+    val extractor = MediaExtractor()
+    return try {
+      extractor.setDataSource(context, uri, null)
+      for (i in 0 until extractor.trackCount) {
+        val format = extractor.getTrackFormat(i)
+        val mime = format.getString(MediaFormat.KEY_MIME)
+        if (mime?.startsWith("audio/") == true) {
+          return mime
+        }
+      }
+      null
+    } catch (_: Exception) {
+      null
+    } finally {
+      extractor.release()
+    }
+  }
+
+  private fun isAudioDecoderSupported(mimeType: String): Boolean {
+    return runCatching {
+      val list = MediaCodecList(MediaCodecList.ALL_CODECS)
+      list.codecInfos.any { info ->
+        if (info.isEncoder) return@any false
+        info.supportedTypes.any { it.equals(mimeType, ignoreCase = true) }
+      }
+    }.getOrDefault(false)
+  }
+
+  private fun getVideoTrackInfo(context: Context, uri: Uri): VideoTrackInfo? {
+    val extractor = MediaExtractor()
+    try {
+      extractor.setDataSource(context, uri, null)
+      for (i in 0 until extractor.trackCount) {
+        val format = extractor.getTrackFormat(i)
+        val mime = format.getString(MediaFormat.KEY_MIME)
+        if (mime?.startsWith("video/") == true) {
+          val width = if (format.containsKey(MediaFormat.KEY_WIDTH)) format.getInteger(MediaFormat.KEY_WIDTH) else 0
+          val height = if (format.containsKey(MediaFormat.KEY_HEIGHT)) format.getInteger(MediaFormat.KEY_HEIGHT) else 0
+          var frameRate = 0f
+          if (format.containsKey(MediaFormat.KEY_FRAME_RATE)) {
+            try {
+              frameRate = format.getInteger(MediaFormat.KEY_FRAME_RATE).toFloat()
+            } catch (error: Exception) {
+              try {
+                frameRate = format.getFloat(MediaFormat.KEY_FRAME_RATE)
+              } catch (ignored: Exception) {
+              }
+            }
+          }
+          return VideoTrackInfo(mime, width, height, frameRate)
+        }
+      }
+    } catch (error: Exception) {
+      error.printStackTrace()
+    } finally {
+      extractor.release()
+    }
+    return null
+  }
+
+  private fun buildCompressionPlan(
+    inputUri: Uri,
+    videoCodec: String,
+    targetResolution: Int,
+    targetFps: Int,
+    removeAudio: Boolean,
+    sourceWidth: Int,
+    sourceHeight: Int,
+    sourceFps: Float,
+  ): CompressionPlan {
+    var outputMime = videoCodec
+    var outputHeight = targetResolution
+    var outputFps = targetFps
+    var effectiveRemoveAudio = removeAudio
+    val warnings = mutableListOf<String>()
+
+    if (!effectiveRemoveAudio) {
+      val audioMime = getAudioTrackMimeType(getApplication(), inputUri)
+      if (!audioMime.isNullOrBlank() && !isAudioDecoderSupported(audioMime)) {
+        effectiveRemoveAudio = true
+        val codecLabel = when (audioMime.lowercase(Locale.US)) {
+          "audio/eac3" -> "E-AC-3 (Dolby Digital Plus)"
+          "audio/ac3" -> "AC-3 (Dolby Digital)"
+          "audio/ac4" -> "AC-4"
+          "audio/vnd.dts", "audio/vnd.dts.hd" -> "DTS"
+          else -> audioMime.substringAfter("/").uppercase(Locale.US)
+        }
+        warnings.add("Audio format ($codecLabel) is not supported for decoding on this device. Audio has been muted for compression.")
+      }
+    }
+
+    val sourceInfo = getVideoTrackInfo(getApplication(), inputUri)
+    val sourceMime = sourceInfo?.mimeType
+    val resolvedWidth = sourceInfo?.width ?: sourceWidth
+    val resolvedHeight = sourceInfo?.height ?: sourceHeight
+    val resolvedFps = if ((sourceInfo?.frameRate ?: 0f) > 0f) sourceInfo!!.frameRate else sourceFps
+
+    if (!sourceMime.isNullOrBlank() && resolvedWidth > 0 && resolvedHeight > 0) {
+      val decoderSupported =
+        isCodecConfigurationSupported(
+          mimeType = sourceMime,
+          width = resolvedWidth,
+          height = resolvedHeight,
+          fps = resolvedFps,
+          encoder = false,
+        )
+      if (!decoderSupported) {
+        return CompressionPlan(
+          outputVideoMimeType = outputMime,
+          outputHeight = outputHeight,
+          outputFps = outputFps,
+          removeAudio = effectiveRemoveAudio,
+          warnings = warnings,
+          blockingError =
+            "This device cannot decode ${resolvedWidth}x${resolvedHeight}@${resolvedFps.toInt()}fps " +
+              "${sourceMime.substringAfter("/").uppercase()} video.",
+        )
+      }
+    }
+
+    val attemptedConfigs = mutableListOf<Triple<String, Int, Int>>()
+    fun isCurrentOutputSupported(mime: String, height: Int, fps: Int): Boolean {
+      val safeHeight = if (height > 0) height else resolvedHeight
+      val safeFps = if (fps > 0) fps else resolvedFps.toInt()
+      val aspectRatio = if (resolvedHeight > 0) resolvedWidth.toFloat() / resolvedHeight else 16f / 9f
+      var outputWidth = (safeHeight * aspectRatio).toInt().coerceAtLeast(2)
+      var outputActualHeight = safeHeight.coerceAtLeast(2)
+      if (outputWidth % 2 != 0) outputWidth -= 1
+      if (outputActualHeight % 2 != 0) outputActualHeight -= 1
+      attemptedConfigs.add(Triple(mime, outputActualHeight, safeFps))
+      return isCodecConfigurationSupported(
+        mimeType = mime,
+        width = outputWidth,
+        height = outputActualHeight,
+        fps = safeFps.toFloat(),
+        encoder = true,
+      )
+    }
+
+    if (!isCurrentOutputSupported(outputMime, outputHeight, outputFps)) {
+      if (outputMime != MimeTypes.VIDEO_H264 &&
+        isCurrentOutputSupported(MimeTypes.VIDEO_H264, outputHeight, outputFps)
+      ) {
+        outputMime = MimeTypes.VIDEO_H264
+        warnings.add("This device does not support the selected codec. Falling back to H.264.")
+      } else {
+        val fallbackHeights =
+          listOf(1080, 720, 540, 480)
+            .filter { it in 2..resolvedHeight }
+            .ifEmpty { listOf(resolvedHeight.coerceAtLeast(2)) }
+        val fallbackFps = listOf(30, 24)
+        var supported = false
+
+        for (heightCandidate in fallbackHeights) {
+          for (fpsCandidate in fallbackFps) {
+            if (isCurrentOutputSupported(MimeTypes.VIDEO_H264, heightCandidate, fpsCandidate)) {
+              outputMime = MimeTypes.VIDEO_H264
+              outputHeight = heightCandidate
+              outputFps = fpsCandidate
+              warnings.add(
+                "Target quality is not supported on this device. Falling back to " +
+                  "${heightCandidate}p @ ${fpsCandidate}fps.",
+              )
+              supported = true
+              break
+            }
+          }
+          if (supported) break
+        }
+
+        if (!supported) {
+          val attempted =
+            attemptedConfigs
+              .joinToString(separator = ", ") { "${it.first.substringAfter("/")} ${it.second}p@${it.third}fps" }
+          return CompressionPlan(
+            outputVideoMimeType = outputMime,
+            outputHeight = outputHeight,
+            outputFps = outputFps,
+            removeAudio = effectiveRemoveAudio,
+            warnings = warnings,
+            blockingError =
+              "This device cannot encode any of the required configurations. " +
+                "Attempted: $attempted.",
+          )
+        }
+      }
+    }
+
+    return CompressionPlan(
+      outputVideoMimeType = outputMime,
+      outputHeight = outputHeight,
+      outputFps = outputFps,
+      removeAudio = effectiveRemoveAudio,
+      warnings = warnings,
+      blockingError = null,
+    )
+  }
+
+  private fun isCodecConfigurationSupported(
+    mimeType: String,
+    width: Int,
+    height: Int,
+    fps: Float,
+    encoder: Boolean,
+  ): Boolean =
+    try {
+      val codecList = MediaCodecList(MediaCodecList.ALL_CODECS)
+      val safeFps = kotlin.math.ceil(if (fps > 0f) fps.toDouble() else 30.0)
+      codecList.codecInfos
+        .asSequence()
+        .filter { it.isEncoder == encoder }
+        .filter { info -> info.supportedTypes.any { it.equals(mimeType, ignoreCase = true) } }
+        .any { info ->
+          try {
+            val capabilities = info.getCapabilitiesForType(mimeType)
+            val videoCaps = capabilities.videoCapabilities ?: return@any false
+            videoCaps.areSizeAndRateSupported(width, height, safeFps) ||
+              videoCaps.areSizeAndRateSupported(height, width, safeFps)
+          } catch (error: Exception) {
+            false
+          }
+        }
+    } catch (error: Exception) {
+      false
+    }
+
+  private fun isMediaTekDeviceOrEncoder(mimeType: String): Boolean {
+    try {
+      val hardware = Build.HARDWARE.lowercase()
+      val board = Build.BOARD.lowercase()
+      val manufacturer = Build.MANUFACTURER.lowercase()
+      val soc =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+          Build.SOC_MODEL.lowercase()
+        } else {
+          ""
+        }
+
+      if (hardware.contains("mediatek") ||
+        board.contains("mediatek") ||
+        manufacturer.contains("mediatek") ||
+        soc.contains("mediatek") ||
+        soc.contains("dimensity") ||
+        hardware.matches(Regex(""".*mt\d{4}.*""")) ||
+        board.matches(Regex(""".*mt\d{4}.*"""))
+      ) {
+        return true
+      }
+
+      val list = MediaCodecList(MediaCodecList.ALL_CODECS)
+      for (info in list.codecInfos) {
+        if (!info.isEncoder) continue
+        if (info.supportedTypes.any { it.equals(mimeType, ignoreCase = true) }) {
+          val name = info.name.lowercase()
+          if (name.contains("mtk") || name.contains("mediatek")) {
+            return true
+          }
+        }
+      }
+    } catch (error: Exception) {
+      error.printStackTrace()
+    }
+    return false
   }
 
   private fun persistCompressedFile(
@@ -1163,8 +1835,9 @@ class VideoCompressorViewModel(
           return@launch
         }
 
-        val outputStream = context.contentResolver.openOutputStream(targetUri)
-          ?: throw IllegalStateException("Could not open destination stream.")
+        val outputStream =
+          context.contentResolver.openOutputStream(targetUri)
+            ?: throw IllegalStateException("Could not open destination stream.")
         outputStream.use { out ->
           file.inputStream().use { input -> input.copyTo(out) }
         }
@@ -1209,7 +1882,9 @@ class VideoCompressorViewModel(
             if (!containsKey(MediaStore.Video.Media.DATE_MODIFIED)) {
               put(MediaStore.Video.Media.DATE_MODIFIED, System.currentTimeMillis() / 1000)
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && currentState.preserveMetadata && currentState.originalDate != null &&
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+              currentState.preserveMetadata &&
+              currentState.originalDate != null &&
               !containsKey(MediaStore.Video.Media.DATE_TAKEN)
             ) {
               put(MediaStore.Video.Media.DATE_TAKEN, currentState.originalDate)
@@ -1233,8 +1908,9 @@ class VideoCompressorViewModel(
           return@launch
         }
 
-        val outputStream = context.contentResolver.openOutputStream(itemUri)
-          ?: throw IllegalStateException("Could not open gallery output stream.")
+        val outputStream =
+          context.contentResolver.openOutputStream(itemUri)
+            ?: throw IllegalStateException("Could not open gallery output stream.")
         outputStream.use { out ->
           file.inputStream().use { input -> input.copyTo(out) }
         }
@@ -1276,7 +1952,11 @@ class VideoCompressorViewModel(
       list.codecInfos.any { info ->
         if (!info.isEncoder) return@any false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info.isSoftwareOnly) return@any false
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && info.name.lowercase().startsWith("c2.android")) return@any false
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
+          info.name.lowercase().startsWith("c2.android")
+        ) {
+          return@any false
+        }
         info.supportedTypes.any { it.equals(mimeType, ignoreCase = true) }
       }
     }.getOrDefault(false)
@@ -1355,16 +2035,26 @@ class VideoCompressorViewModel(
     runCatching {
       context.contentResolver.query(sourceUri, projection, null, null, null)?.use { cursor ->
         if (!cursor.moveToFirst()) return@use
-        copyLongColumn(cursor, MediaStore.Video.Media.DATE_ADDED)?.let { values.put(MediaStore.Video.Media.DATE_ADDED, it) }
-        copyLongColumn(cursor, MediaStore.Video.Media.DATE_MODIFIED)?.let { values.put(MediaStore.Video.Media.DATE_MODIFIED, it) }
-        copyLongColumn(cursor, MediaStore.Video.Media.DATE_TAKEN)?.let { values.put(MediaStore.Video.Media.DATE_TAKEN, it) }
+        copyLongColumn(
+          cursor,
+          MediaStore.Video.Media.DATE_ADDED,
+        )?.let { values.put(MediaStore.Video.Media.DATE_ADDED, it) }
+        copyLongColumn(cursor, MediaStore.Video.Media.DATE_MODIFIED)?.let {
+          values.put(MediaStore.Video.Media.DATE_MODIFIED, it)
+        }
+        copyLongColumn(
+          cursor,
+          MediaStore.Video.Media.DATE_TAKEN,
+        )?.let { values.put(MediaStore.Video.Media.DATE_TAKEN, it) }
         copyStringColumn(cursor, MediaStore.Video.Media.TITLE)?.let { values.put(MediaStore.Video.Media.TITLE, it) }
         copyStringColumn(cursor, MediaStore.Video.Media.ARTIST)?.let { values.put(MediaStore.Video.Media.ARTIST, it) }
         copyStringColumn(cursor, MediaStore.Video.Media.ALBUM)?.let { values.put(MediaStore.Video.Media.ALBUM, it) }
-        copyStringColumn(cursor, MediaStore.Video.Media.DESCRIPTION)?.let { values.put(MediaStore.Video.Media.DESCRIPTION, it) }
+        copyStringColumn(
+          cursor,
+          MediaStore.Video.Media.DESCRIPTION,
+        )?.let { values.put(MediaStore.Video.Media.DESCRIPTION, it) }
       }
     }
-
   }
 
   private fun copyLongColumn(

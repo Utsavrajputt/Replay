@@ -367,9 +367,8 @@ Replay is a fork built on the foundation of:
 - [Next Player](https://github.com/anilbeesetti/nextplayer)
 - [Gramophone](https://github.com/FoedusProgramme/Gramophone)
 - [hdr-toys](https://github.com/natural-harmonia-gropius/hdr-toys)
-- [**SunnyVishnu3**](https://github.com/SunnyVishnu3) for the `yt-dlp` native integration and SDK 29+ bypass logic
-
-If you'd like to support the original mpvRx developer whose work this project is built on, see their [Buy Me a Coffee](https://www.buymeacoffee.com/riteshp2001) page.
+- [AFinity](https://github.com/MakD/AFinity)
+- [**SunnyVishnu3**](https://github.com/SunnyVishnu3) for the `yt-dlp` native integration and SDK 29+ bypass logic.
 
 ---
 

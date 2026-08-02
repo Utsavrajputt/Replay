@@ -21,9 +21,12 @@ class AudioPreferences(
   val audioChannels = preferenceStore.getEnum("audio_channels", AudioChannels.AutoSafe)
   val volumeBoostCap = preferenceStore.getInt("audio_volume_boost_cap", 30)
   val backgroundPlayback = preferenceStore.getBoolean("automatic_background_playback", false)
+  /** Audio-player-only background playback; video retains [backgroundPlayback]. */
+  val audioBackgroundPlayback = preferenceStore.getBoolean("audio_player_background_playback", false)
   val volumeNormalization = preferenceStore.getBoolean("audio_volume_normalization", false)
   val audioBlobEnabled = preferenceStore.getBoolean("audio_blob_enabled", true)
   val audioVisualizerStyle = preferenceStore.getEnum("audio_visualizer_style", AudioVisualizerStyle.Blob)
+  val audioOrientation = preferenceStore.getEnum("audio_player_orientation", AudioPlayerOrientation.Auto)
 
   init {
     // Consolidate the old audio-only screen-lock switch into the single global setting.
@@ -33,23 +36,34 @@ class AudioPreferences(
   }
 }
 
+enum class AudioPlayerOrientation(
+  @StringRes val titleRes: Int,
+) {
+  Auto(R.string.pref_audio_channels_auto),
+  Portrait(R.string.pref_player_orientation_portrait),
+  Landscape(R.string.pref_player_orientation_landscape),
+}
+
 enum class AudioVisualizerStyle(
   @StringRes val title: Int,
 ) {
   Blob(R.string.pref_audio_visualizer_style_blob),
   Galaxy(R.string.pref_audio_visualizer_style_galaxy),
   Cuboid(R.string.pref_audio_visualizer_style_cuboid),
+  Particle(R.string.pref_audio_visualizer_style_particle),
 }
+
 
 enum class AudioChannels(
   @StringRes val title: Int,
   val property: String,
   val value: String,
 ) {
+  /** MPV "auto-safe" — downmix only when safe; avoids channel layout issues. */
   Auto(R.string.pref_audio_channels_auto, "audio-channels", "auto-safe"),
+  /** MPV "auto" — always downmix to stereo. */
   AutoSafe(R.string.pref_audio_channels_auto_safe, "audio-channels", "auto"),
   Mono(R.string.pref_audio_channels_mono, "audio-channels", "mono"),
   Stereo(R.string.pref_audio_channels_stereo, "audio-channels", "stereo"),
   ReverseStereo(R.string.pref_audio_channels_stereo_reversed, "af", "pan=[stereo|c0=c1|c1=c0]"),
 }
-

@@ -7,9 +7,6 @@
 
 package app.gyrolet.mpvrx.ui.browser.dialogs
 
-import app.gyrolet.mpvrx.R
-import androidx.compose.ui.res.stringResource
-
 import android.app.Application
 import android.content.ClipData
 import android.content.Intent
@@ -28,7 +25,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -49,33 +45,34 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import app.gyrolet.mpvrx.ui.theme.AppShapeScale
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -103,16 +100,20 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import app.gyrolet.mpvrx.R
 import app.gyrolet.mpvrx.domain.media.model.Video
 import app.gyrolet.mpvrx.ui.icons.Icon
 import app.gyrolet.mpvrx.ui.icons.Icons
+import app.gyrolet.mpvrx.ui.theme.AppShapeScale
 import app.gyrolet.mpvrx.utils.clipboard.SafeClipboard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -148,6 +149,8 @@ fun VideoCompressorOverlay(
   val scope = rememberCoroutineScope()
 
   var showInfoDialog by rememberSaveable { mutableStateOf(false) }
+  var showSettings by rememberSaveable { mutableStateOf(false) }
+  var presetEditTarget by remember { mutableStateOf<VideoCompressionPreset?>(null) }
 
   LaunchedEffect(videos.map { it.id to it.uri }) {
     viewModel.loadVideos(context, videos)
@@ -231,15 +234,22 @@ fun VideoCompressorOverlay(
               state = state,
               onClose = ::closeOverlay,
               onShowInfo = { showInfoDialog = true },
+              onShowSettings = { showSettings = true },
               onStart = { viewModel.startCompression(context) },
               onApplyPreset = viewModel::applyPreset,
               onSetTargetSize = viewModel::setTargetSize,
+              onSetTargetSizePreset = viewModel::setTargetSizePreset,
               onSetVideoCodec = viewModel::setVideoCodec,
               onSetResolution = viewModel::setResolution,
               onSetFps = viewModel::setFps,
               onToggleRemoveAudio = viewModel::toggleRemoveAudio,
               onSetAudioBitrate = viewModel::setAudioBitrate,
+              onUpdateAudioVolume = viewModel::updateAudioVolume,
               onSetSaveMode = viewModel::setSaveMode,
+              onEditPreset = { preset ->
+                presetEditTarget = preset
+                showSettings = true
+              },
             )
           }
 
@@ -279,6 +289,28 @@ fun VideoCompressorOverlay(
         }
       }
     }
+  }
+
+  if (showSettings) {
+    CompressorSettingsSheet(
+      state = state,
+      initialPreset = presetEditTarget,
+      onDismiss = {
+        showSettings = false
+        presetEditTarget = null
+      },
+      onToggleShowStorageSaved = viewModel::toggleShowStorageSaved,
+      onToggleShowTargetSizePreset = viewModel::toggleShowTargetSizePreset,
+      onSaveQualityPreset = viewModel::saveQualityPreset,
+      onResetQualityPresets = viewModel::resetQualityPresets,
+      onSaveTargetSizePreset = viewModel::saveTargetSizePreset,
+      onDeleteTargetSizePreset = viewModel::deleteTargetSizePreset,
+      onResetTargetSizePresets = viewModel::resetTargetSizePresets,
+      onSaveDefaultVideoConfig = viewModel::saveDefaultVideoConfig,
+      onResetDefaultVideoConfig = viewModel::resetDefaultVideoConfig,
+      onSaveDefaultAudioConfig = viewModel::saveDefaultAudioConfig,
+      onResetDefaultAudioConfig = viewModel::resetDefaultAudioConfig,
+    )
   }
 
   if (showInfoDialog) {
@@ -336,7 +368,15 @@ private fun shareCompressedVideo(
       }
     context.startActivity(Intent.createChooser(intent, "Share compressed video"))
   }.onFailure {
-    Toast.makeText(context, context.getString(R.string.toast_cannot_share_video, it.message ?: context.getString(R.string.generic_unknown_error)), Toast.LENGTH_SHORT).show()
+    Toast
+      .makeText(
+        context,
+        context.getString(
+          R.string.toast_cannot_share_video,
+          it.message ?: context.getString(R.string.generic_unknown_error),
+        ),
+        Toast.LENGTH_SHORT,
+      ).show()
   }
 }
 
@@ -346,15 +386,19 @@ private fun CompressorConfigSurface(
   state: VideoCompressorUiState,
   onClose: () -> Unit,
   onShowInfo: () -> Unit,
+  onShowSettings: () -> Unit,
   onStart: () -> Unit,
   onApplyPreset: (VideoCompressionPreset) -> Unit,
   onSetTargetSize: (Float) -> Unit,
+  onSetTargetSizePreset: (Float) -> Unit,
   onSetVideoCodec: (String) -> Unit,
   onSetResolution: (Int) -> Unit,
   onSetFps: (Int) -> Unit,
   onToggleRemoveAudio: () -> Unit,
   onSetAudioBitrate: (Int) -> Unit,
+  onUpdateAudioVolume: (Float) -> Unit,
   onSetSaveMode: (VideoCompressorSaveMode) -> Unit,
+  onEditPreset: (VideoCompressionPreset) -> Unit,
 ) {
   val pagerState = rememberPagerState(pageCount = { 3 })
   val scope = rememberCoroutineScope()
@@ -373,7 +417,10 @@ private fun CompressorConfigSurface(
         verticalArrangement = Arrangement.spacedBy(12.dp),
       ) {
         androidx.compose.material3.CircularProgressIndicator()
-        Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_loading_video_info))
+        Text(
+          androidx.compose.ui.res
+            .stringResource(app.gyrolet.mpvrx.R.string.ui_loading_video_info),
+        )
       }
     }
     return
@@ -384,19 +431,40 @@ private fun CompressorConfigSurface(
       CenterAlignedTopAppBar(
         modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars),
         title = {
-          Text(text = androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_compressor),
+          Text(
+            text =
+              androidx.compose.ui.res
+                .stringResource(app.gyrolet.mpvrx.R.string.ui_compressor),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
           )
         },
         navigationIcon = {
           IconButton(onClick = onClose) {
-            Icon(Icons.RoundedFilled.Close, contentDescription = androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_close))
+            Icon(
+              Icons.RoundedFilled.Close,
+              contentDescription =
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.ui_close),
+            )
           }
         },
         actions = {
+          IconButton(onClick = onShowSettings) {
+            Icon(
+              Icons.RoundedFilled.Settings,
+              contentDescription =
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.ui_settings),
+            )
+          }
           IconButton(onClick = onShowInfo) {
-            Icon(Icons.RoundedFilled.Info, contentDescription = androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.info))
+            Icon(
+              Icons.RoundedFilled.Info,
+              contentDescription =
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.info),
+            )
           }
         },
       )
@@ -459,9 +527,16 @@ private fun CompressorConfigSurface(
                 modifier = Modifier.fillMaxSize(),
               ) { page ->
                 when (page) {
-                  0 -> CompressorPresetsTab(state, onApplyPreset, onSetTargetSize)
+                  0 ->
+                    CompressorPresetsTab(
+                      state = state,
+                      onApplyPreset = onApplyPreset,
+                      onSetTargetSize = onSetTargetSize,
+                      onSetTargetSizePreset = onSetTargetSizePreset,
+                      onEditPreset = onEditPreset,
+                    )
                   1 -> CompressorVideoTab(state, onSetTargetSize, onSetVideoCodec, onSetResolution, onSetFps)
-                  else -> CompressorAudioTab(state, onToggleRemoveAudio, onSetAudioBitrate)
+                  else -> CompressorAudioTab(state, onToggleRemoveAudio, onSetAudioBitrate, onUpdateAudioVolume)
                 }
               }
             }
@@ -500,9 +575,16 @@ private fun CompressorConfigSurface(
               modifier = Modifier.fillMaxSize(),
             ) { page ->
               when (page) {
-                0 -> CompressorPresetsTab(state, onApplyPreset, onSetTargetSize)
+                0 ->
+                  CompressorPresetsTab(
+                    state = state,
+                    onApplyPreset = onApplyPreset,
+                    onSetTargetSize = onSetTargetSize,
+                    onSetTargetSizePreset = onSetTargetSizePreset,
+                    onEditPreset = onEditPreset,
+                  )
                 1 -> CompressorVideoTab(state, onSetTargetSize, onSetVideoCodec, onSetResolution, onSetFps)
-                else -> CompressorAudioTab(state, onToggleRemoveAudio, onSetAudioBitrate)
+                else -> CompressorAudioTab(state, onToggleRemoveAudio, onSetAudioBitrate, onUpdateAudioVolume)
               }
             }
           }
@@ -539,7 +621,12 @@ private fun CompressorDestinationCard(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
       ) {
-        Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_save_to), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(
+          androidx.compose.ui.res
+            .stringResource(app.gyrolet.mpvrx.R.string.ui_save_to),
+          style = MaterialTheme.typography.titleMedium,
+          fontWeight = FontWeight.SemiBold,
+        )
         if (state.isBatch) {
           Text(
             "${state.queueSize} videos selected",
@@ -556,12 +643,22 @@ private fun CompressorDestinationCard(
         FilterChip(
           selected = state.saveMode == VideoCompressorSaveMode.CURRENT_FOLDER,
           onClick = { onSetSaveMode(VideoCompressorSaveMode.CURRENT_FOLDER) },
-          label = { Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_current_folder)) },
+          label = {
+            Text(
+              androidx.compose.ui.res
+                .stringResource(app.gyrolet.mpvrx.R.string.ui_current_folder),
+            )
+          },
         )
         FilterChip(
           selected = state.saveMode == VideoCompressorSaveMode.MOVIES_COMPRESSOR,
           onClick = { onSetSaveMode(VideoCompressorSaveMode.MOVIES_COMPRESSOR) },
-          label = { Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_movies_compressor)) },
+          label = {
+            Text(
+              androidx.compose.ui.res
+                .stringResource(app.gyrolet.mpvrx.R.string.ui_movies_compressor),
+            )
+          },
         )
       }
 
@@ -606,7 +703,16 @@ private fun CompressorBottomBar(
             .height(56.dp),
         shape = AppShapeScale.largeIncreased,
       ) {
-        Text(if (isBatch) androidx.compose.ui.res.stringResource(R.string.compressor_start_batch) else androidx.compose.ui.res.stringResource(R.string.compressor_start))
+        Text(
+          if (isBatch) {
+            androidx.compose.ui.res.stringResource(
+              R.string.compressor_start_batch,
+            )
+          } else {
+            androidx.compose.ui.res
+              .stringResource(R.string.compressor_start)
+          },
+        )
       }
     }
   }
@@ -664,7 +770,10 @@ private fun CompressorInfoCard(state: VideoCompressorUiState) {
         modifier = Modifier.weight(1f),
         horizontalAlignment = Alignment.End,
       ) {
-        Text(text = androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_estimated),
+        Text(
+          text =
+            androidx.compose.ui.res
+              .stringResource(app.gyrolet.mpvrx.R.string.ui_estimated),
           style = MaterialTheme.typography.labelMedium,
           color = MaterialTheme.colorScheme.primary,
         )
@@ -683,7 +792,7 @@ private fun CompressorInfoCard(state: VideoCompressorUiState) {
           }
         val targetFps = if (state.targetFps > 0) state.targetFps else state.originalFps.toInt()
         Text(
-          text = "${targetWidth}x${targetHeight} - ${targetFps}fps",
+          text = "${targetWidth}x$targetHeight - ${targetFps}fps",
           style = MaterialTheme.typography.bodySmall,
           color = MaterialTheme.colorScheme.primary,
         )
@@ -721,6 +830,8 @@ private fun CompressorPresetsTab(
   state: VideoCompressorUiState,
   onApplyPreset: (VideoCompressionPreset) -> Unit,
   onSetTargetSize: (Float) -> Unit,
+  onSetTargetSizePreset: (Float) -> Unit,
+  onEditPreset: (VideoCompressionPreset) -> Unit,
 ) {
   Column(
     modifier =
@@ -730,13 +841,18 @@ private fun CompressorPresetsTab(
         .padding(horizontal = 20.dp, vertical = 20.dp),
     verticalArrangement = Arrangement.spacedBy(20.dp),
   ) {
-    Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_change_video_quality), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+    Text(
+      androidx.compose.ui.res
+        .stringResource(app.gyrolet.mpvrx.R.string.ui_change_video_quality),
+      style = MaterialTheme.typography.titleMedium,
+      fontWeight = FontWeight.SemiBold,
+    )
 
     val presets =
       listOf(
-        Triple(VideoCompressionPreset.HIGH, "High", "Optimized bitrate only"),
-        Triple(VideoCompressionPreset.MEDIUM, "Medium", "1080p - 30fps"),
-        Triple(VideoCompressionPreset.LOW, "Low", "720p - 30fps"),
+        Triple(VideoCompressionPreset.HIGH, "High", describeQualityConfig(state.highPresetConfig)),
+        Triple(VideoCompressionPreset.MEDIUM, "Medium", describeQualityConfig(state.mediumPresetConfig)),
+        Triple(VideoCompressionPreset.LOW, "Low", describeQualityConfig(state.lowPresetConfig)),
       )
 
     presets.forEach { (preset, title, subtitle) ->
@@ -768,54 +884,65 @@ private fun CompressorPresetsTab(
         ) {
           Column(modifier = Modifier.weight(1f)) {
             Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
-            Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+              subtitle,
+              style = MaterialTheme.typography.bodyMedium,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
           }
           if (state.activePreset == preset) {
             Icon(Icons.RoundedFilled.Check, contentDescription = null)
+          }
+          IconButton(onClick = { onEditPreset(preset) }) {
+            Icon(
+              Icons.RoundedFilled.Edit,
+              contentDescription =
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.ui_settings),
+            )
           }
         }
       }
     }
 
-    val sizePresets =
-      listOf(
-        10f to "Discord / GitHub",
-        25f to "Email",
-        50f to "Stories",
-        100f to "Messenger / Bluesky",
-        500f to "Nitro / Reels",
-        512f to "Twitter / X",
-        2048f to "WhatsApp / Telegram",
-        4096f to "TG Premium / Feed",
-        8192f to "X Premium",
-      ).filter { it.first < (state.originalSize.toFloat() / (1024f * 1024f)) }
+    val originalMb = state.originalSize / (1024f * 1024f)
 
-    if (sizePresets.isNotEmpty()) {
-      Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_target_size_presets), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-      FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-      ) {
-        sizePresets.forEach { (size, label) ->
-          FilterChip(
-            selected = state.targetSizeMb == size,
-            onClick = { onSetTargetSize(size) },
-            label = {
-              Text(
-                text = buildString {
-                  if (size >= 1024) {
-                    append("${(size / 1024).toInt()} GB")
-                  } else {
-                    append("${size.toInt()} MB")
-                  }
-                  append(" - ")
-                  append(label)
-                },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-              )
-            },
-          )
+    if (state.showTargetSizePreset) {
+      val sizePresets = state.targetSizePresets.filter { it.sizeMb < originalMb }
+
+      if (sizePresets.isNotEmpty()) {
+        Text(
+          androidx.compose.ui.res
+            .stringResource(app.gyrolet.mpvrx.R.string.ui_target_size_presets),
+          style = MaterialTheme.typography.titleMedium,
+          fontWeight = FontWeight.SemiBold,
+        )
+        FlowRow(
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
+          verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+          sizePresets.forEach { preset ->
+            FilterChip(
+              selected = state.targetSizeMb == preset.sizeMb,
+              onClick = { onSetTargetSizePreset(preset.sizeMb) },
+              label = {
+                Text(
+                  text =
+                    buildString {
+                      if (preset.sizeMb >= 1024) {
+                        append("${(preset.sizeMb / 1024).toInt()} GB")
+                      } else {
+                        append("${preset.sizeMb.toInt()} MB")
+                      }
+                      append(" - ")
+                      append(preset.label)
+                    },
+                  maxLines = 1,
+                  overflow = TextOverflow.Ellipsis,
+                )
+              },
+            )
+          }
         }
       }
     }
@@ -841,9 +968,18 @@ private fun CompressorVideoTab(
         .padding(horizontal = 20.dp, vertical = 20.dp),
     verticalArrangement = Arrangement.spacedBy(18.dp),
   ) {
-    Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_advanced_options), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+    Text(
+      androidx.compose.ui.res
+        .stringResource(app.gyrolet.mpvrx.R.string.ui_advanced_options),
+      style = MaterialTheme.typography.titleMedium,
+      fontWeight = FontWeight.SemiBold,
+    )
 
-    Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_target_size), style = MaterialTheme.typography.labelLarge)
+    Text(
+      androidx.compose.ui.res
+        .stringResource(app.gyrolet.mpvrx.R.string.ui_target_size),
+      style = MaterialTheme.typography.labelLarge,
+    )
     Text(
       text = String.format(Locale.US, "%.1f MB", sliderValue),
       style = MaterialTheme.typography.labelMedium,
@@ -858,7 +994,11 @@ private fun CompressorVideoTab(
       valueRange = 0.1f..maxOf(10f, state.targetSizeMb, (state.originalSize.toFloat() / (1024f * 1024f))),
     )
 
-    Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_encoding), style = MaterialTheme.typography.labelLarge)
+    Text(
+      androidx.compose.ui.res
+        .stringResource(app.gyrolet.mpvrx.R.string.ui_encoding),
+      style = MaterialTheme.typography.labelLarge,
+    )
     Row(
       modifier = Modifier.horizontalScroll(rememberScrollState()),
       horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -867,24 +1007,43 @@ private fun CompressorVideoTab(
         FilterChip(
           selected = state.videoCodec == androidx.media3.common.MimeTypes.VIDEO_AV1,
           onClick = { onSetVideoCodec(androidx.media3.common.MimeTypes.VIDEO_AV1) },
-          label = { Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_av1)) },
+          label = {
+            Text(
+              androidx.compose.ui.res
+                .stringResource(app.gyrolet.mpvrx.R.string.ui_av1),
+            )
+          },
         )
       }
       if (state.supportedCodecs.contains(androidx.media3.common.MimeTypes.VIDEO_H265)) {
         FilterChip(
           selected = state.videoCodec == androidx.media3.common.MimeTypes.VIDEO_H265,
           onClick = { onSetVideoCodec(androidx.media3.common.MimeTypes.VIDEO_H265) },
-          label = { Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_h_265)) },
+          label = {
+            Text(
+              androidx.compose.ui.res
+                .stringResource(app.gyrolet.mpvrx.R.string.ui_h_265),
+            )
+          },
         )
       }
       FilterChip(
         selected = state.videoCodec == androidx.media3.common.MimeTypes.VIDEO_H264,
         onClick = { onSetVideoCodec(androidx.media3.common.MimeTypes.VIDEO_H264) },
-        label = { Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_h_264)) },
+        label = {
+          Text(
+            androidx.compose.ui.res
+              .stringResource(app.gyrolet.mpvrx.R.string.ui_h_264),
+          )
+        },
       )
     }
 
-    Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_resolution), style = MaterialTheme.typography.labelLarge)
+    Text(
+      androidx.compose.ui.res
+        .stringResource(app.gyrolet.mpvrx.R.string.ui_resolution),
+      style = MaterialTheme.typography.labelLarge,
+    )
     val originalShortSide = minOf(state.originalWidth, state.originalHeight)
     val currentShortSide =
       if (state.originalHeight > state.originalWidth && state.targetResolutionHeight > 0 && state.originalHeight > 0) {
@@ -901,21 +1060,35 @@ private fun CompressorVideoTab(
       val options =
         buildList {
           add(originalShortSide to "Original")
-          listOf(2160, 1440, 1080, 720, 540, 480, (originalShortSide * 3) / 4, originalShortSide / 2, originalShortSide / 4)
-            .filter { it > 0 && it < originalShortSide }
+          listOf(
+            2160,
+            1440,
+            1080,
+            720,
+            540,
+            480,
+            (originalShortSide * 3) / 4,
+            originalShortSide / 2,
+            originalShortSide / 4,
+          ).filter { it > 0 && it < originalShortSide }
             .distinct()
             .forEach { add(it to "${it}p") }
         }
       options.forEach { (value, label) ->
         FilterChip(
-          selected = currentShortSide == value || (label == "Original" && state.targetResolutionHeight == state.originalHeight),
+          selected =
+            currentShortSide == value || (label == "Original" && state.targetResolutionHeight == state.originalHeight),
           onClick = { onSetResolution(value) },
           label = { Text(label) },
         )
       }
     }
 
-    Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_framerate), style = MaterialTheme.typography.labelLarge)
+    Text(
+      androidx.compose.ui.res
+        .stringResource(app.gyrolet.mpvrx.R.string.ui_framerate),
+      style = MaterialTheme.typography.labelLarge,
+    )
     Row(
       modifier = Modifier.horizontalScroll(rememberScrollState()),
       horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -923,23 +1096,43 @@ private fun CompressorVideoTab(
       FilterChip(
         selected = state.targetFps == 0,
         onClick = { onSetFps(0) },
-        label = { Text(androidx.compose.ui.res.stringResource(R.string.compressor_original_fps, state.originalFps.toInt())) },
+        label = {
+          Text(
+            androidx.compose.ui.res
+              .stringResource(R.string.compressor_original_fps, state.originalFps.toInt()),
+          )
+        },
       )
       FilterChip(
         selected = state.targetFps == 60,
         enabled = state.originalFps >= 50f,
         onClick = { onSetFps(60) },
-        label = { Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_60fps)) },
+        label = {
+          Text(
+            androidx.compose.ui.res
+              .stringResource(app.gyrolet.mpvrx.R.string.ui_60fps),
+          )
+        },
       )
       FilterChip(
         selected = state.targetFps == 30,
         onClick = { onSetFps(30) },
-        label = { Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_30fps)) },
+        label = {
+          Text(
+            androidx.compose.ui.res
+              .stringResource(app.gyrolet.mpvrx.R.string.ui_30fps),
+          )
+        },
       )
       FilterChip(
         selected = state.targetFps == 24,
         onClick = { onSetFps(24) },
-        label = { Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_24fps)) },
+        label = {
+          Text(
+            androidx.compose.ui.res
+              .stringResource(app.gyrolet.mpvrx.R.string.ui_24fps),
+          )
+        },
       )
     }
   }
@@ -950,6 +1143,7 @@ private fun CompressorAudioTab(
   state: VideoCompressorUiState,
   onToggleRemoveAudio: () -> Unit,
   onSetAudioBitrate: (Int) -> Unit,
+  onUpdateAudioVolume: (Float) -> Unit,
 ) {
   Column(
     modifier =
@@ -959,20 +1153,33 @@ private fun CompressorAudioTab(
         .padding(horizontal = 20.dp, vertical = 20.dp),
     verticalArrangement = Arrangement.spacedBy(18.dp),
   ) {
-    Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_audio_options), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+    Text(
+      androidx.compose.ui.res
+        .stringResource(app.gyrolet.mpvrx.R.string.ui_audio_options),
+      style = MaterialTheme.typography.titleMedium,
+      fontWeight = FontWeight.SemiBold,
+    )
 
     Row(
       modifier = Modifier.fillMaxWidth(),
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-      Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_remove_audio), style = MaterialTheme.typography.bodyLarge)
+      Text(
+        androidx.compose.ui.res
+          .stringResource(app.gyrolet.mpvrx.R.string.ui_remove_audio),
+        style = MaterialTheme.typography.bodyLarge,
+      )
       Switch(checked = state.removeAudio, onCheckedChange = { onToggleRemoveAudio() })
     }
 
     AnimatedVisibility(visible = !state.removeAudio) {
       Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-        Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_audio_bitrate), style = MaterialTheme.typography.labelLarge)
+        Text(
+          androidx.compose.ui.res
+            .stringResource(app.gyrolet.mpvrx.R.string.ui_audio_bitrate),
+          style = MaterialTheme.typography.labelLarge,
+        )
         Row(
           modifier = Modifier.horizontalScroll(rememberScrollState()),
           horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -997,6 +1204,37 @@ private fun CompressorAudioTab(
             }
           }
         }
+
+        Text(
+          androidx.compose.ui.res
+            .stringResource(app.gyrolet.mpvrx.R.string.compressor_volume),
+          style = MaterialTheme.typography.labelLarge,
+        )
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+          Text(
+            text = "${(state.audioVolume * 100).toInt()}%",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.width(48.dp),
+          )
+          Slider(
+            value = state.audioVolume.coerceIn(0f, 2f),
+            onValueChange = onUpdateAudioVolume,
+            valueRange = 0f..2f,
+            steps = 19,
+            modifier = Modifier.weight(1f),
+          )
+        }
+        Text(
+          androidx.compose.ui.res
+            .stringResource(app.gyrolet.mpvrx.R.string.compressor_volume_hint),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
       }
     }
   }
@@ -1064,7 +1302,12 @@ private fun CompressorProgressSurface(
           modifier = Modifier.padding(20.dp),
           verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-          Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_compressing_video), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+          Text(
+            androidx.compose.ui.res
+              .stringResource(app.gyrolet.mpvrx.R.string.ui_compressing_video),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
           Text(
             text =
               if (state.isBatch) {
@@ -1080,7 +1323,7 @@ private fun CompressorProgressSurface(
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
           )
-          
+
           if (!state.progressAvailable) {
             LinearProgressIndicator(
               modifier =
@@ -1124,7 +1367,10 @@ private fun CompressorProgressSurface(
           ),
         shape = AppShapeScale.largeIncreased,
       ) {
-        Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.generic_cancel))
+        Text(
+          androidx.compose.ui.res
+            .stringResource(app.gyrolet.mpvrx.R.string.generic_cancel),
+        )
       }
     }
   }
@@ -1148,10 +1394,21 @@ private fun CompressorResultSurface(
     topBar = {
       CenterAlignedTopAppBar(
         modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars),
-        title = { Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_compressor), fontWeight = FontWeight.Bold) },
+        title = {
+          Text(
+            androidx.compose.ui.res
+              .stringResource(app.gyrolet.mpvrx.R.string.ui_compressor),
+            fontWeight = FontWeight.Bold,
+          )
+        },
         navigationIcon = {
           IconButton(onClick = onClose) {
-            Icon(Icons.RoundedFilled.Close, contentDescription = androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_close))
+            Icon(
+              Icons.RoundedFilled.Close,
+              contentDescription =
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.ui_close),
+            )
           }
         },
       )
@@ -1201,8 +1458,20 @@ private fun CompressorResultSurface(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
           if (reduction > 0) {
-            Text(stringResource(R.string.compressor_reduction_percent, reduction), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            Text(
+              stringResource(R.string.compressor_reduction_percent, reduction),
+              style = MaterialTheme.typography.titleMedium,
+              color = MaterialTheme.colorScheme.primary,
+            )
           }
+        }
+
+        if (state.showStorageSaved && state.totalSavedBytes > 0L) {
+          Text(
+            stringResource(R.string.compressor_total_saved, state.formattedTotalSaved),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
+          )
         }
 
         ElevatedCard(
@@ -1213,7 +1482,11 @@ private fun CompressorResultSurface(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
           ) {
-            Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_saved_to), fontWeight = FontWeight.SemiBold)
+            Text(
+              androidx.compose.ui.res
+                .stringResource(app.gyrolet.mpvrx.R.string.ui_saved_to),
+              fontWeight = FontWeight.SemiBold,
+            )
             Text(
               state.destinationDisplayPath.ifBlank { "Unknown destination" },
               style = MaterialTheme.typography.bodyMedium,
@@ -1231,7 +1504,12 @@ private fun CompressorResultSurface(
               modifier = Modifier.padding(16.dp),
               verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-              Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_warnings), fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onErrorContainer)
+              Text(
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.ui_warnings),
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onErrorContainer,
+              )
               state.warnings.forEach {
                 Text(it, color = MaterialTheme.colorScheme.onErrorContainer)
               }
@@ -1251,20 +1529,29 @@ private fun CompressorResultSurface(
             ) {
               Icon(Icons.RoundedFilled.Share, contentDescription = null)
               Spacer(modifier = Modifier.width(8.dp))
-              Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.generic_share))
+              Text(
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.generic_share),
+              )
             }
             FilledTonalButton(
               onClick = onSave,
               modifier = Modifier.weight(1f),
               shape = AppShapeScale.largeIncreased,
             ) {
-              Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_save_copy))
+              Text(
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.ui_save_copy),
+              )
             }
           }
         }
 
         TextButton(onClick = onClose) {
-          Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_back_to_list))
+          Text(
+            androidx.compose.ui.res
+              .stringResource(app.gyrolet.mpvrx.R.string.ui_back_to_list),
+          )
         }
       }
     }
@@ -1284,10 +1571,21 @@ private fun CompressorIssueSurface(
     topBar = {
       CenterAlignedTopAppBar(
         modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars),
-        title = { Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_compressor), fontWeight = FontWeight.Bold) },
+        title = {
+          Text(
+            androidx.compose.ui.res
+              .stringResource(app.gyrolet.mpvrx.R.string.ui_compressor),
+            fontWeight = FontWeight.Bold,
+          )
+        },
         navigationIcon = {
           IconButton(onClick = onClose) {
-            Icon(Icons.RoundedFilled.Close, contentDescription = androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_close))
+            Icon(
+              Icons.RoundedFilled.Close,
+              contentDescription =
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.ui_close),
+            )
           }
         },
       )
@@ -1331,7 +1629,10 @@ private fun CompressorIssueSurface(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
           ) {
             OutlinedButton(onClick = onClose, modifier = Modifier.weight(1f)) {
-              Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_close))
+              Text(
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.ui_close),
+              )
             }
             Button(onClick = onAction, modifier = Modifier.weight(1f)) {
               Text(actionLabel)
@@ -1341,6 +1642,661 @@ private fun CompressorIssueSurface(
       }
     }
   }
+}
+
+private fun describeQualityConfig(config: QualityPresetConfig): String =
+  buildString {
+    if (config.resolutionShortSide > 0) {
+      append("${config.resolutionShortSide}p")
+    }
+    if (config.targetFps > 0) {
+      if (isNotEmpty()) append(" - ")
+      append("${config.targetFps}fps")
+    }
+    if (config.sizeRatio > 0f) {
+      if (isNotEmpty()) append(" - ")
+      append("${(config.sizeRatio * 100).toInt()}% of original size")
+    }
+    if (isEmpty()) append("Optimized bitrate only")
+  }
+
+private fun describeDefaultVideoConfig(config: DefaultVideoConfig): String =
+  buildString {
+    append(config.defaultVideoCodec.substringAfter("/").uppercase(Locale.US))
+    if (config.defaultTargetResolutionHeight > 0) {
+      append(" • ${config.defaultTargetResolutionHeight}p")
+    }
+    if (config.defaultTargetFps > 0) {
+      append(" • ${config.defaultTargetFps}fps")
+    }
+    if (config.defaultSizeRatio > 0f) {
+      append(" • ${(config.defaultSizeRatio * 100).toInt()}% size")
+    }
+  }
+
+private fun describeDefaultAudioConfig(config: DefaultAudioConfig): String =
+  buildString {
+    if (config.defaultRemoveAudio) {
+      append("Remove audio")
+    } else {
+      append("${config.defaultAudioBitrate / 1000}k • ${(config.defaultAudioVolume * 100).toInt()}% volume")
+    }
+  }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CompressorSettingsSheet(
+  state: VideoCompressorUiState,
+  initialPreset: VideoCompressionPreset?,
+  onDismiss: () -> Unit,
+  onToggleShowStorageSaved: () -> Unit,
+  onToggleShowTargetSizePreset: () -> Unit,
+  onSaveQualityPreset: (VideoCompressionPreset, QualityPresetConfig) -> Unit,
+  onResetQualityPresets: () -> Unit,
+  onSaveTargetSizePreset: (TargetSizePreset) -> Unit,
+  onDeleteTargetSizePreset: (TargetSizePreset) -> Unit,
+  onResetTargetSizePresets: () -> Unit,
+  onSaveDefaultVideoConfig: (DefaultVideoConfig) -> Unit,
+  onResetDefaultVideoConfig: () -> Unit,
+  onSaveDefaultAudioConfig: (DefaultAudioConfig) -> Unit,
+  onResetDefaultAudioConfig: () -> Unit,
+) {
+  var editingPreset by remember { mutableStateOf<VideoCompressionPreset?>(null) }
+  var editingTargetPreset by remember { mutableStateOf<TargetSizePreset?>(null) }
+  var addingTargetPreset by remember { mutableStateOf(false) }
+  var editingDefaultVideo by remember { mutableStateOf(false) }
+  var editingDefaultAudio by remember { mutableStateOf(false) }
+
+  LaunchedEffect(initialPreset) {
+    if (initialPreset != null) {
+      editingPreset = initialPreset
+    }
+  }
+
+  ModalBottomSheet(
+    onDismissRequest = {
+      editingPreset = null
+      editingTargetPreset = null
+      addingTargetPreset = false
+      editingDefaultVideo = false
+      editingDefaultAudio = false
+      onDismiss()
+    },
+  ) {
+    Column(
+      modifier =
+        Modifier
+          .fillMaxWidth()
+          .verticalScroll(rememberScrollState())
+          .padding(horizontal = 20.dp)
+          .padding(bottom = 32.dp),
+      verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+      Text(
+        stringResource(R.string.compressor_settings),
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+      )
+
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+      ) {
+        Text(
+          stringResource(R.string.compressor_storage_saved),
+          style = MaterialTheme.typography.bodyLarge,
+        )
+        Switch(checked = state.showStorageSaved, onCheckedChange = { onToggleShowStorageSaved() })
+      }
+      Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+      ) {
+        Text(
+          stringResource(R.string.compressor_show_target_size_presets),
+          style = MaterialTheme.typography.bodyLarge,
+        )
+        Switch(checked = state.showTargetSizePreset, onCheckedChange = { onToggleShowTargetSizePreset() })
+      }
+
+      HorizontalDivider()
+
+      Text(
+        stringResource(R.string.compressor_preset_configs),
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
+      )
+      val presetConfigs =
+        listOf(
+          VideoCompressionPreset.HIGH to state.highPresetConfig,
+          VideoCompressionPreset.MEDIUM to state.mediumPresetConfig,
+          VideoCompressionPreset.LOW to state.lowPresetConfig,
+        )
+      presetConfigs.forEach { (preset, config) ->
+        OutlinedCard(
+          onClick = { editingPreset = preset },
+          modifier = Modifier.fillMaxWidth(),
+          shape = AppShapeScale.largeIncreased,
+        ) {
+          Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+          ) {
+            Column(modifier = Modifier.weight(1f)) {
+              Text(preset.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
+              Text(
+                describeQualityConfig(config),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+              )
+            }
+            Icon(Icons.RoundedFilled.Edit, contentDescription = null)
+          }
+        }
+      }
+      TextButton(onClick = onResetQualityPresets) {
+        Text(stringResource(R.string.compressor_reset_presets))
+      }
+
+      HorizontalDivider()
+
+      Text(
+        stringResource(R.string.ui_target_size_presets),
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
+      )
+      state.targetSizePresets.forEach { preset ->
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+          OutlinedCard(
+            onClick = { editingTargetPreset = preset },
+            modifier = Modifier.weight(1f),
+            shape = AppShapeScale.largeIncreased,
+          ) {
+            Row(
+              modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+              verticalAlignment = Alignment.CenterVertically,
+            ) {
+              Column(modifier = Modifier.weight(1f)) {
+                Text(preset.label, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                Text(
+                  if (preset.sizeMb >= 1024) {
+                    "${(preset.sizeMb / 1024).toInt()} GB"
+                  } else {
+                    "${preset.sizeMb.toInt()} MB"
+                  },
+                  style = MaterialTheme.typography.bodySmall,
+                  color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+              }
+              Icon(Icons.RoundedFilled.Edit, contentDescription = null)
+            }
+          }
+          IconButton(onClick = { onDeleteTargetSizePreset(preset) }) {
+            Icon(
+              Icons.RoundedFilled.Delete,
+              contentDescription = stringResource(R.string.compressor_delete_preset),
+            )
+          }
+        }
+      }
+      Row(modifier = Modifier.fillMaxWidth()) {
+        TextButton(onClick = { addingTargetPreset = true }) {
+          Text(stringResource(R.string.compressor_add_preset))
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        TextButton(onClick = onResetTargetSizePresets) {
+          Text(stringResource(R.string.compressor_reset_presets))
+        }
+      }
+
+      HorizontalDivider()
+
+      Text(
+        stringResource(R.string.compressor_defaults),
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
+      )
+      OutlinedCard(
+        onClick = { editingDefaultVideo = true },
+        modifier = Modifier.fillMaxWidth(),
+        shape = AppShapeScale.largeIncreased,
+      ) {
+        Row(
+          modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+          Column(modifier = Modifier.weight(1f)) {
+            Text(
+              stringResource(R.string.compressor_default_video),
+              style = MaterialTheme.typography.titleMedium,
+              fontWeight = FontWeight.Medium,
+            )
+            Text(
+              describeDefaultVideoConfig(state.defaultVideoConfig),
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+          }
+          Icon(Icons.RoundedFilled.Edit, contentDescription = null)
+        }
+      }
+      OutlinedCard(
+        onClick = { editingDefaultAudio = true },
+        modifier = Modifier.fillMaxWidth(),
+        shape = AppShapeScale.largeIncreased,
+      ) {
+        Row(
+          modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+          Column(modifier = Modifier.weight(1f)) {
+            Text(
+              stringResource(R.string.compressor_default_audio),
+              style = MaterialTheme.typography.titleMedium,
+              fontWeight = FontWeight.Medium,
+            )
+            Text(
+              describeDefaultAudioConfig(state.defaultAudioConfig),
+              style = MaterialTheme.typography.bodySmall,
+              color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+          }
+          Icon(Icons.RoundedFilled.Edit, contentDescription = null)
+        }
+      }
+      Row(modifier = Modifier.fillMaxWidth()) {
+        TextButton(onClick = onResetDefaultVideoConfig) {
+          Text(stringResource(R.string.compressor_reset_video_defaults))
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        TextButton(onClick = onResetDefaultAudioConfig) {
+          Text(stringResource(R.string.compressor_reset_audio_defaults))
+        }
+      }
+    }
+  }
+
+  editingPreset?.let { preset ->
+    val config =
+      when (preset) {
+        VideoCompressionPreset.HIGH -> state.highPresetConfig
+        VideoCompressionPreset.MEDIUM -> state.mediumPresetConfig
+        VideoCompressionPreset.LOW -> state.lowPresetConfig
+        VideoCompressionPreset.CUSTOM -> state.highPresetConfig
+      }
+    QualityPresetConfigEditor(
+      title = preset.name,
+      config = config,
+      onDismiss = { editingPreset = null },
+      onSave = { saved ->
+        onSaveQualityPreset(preset, saved)
+        editingPreset = null
+      },
+    )
+  }
+
+  if (editingTargetPreset != null || addingTargetPreset) {
+    TargetSizePresetEditor(
+      preset = editingTargetPreset,
+      onDismiss = {
+        editingTargetPreset = null
+        addingTargetPreset = false
+      },
+      onSave = { saved ->
+        onSaveTargetSizePreset(saved)
+        editingTargetPreset = null
+        addingTargetPreset = false
+      },
+    )
+  }
+
+  if (editingDefaultVideo) {
+    DefaultVideoConfigEditor(
+      config = state.defaultVideoConfig,
+      onDismiss = { editingDefaultVideo = false },
+      onSave = { saved ->
+        onSaveDefaultVideoConfig(saved)
+        editingDefaultVideo = false
+      },
+    )
+  }
+
+  if (editingDefaultAudio) {
+    DefaultAudioConfigEditor(
+      config = state.defaultAudioConfig,
+      onDismiss = { editingDefaultAudio = false },
+      onSave = { saved ->
+        onSaveDefaultAudioConfig(saved)
+        editingDefaultAudio = false
+      },
+    )
+  }
+}
+
+@Composable
+private fun QualityPresetConfigEditor(
+  title: String,
+  config: QualityPresetConfig,
+  onDismiss: () -> Unit,
+  onSave: (QualityPresetConfig) -> Unit,
+) {
+  var resolution by remember(config) { mutableStateOf(config.resolutionShortSide.toString()) }
+  var fps by remember(config) { mutableStateOf(config.targetFps.toString()) }
+  var ratio by remember(config) { mutableStateOf(config.sizeRatio.toString()) }
+  var bitrate by remember(config) { mutableStateOf(config.audioBitrate.toString()) }
+
+  AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { Text("Edit $title") },
+    text = {
+      Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+      ) {
+        OutlinedTextField(
+          value = resolution,
+          onValueChange = { resolution = it.filter { char -> char.isDigit() } },
+          label = { Text(stringResource(R.string.compressor_target_resolution)) },
+          singleLine = true,
+          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+          modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedTextField(
+          value = fps,
+          onValueChange = { fps = it.filter { char -> char.isDigit() } },
+          label = { Text(stringResource(R.string.compressor_target_fps)) },
+          singleLine = true,
+          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+          modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedTextField(
+          value = ratio,
+          onValueChange = { ratio = it.filter { char -> char.isDigit() || char == '.' } },
+          label = { Text(stringResource(R.string.compressor_size_ratio)) },
+          singleLine = true,
+          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+          modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedTextField(
+          value = bitrate,
+          onValueChange = { bitrate = it.filter { char -> char.isDigit() } },
+          label = { Text(stringResource(R.string.ui_audio_bitrate)) },
+          singleLine = true,
+          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+          modifier = Modifier.fillMaxWidth(),
+        )
+        Text(
+          stringResource(R.string.compressor_zero_keeps_original),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+      }
+    },
+    confirmButton = {
+      TextButton(
+        onClick = {
+          onSave(
+            QualityPresetConfig(
+              resolutionShortSide = resolution.toIntOrNull() ?: 0,
+              targetFps = fps.toIntOrNull() ?: 0,
+              sizeRatio = ratio.toFloatOrNull() ?: 0f,
+              audioBitrate = bitrate.toIntOrNull() ?: 0,
+            ),
+          )
+        },
+      ) {
+        Text(stringResource(R.string.ui_done))
+      }
+    },
+    dismissButton = {
+      TextButton(onClick = onDismiss) {
+        Text(stringResource(R.string.ui_close))
+      }
+    },
+  )
+}
+
+@Composable
+private fun TargetSizePresetEditor(
+  preset: TargetSizePreset?,
+  onDismiss: () -> Unit,
+  onSave: (TargetSizePreset) -> Unit,
+) {
+  var name by remember(preset) { mutableStateOf(preset?.label ?: "") }
+  var sizeMb by remember(preset) { mutableStateOf(preset?.sizeMb?.toString() ?: "") }
+
+  AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { Text(stringResource(R.string.compressor_target_size_presets_title)) },
+    text = {
+      Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        OutlinedTextField(
+          value = name,
+          onValueChange = { name = it },
+          label = { Text(stringResource(R.string.compressor_target_preset_name)) },
+          singleLine = true,
+          modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedTextField(
+          value = sizeMb,
+          onValueChange = { sizeMb = it.filter { char -> char.isDigit() || char == '.' } },
+          label = { Text(stringResource(R.string.compressor_target_preset_size_mb)) },
+          singleLine = true,
+          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+          modifier = Modifier.fillMaxWidth(),
+        )
+      }
+    },
+    confirmButton = {
+      TextButton(
+        enabled = name.isNotBlank() && (sizeMb.toFloatOrNull() ?: 0f) > 0f,
+        onClick = {
+          onSave(
+            TargetSizePreset(
+              id = preset?.id ?: "custom_${System.currentTimeMillis()}",
+              sizeMb = sizeMb.toFloatOrNull() ?: 0f,
+              label = name.trim(),
+              isCustom = true,
+            ),
+          )
+        },
+      ) {
+        Text(stringResource(R.string.ui_done))
+      }
+    },
+    dismissButton = {
+      TextButton(onClick = onDismiss) {
+        Text(stringResource(R.string.ui_close))
+      }
+    },
+  )
+}
+
+@Composable
+private fun DefaultVideoConfigEditor(
+  config: DefaultVideoConfig,
+  onDismiss: () -> Unit,
+  onSave: (DefaultVideoConfig) -> Unit,
+) {
+  var codec by remember(config) { mutableStateOf(config.defaultVideoCodec) }
+  var resolution by remember(config) { mutableStateOf(config.defaultTargetResolutionHeight.toString()) }
+  var fps by remember(config) { mutableStateOf(config.defaultTargetFps.toString()) }
+  var ratio by remember(config) { mutableStateOf(config.defaultSizeRatio.toString()) }
+
+  AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { Text(stringResource(R.string.compressor_default_video)) },
+    text = {
+      Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+      ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+          FilterChip(
+            selected = codec == androidx.media3.common.MimeTypes.VIDEO_H265,
+            onClick = { codec = androidx.media3.common.MimeTypes.VIDEO_H265 },
+            label = {
+              Text(
+                stringResource(app.gyrolet.mpvrx.R.string.ui_h_265),
+              )
+            },
+          )
+          FilterChip(
+            selected = codec == androidx.media3.common.MimeTypes.VIDEO_H264,
+            onClick = { codec = androidx.media3.common.MimeTypes.VIDEO_H264 },
+            label = {
+              Text(
+                stringResource(app.gyrolet.mpvrx.R.string.ui_h_264),
+              )
+            },
+          )
+        }
+        OutlinedTextField(
+          value = resolution,
+          onValueChange = { resolution = it.filter { char -> char.isDigit() } },
+          label = { Text(stringResource(R.string.compressor_target_resolution)) },
+          singleLine = true,
+          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+          modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedTextField(
+          value = fps,
+          onValueChange = { fps = it.filter { char -> char.isDigit() } },
+          label = { Text(stringResource(R.string.compressor_target_fps)) },
+          singleLine = true,
+          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+          modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedTextField(
+          value = ratio,
+          onValueChange = { ratio = it.filter { char -> char.isDigit() || char == '.' } },
+          label = { Text(stringResource(R.string.compressor_size_ratio)) },
+          singleLine = true,
+          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+          modifier = Modifier.fillMaxWidth(),
+        )
+        Text(
+          stringResource(R.string.compressor_zero_keeps_original),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+      }
+    },
+    confirmButton = {
+      TextButton(
+        onClick = {
+          onSave(
+            DefaultVideoConfig(
+              defaultVideoCodec = codec,
+              defaultTargetResolutionHeight = resolution.toIntOrNull() ?: 0,
+              defaultTargetFps = fps.toIntOrNull() ?: 0,
+              defaultSizeRatio = ratio.toFloatOrNull() ?: 0f,
+            ),
+          )
+        },
+      ) {
+        Text(stringResource(R.string.ui_done))
+      }
+    },
+    dismissButton = {
+      TextButton(onClick = onDismiss) {
+        Text(stringResource(R.string.ui_close))
+      }
+    },
+  )
+}
+
+@Composable
+private fun DefaultAudioConfigEditor(
+  config: DefaultAudioConfig,
+  onDismiss: () -> Unit,
+  onSave: (DefaultAudioConfig) -> Unit,
+) {
+  var bitrate by remember(config) { mutableStateOf(config.defaultAudioBitrate.toString()) }
+  var removeAudio by remember(config) { mutableStateOf(config.defaultRemoveAudio) }
+  var volume by remember(config) { mutableFloatStateOf(config.defaultAudioVolume) }
+
+  AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { Text(stringResource(R.string.compressor_default_audio)) },
+    text = {
+      Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        OutlinedTextField(
+          value = bitrate,
+          onValueChange = { bitrate = it.filter { char -> char.isDigit() } },
+          label = { Text(stringResource(R.string.ui_audio_bitrate)) },
+          singleLine = true,
+          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+          modifier = Modifier.fillMaxWidth(),
+        )
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          verticalAlignment = Alignment.CenterVertically,
+          horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+          Text(
+            stringResource(R.string.ui_remove_audio),
+            style = MaterialTheme.typography.bodyLarge,
+          )
+          Switch(checked = removeAudio, onCheckedChange = { removeAudio = it })
+        }
+        if (!removeAudio) {
+          Text(
+            stringResource(R.string.compressor_volume),
+            style = MaterialTheme.typography.labelLarge,
+          )
+          Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+          ) {
+            Text(
+              text = "${(volume * 100).toInt()}%",
+              style = MaterialTheme.typography.labelMedium,
+              color = MaterialTheme.colorScheme.primary,
+              modifier = Modifier.width(48.dp),
+            )
+            Slider(
+              value = volume.coerceIn(0f, 2f),
+              onValueChange = { volume = it },
+              valueRange = 0f..2f,
+              steps = 19,
+              modifier = Modifier.weight(1f),
+            )
+          }
+        }
+      }
+    },
+    confirmButton = {
+      TextButton(
+        onClick = {
+          onSave(
+            DefaultAudioConfig(
+              defaultAudioBitrate = bitrate.toIntOrNull() ?: 0,
+              defaultRemoveAudio = removeAudio,
+              defaultAudioVolume = volume,
+            ),
+          )
+        },
+      ) {
+        Text(stringResource(R.string.ui_done))
+      }
+    },
+    dismissButton = {
+      TextButton(onClick = onDismiss) {
+        Text(stringResource(R.string.ui_close))
+      }
+    },
+  )
 }
 
 @Composable
@@ -1357,8 +2313,17 @@ private fun CompressorInfoDialog(
     onDismissRequest = onDismiss,
     title = {
       Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_device_and_app_info), style = MaterialTheme.typography.titleLarge)
-        Text(androidx.compose.ui.res.stringResource(R.string.compressor_version, state.appInfoVersion), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+          androidx.compose.ui.res
+            .stringResource(app.gyrolet.mpvrx.R.string.ui_device_and_app_info),
+          style = MaterialTheme.typography.titleLarge,
+        )
+        Text(
+          androidx.compose.ui.res
+            .stringResource(R.string.compressor_version, state.appInfoVersion),
+          style = MaterialTheme.typography.bodySmall,
+          color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
       }
     },
     text = {
@@ -1366,15 +2331,24 @@ private fun CompressorInfoDialog(
         modifier = Modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(14.dp),
       ) {
-        Text(androidx.compose.ui.res.stringResource(R.string.compressor_device, Build.MANUFACTURER, Build.MODEL))
-        Text(androidx.compose.ui.res.stringResource(R.string.compressor_android_version, Build.VERSION.RELEASE))
+        Text(
+          androidx.compose.ui.res
+            .stringResource(R.string.compressor_device, Build.MANUFACTURER, Build.MODEL),
+        )
+        Text(
+          androidx.compose.ui.res
+            .stringResource(R.string.compressor_android_version, Build.VERSION.RELEASE),
+        )
         HorizontalDivider()
         Row(
           modifier = Modifier.fillMaxWidth(),
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-          Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_show_bitrate))
+          Text(
+            androidx.compose.ui.res
+              .stringResource(app.gyrolet.mpvrx.R.string.ui_show_bitrate),
+          )
           Switch(checked = state.showBitrate, onCheckedChange = { onToggleShowBitrate() })
         }
         if (state.showBitrate) {
@@ -1383,7 +2357,10 @@ private fun CompressorInfoDialog(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
           ) {
-            Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_use_mbps))
+            Text(
+              androidx.compose.ui.res
+                .stringResource(app.gyrolet.mpvrx.R.string.ui_use_mbps),
+            )
             Switch(checked = state.useMbps, onCheckedChange = { onToggleBitrateUnit() })
           }
         }
@@ -1392,11 +2369,19 @@ private fun CompressorInfoDialog(
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-          Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_preserve_metadata))
+          Text(
+            androidx.compose.ui.res
+              .stringResource(app.gyrolet.mpvrx.R.string.ui_preserve_metadata),
+          )
           Switch(checked = state.preserveMetadata, onCheckedChange = { onTogglePreserveMetadata() })
         }
         HorizontalDivider()
-        Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_supported_codecs), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        Text(
+          androidx.compose.ui.res
+            .stringResource(app.gyrolet.mpvrx.R.string.ui_supported_codecs),
+          style = MaterialTheme.typography.labelLarge,
+          color = MaterialTheme.colorScheme.primary,
+        )
         state.supportedCodecs.forEach {
           Text("- ${it.substringAfter("/")}", style = MaterialTheme.typography.bodySmall)
         }
@@ -1404,13 +2389,30 @@ private fun CompressorInfoDialog(
     },
     confirmButton = {
       Row {
-        TextButton(onClick = onShare) { Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.generic_share)) }
-        TextButton(onClick = onCopy) { Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_copy)) }
+        TextButton(
+          onClick = onShare,
+        ) {
+          Text(
+            androidx.compose.ui.res
+              .stringResource(app.gyrolet.mpvrx.R.string.generic_share),
+          )
+        }
+        TextButton(
+          onClick = onCopy,
+        ) {
+          Text(
+            androidx.compose.ui.res
+              .stringResource(app.gyrolet.mpvrx.R.string.ui_copy),
+          )
+        }
       }
     },
     dismissButton = {
       TextButton(onClick = onDismiss) {
-        Text(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_close))
+        Text(
+          androidx.compose.ui.res
+            .stringResource(app.gyrolet.mpvrx.R.string.ui_close),
+        )
       }
     },
   )

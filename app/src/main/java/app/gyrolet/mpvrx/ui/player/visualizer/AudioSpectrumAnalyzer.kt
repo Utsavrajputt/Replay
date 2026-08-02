@@ -9,208 +9,243 @@ package app.gyrolet.mpvrx.ui.player.visualizer
 
 import android.media.audiofx.Visualizer
 import kotlin.math.hypot
-import kotlin.math.ln
-import kotlin.math.max
-import kotlin.math.min
+import kotlin.math.sqrt
 
+/**
+ * Audio spectrum analyzer for mpvRx using [android.media.audiofx.Visualizer].
+ *
+ * Captures live time-domain PCM waveforms and frequency-domain FFT bytes from the output mix / session ID
+ * to drive [AudioFeatures] for 60 FPS visualizer rendering.
+ */
 class AudioSpectrumAnalyzer(
-    val features: AudioFeatures = AudioFeatures()
+  val features: AudioFeatures = AudioFeatures(),
 ) {
-    private var visualizer: Visualizer? = null
+  private var visualizerManager: VisualizerManager? = null
+  private var lastBeatNanos = 0L
+  private var sampleRate = 44100
 
-    private var smoothEnergy = 0f
-    private var smoothBass = 0f
-    private var smoothMid = 0f
-    private var smoothTreble = 0f
-    private var smoothCentroid = 0.35f
-    private var energyFloor = 0.04f
-    private var bassPeak = 0.16f
-    private var midPeak = 0.13f
-    private var treblePeak = 0.10f
-    private var beatEnvelope = 0f
-    private var previousBass = 0f
-    private var beatCooldownFrames = 0
+  private companion object {
+    const val BEAT_DEBOUNCE_MS = 120L
+    const val ENERGY_WAVEFORM_WEIGHT = 0.35f
+    const val ENERGY_FFT_WEIGHT = 0.65f
+  }
 
-    @Synchronized
-    fun start(audioSessionId: Int): Result<Unit> {
-        stop(resetFeatures = false)
-        var pendingInstance: Visualizer? = null
-        return runCatching {
-            val instance = Visualizer(audioSessionId)
-            pendingInstance = instance
-            val captureRange = Visualizer.getCaptureSizeRange()
-            instance.captureSize = min(captureRange[1], 1024)
-            instance.scalingMode = Visualizer.SCALING_MODE_NORMALIZED
+  @Synchronized
+  fun start(audioSessionId: Int): Result<Unit> {
+    stop(resetFeatures = false)
+    return runCatching {
+      features.markCaptureStarted()
 
-            val captureRate = min(Visualizer.getMaxCaptureRate(), 60_000)
-            val status = instance.setDataCaptureListener(
-                object : Visualizer.OnDataCaptureListener {
-                    override fun onWaveFormDataCapture(
-                        visualizer: Visualizer?,
-                        waveform: ByteArray?,
-                        samplingRate: Int
-                    ) = Unit
+      val manager = VisualizerManager(audioSessionId)
+      manager.start(
+        onWaveform = { waveBytes ->
+          if (waveBytes.isNotEmpty()) {
+            processWaveformData(waveBytes)
+          }
+        },
+        onFFT = { fftBytes ->
+          if (fftBytes.isNotEmpty()) {
+            processFftData(fftBytes)
+          }
+        },
+        onSamplingRate = { rate -> sampleRate = rate },
+      )
+      visualizerManager = manager
+    }
+  }
 
-                    override fun onFftDataCapture(
-                        visualizer: Visualizer?,
-                        fft: ByteArray?,
-                        samplingRate: Int
-                    ) {
-                        if (fft != null && fft.size >= 8) {
-                            processFft(fft, samplingRate / 1000f)
-                        }
-                    }
-                },
-                captureRate,
-                false,
-                true
-            )
-            check(status == Visualizer.SUCCESS) { "Visualizer callback setup failed: $status" }
-            instance.enabled = true
-            visualizer = instance
-            pendingInstance = null
-            // A successfully enabled Visualizer can still stop delivering callbacks when the
-            // platform swaps AudioTrack sessions. The overlay watches this timestamp and retries.
-            features.markCaptureStarted()
-        }.onFailure {
-            features.active = false
-            runCatching { pendingInstance?.release() }
-            runCatching { visualizer?.release() }
-            visualizer = null
-        }
+  /**
+   * Processes live time-domain waveform byte arrays.
+   * Energy is blended with FFT energy to avoid flickering from callback ordering.
+   */
+  fun processWaveformData(waveform: ByteArray) {
+    if (waveform.isEmpty()) return
+    var sumSq = 0f
+    val samples = FloatArray(waveform.size.coerceAtMost(512))
+    for (i in samples.indices) {
+      val sample = ((waveform[i].toInt() and 0xFF) - 128) / 128f
+      samples[i] = sample
+      sumSq += sample * sample
+    }
+    val rms = sqrt(sumSq / waveform.size)
+    val rmsBoosted = (rms * 3.5f).coerceIn(0f, 1f)
+
+    // Atomically swap the waveform array so renderers see a consistent snapshot
+    features.waveform = samples
+
+    // Blend waveform energy with FFT energy so they don't fight each other
+    val currentFftEnergy = features.energy
+    features.energy = if (currentFftEnergy > 0.01f) {
+      (currentFftEnergy * ENERGY_FFT_WEIGHT + rmsBoosted * ENERGY_WAVEFORM_WEIGHT).coerceIn(0f, 1f)
+    } else {
+      rmsBoosted
+    }
+    features.active = true
+    features.markCaptureReceived()
+  }
+
+  /**
+   * Processes live FFT byte arrays.
+   * Computes bass/mid/treble with frequency-aware band boundaries,
+   * spectral centroid from magnitude-weighted frequency, and debounced beat detection.
+   */
+  fun processFftData(fft: ByteArray) {
+    if (fft.size < 8) return
+    val captureSize = fft.size
+    val halfSize = captureSize / 2
+    val nyquist = sampleRate / 2f
+    val binHz = nyquist / halfSize
+
+    // Frequency-aware band boundaries (Hz)
+    val bassCutoffHz = 150f
+    val midCutoffHz = 2000f
+    val bassCutoffBin = (bassCutoffHz / binHz).toInt().coerceIn(2, halfSize)
+    val midCutoffBin = (midCutoffHz / binHz).toInt().coerceIn(bassCutoffBin + 1, halfSize)
+
+    var bassSum = 0f
+    var midSum = 0f
+    var trebleSum = 0f
+    var bassCount = 0
+    var midCount = 0
+    var trebleCount = 0
+
+    // For spectral centroid computation
+    var weightedFreqSum = 0f
+    var magSum = 0f
+
+    // For spectral flux (onset detection)
+    var spectralFlux = 0f
+
+    val spectrumData = FloatArray(512)
+    var k = 1
+    while (k < halfSize && k < 512) {
+      val realIndex = k * 2
+      val imagIndex = realIndex + 1
+      if (imagIndex >= captureSize) break
+
+      val real = fft[realIndex].toInt().toFloat()
+      val imaginary = fft[imagIndex].toInt().toFloat()
+      val mag = (hypot(real, imaginary) / 128f).coerceIn(0f, 1f)
+
+      spectrumData[k] = mag
+
+      // Accumulate for spectral centroid
+      val freqHz = k * binHz
+      weightedFreqSum += freqHz * mag
+      magSum += mag
+
+      when {
+        k < bassCutoffBin -> { bassSum += mag; bassCount++ }
+        k < midCutoffBin -> { midSum += mag; midCount++ }
+        else -> { trebleSum += mag; trebleCount++ }
+      }
+      k++
+    }
+    // Atomically swap the spectrum array so renderers see a consistent snapshot
+    features.spectrum = spectrumData
+
+    val bass = if (bassCount > 0) (bassSum / bassCount * 2.2f).coerceIn(0f, 1f) else 0f
+    val mid = if (midCount > 0) (midSum / midCount * 2.5f).coerceIn(0f, 1f) else 0f
+    val treble = if (trebleCount > 0) (trebleSum / trebleCount * 2.8f).coerceIn(0f, 1f) else 0f
+    val fftEnergy = (bass * 0.5f + mid * 0.35f + treble * 0.15f).coerceIn(0f, 1f)
+
+    // Spectral centroid: 0.0 = all low freq, 1.0 = all high freq
+    val centroid = if (magSum > 0.001f) {
+      (weightedFreqSum / magSum / nyquist).coerceIn(0f, 1f)
+    } else {
+      features.centroid
     }
 
-    @Synchronized
-    fun stop(resetFeatures: Boolean = true) {
-        visualizer?.let { instance ->
-            runCatching { instance.enabled = false }
-            runCatching { instance.setDataCaptureListener(null, 0, false, false) }
-            runCatching { instance.release() }
-        }
-        visualizer = null
-        if (resetFeatures) {
-            features.reset()
-        } else {
-            features.active = false
-        }
-        smoothEnergy = features.energy
-        smoothBass = features.bass
-        smoothMid = features.mid
-        smoothTreble = features.treble
-        beatEnvelope = 0f
-        previousBass = 0f
-        beatCooldownFrames = 0
-        energyFloor = 0.04f
-        bassPeak = 0.16f
-        midPeak = 0.13f
-        treblePeak = 0.10f
+    // Beat detection with debounce
+    val now = System.nanoTime()
+    val beatMs = (now - lastBeatNanos) / 1_000_000L
+    val beatDetected = bass > 0.35f && beatMs > BEAT_DEBOUNCE_MS
+    if (beatDetected) lastBeatNanos = now
+
+    // Smooth natural audio feature response
+    features.bass = features.bass * 0.3f + bass * 0.7f
+    features.mid = features.mid * 0.3f + mid * 0.7f
+    features.treble = features.treble * 0.3f + treble * 0.7f
+    features.centroid = features.centroid * 0.6f + centroid * 0.4f
+
+    // Blend FFT energy with existing waveform energy
+    val currentWaveformEnergy = features.energy
+    features.energy = if (currentWaveformEnergy > 0.01f) {
+      (currentWaveformEnergy * ENERGY_WAVEFORM_WEIGHT + fftEnergy * ENERGY_FFT_WEIGHT).coerceIn(0f, 1f)
+    } else {
+      fftEnergy
     }
 
-    private fun processFft(fft: ByteArray, sampleRateHz: Float) {
-        val captureSize = fft.size
-        val binHz = sampleRateHz / captureSize.toFloat()
-        val maxBin = captureSize / 2
+    features.beat = if (beatDetected) 1f else 0f
+    features.active = true
+    features.markCaptureReceived()
+  }
 
-        var bassSum = 0f
-        var midSum = 0f
-        var trebleSum = 0f
-        var bassCount = 0
-        var midCount = 0
-        var trebleCount = 0
-        var weightedFrequency = 0f
-        var magnitudeSum = 0f
+  @Synchronized
+  fun stop(resetFeatures: Boolean = true) {
+    visualizerManager?.release()
+    visualizerManager = null
+    if (resetFeatures) {
+      features.reset()
+    } else {
+      features.active = false
+    }
+  }
+}
 
-        var k = 1
-        while (k < maxBin) {
-            val realIndex = k * 2
-            val imagIndex = realIndex + 1
-            if (imagIndex >= captureSize) break
+/**
+ * Lightweight manager attached to AudioTrack session IDs or global session 0.
+ */
+class VisualizerManager(
+  private val sessionId: Int,
+) {
+  private var visualizer: Visualizer? = null
 
-            val real = fft[realIndex].toInt().toFloat()
-            val imaginary = fft[imagIndex].toInt().toFloat()
-            val rawMagnitude = hypot(real, imaginary) / 128f
-            val magnitude = ln(1f + rawMagnitude * 8f) / ln(9f)
-            val frequency = k * binHz
-
-            when {
-                frequency < 250f -> {
-                    bassSum += magnitude
-                    bassCount++
-                }
-                frequency < 4_000f -> {
-                    midSum += magnitude
-                    midCount++
-                }
-                frequency < 16_000f -> {
-                    trebleSum += magnitude
-                    trebleCount++
-                }
+  fun start(
+    onWaveform: (ByteArray) -> Unit,
+    onFFT: (ByteArray) -> Unit,
+    onSamplingRate: ((Int) -> Unit)? = null,
+  ) {
+    release()
+    runCatching {
+      val v = runCatching { Visualizer(0) }.getOrElse { Visualizer(sessionId) }
+      visualizer = v.apply {
+        captureSize = Visualizer.getCaptureSizeRange()[1]
+        scalingMode = Visualizer.SCALING_MODE_NORMALIZED
+        enabled = false
+        setDataCaptureListener(
+          object : Visualizer.OnDataCaptureListener {
+            override fun onWaveFormDataCapture(
+              visualizer: Visualizer?,
+              waveform: ByteArray?,
+              samplingRate: Int,
+            ) {
+              onSamplingRate?.invoke(samplingRate)
+              waveform?.let(onWaveform)
             }
 
-            weightedFrequency += magnitude * frequency
-            magnitudeSum += magnitude
-            k++
-        }
-
-        val rawBass = normalizeBand(bassSum, bassCount, 1.55f)
-        val rawMid = normalizeBand(midSum, midCount, 1.85f)
-        val rawTreble = normalizeBand(trebleSum, trebleCount, 2.2f)
-
-        // Android devices expose very different FFT levels. A slowly decaying per-band peak keeps
-        // quiet masters visibly reactive without making loud tracks sit permanently at 100%.
-        bassPeak = max(0.16f, max(rawBass, bassPeak * 0.994f))
-        midPeak = max(0.13f, max(rawMid, midPeak * 0.994f))
-        treblePeak = max(0.10f, max(rawTreble, treblePeak * 0.994f))
-        val bass = normalizeAgainstPeak(rawBass, bassPeak, 0.010f)
-        val mid = normalizeAgainstPeak(rawMid, midPeak, 0.008f)
-        val treble = normalizeAgainstPeak(rawTreble, treblePeak, 0.006f)
-        val energy = clamp01(bass * 0.50f + mid * 0.34f + treble * 0.16f)
-        val centroidHz = if (magnitudeSum > 0.0001f) weightedFrequency / magnitudeSum else 1_000f
-        val centroid = clamp01((centroidHz - 120f) / 9_000f)
-
-        // Keep capture smoothing responsive; the renderer performs the slower frame-by-frame
-        // interpolation so the shape stays fluid without lagging behind the music.
-        smoothBass = envelope(smoothBass, bass, 0.46f, 0.14f)
-        smoothMid = envelope(smoothMid, mid, 0.38f, 0.12f)
-        smoothTreble = envelope(smoothTreble, treble, 0.34f, 0.11f)
-        smoothEnergy = envelope(smoothEnergy, energy, 0.42f, 0.13f)
-        smoothCentroid += (centroid - smoothCentroid) * 0.08f
-
-        energyFloor += (smoothEnergy - energyFloor) * 0.025f
-        if (beatCooldownFrames > 0) beatCooldownFrames--
-        val bassRise = smoothBass - previousBass
-        val beatDetected =
-            beatCooldownFrames == 0 &&
-                smoothBass > max(0.16f, energyFloor * 1.35f) &&
-                bassRise > max(0.028f, energyFloor * 0.16f) &&
-                smoothBass > smoothMid * 0.82f
-        if (beatDetected) beatCooldownFrames = 5
-        beatEnvelope = if (beatDetected) 1f else beatEnvelope * 0.72f
-        previousBass = smoothBass
-
-        features.bass = smoothBass
-        features.mid = smoothMid
-        features.treble = smoothTreble
-        features.energy = smoothEnergy
-        features.centroid = smoothCentroid
-        features.beat = beatEnvelope
-        features.markCaptureReceived()
+            override fun onFftDataCapture(
+              visualizer: Visualizer?,
+              fft: ByteArray?,
+              samplingRate: Int,
+            ) {
+              fft?.let(onFFT)
+            }
+          },
+          Visualizer.getMaxCaptureRate(),
+          true,
+          true,
+        )
+        enabled = true
+      }
     }
+  }
 
-    private fun normalizeBand(sum: Float, count: Int, gain: Float): Float {
-        if (count <= 0) return 0f
-        return clamp01((sum / count.toFloat()) * gain)
+  fun release() {
+    runCatching {
+      visualizer?.enabled = false
+      visualizer?.release()
     }
-
-    private fun normalizeAgainstPeak(value: Float, peak: Float, noiseFloor: Float): Float {
-        val usablePeak = max(noiseFloor + 0.001f, peak * 0.92f)
-        return clamp01((value - noiseFloor) / (usablePeak - noiseFloor))
-    }
-
-    private fun envelope(current: Float, target: Float, attack: Float, release: Float): Float {
-        val amount = if (target > current) attack else release
-        return current + (target - current) * amount
-    }
-
-    private fun clamp01(value: Float): Float = min(1f, max(0f, value))
+    visualizer = null
+  }
 }

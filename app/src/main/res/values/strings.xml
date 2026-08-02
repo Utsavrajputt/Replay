@@ -52,6 +52,10 @@
   <string name="pref_nav_playlists_summary">Show or hide Playlists in the bottom navigation bar</string>
   <string name="pref_nav_network_title">Show Network tab</string>
   <string name="pref_nav_network_summary">Show or hide Network in the bottom navigation bar</string>
+  <string name="pref_quick_play_fab_title">Quick Play FAB</string>
+  <string name="pref_quick_play_fab_summary">Show the quick play floating action button in browser screens</string>
+  <string name="pref_quick_play_fab_direct_title">Direct Quick Play</string>
+  <string name="pref_quick_play_fab_direct_summary">Directly play recently played video when tapping FAB instead of showing options</string>
   <string name="pref_appearance_nav_style_slide">Slide</string>
   <string name="pref_appearance_nav_style_fade">Fade</string>
   <string name="pref_appearance_nav_style_none">None (Instant)</string>
@@ -254,6 +258,7 @@
   <string name="toast_subtitles_cleared">Subtitle downloads cleared</string>
   <string name="pref_audio">Audio</string>
   <string name="pref_audio_summary">Preferred languages, audio channels, pitch correction</string>
+  <string name="pref_audio_orientation_title">Audio player orientation</string>
   <string name="pref_audio_pitch_correction_title">Enable audio pitch correction</string>
   <string name="pref_audio_pitch_correction_summary">Prevents the audio from becoming high-pitched at faster speeds and low-pitched at slower speeds</string>
   <string name="pref_audio_volume_normalization_title">Volume normalization</string>
@@ -264,6 +269,8 @@
   <string name="pref_audio_visualizer_style_blob">Blob</string>
   <string name="pref_audio_visualizer_style_galaxy">Galaxy</string>
   <string name="pref_audio_visualizer_style_cuboid">Cuboid</string>
+  <string name="pref_audio_visualizer_style_particle">Particles</string>
+
   <string name="pref_audio_visualizer_galaxy_credit">Inspired by Zain Raza on CodePen</string>
   <string name="pref_audio_channels">Audio channels</string>
   <string name="pref_audio_channels_auto">Auto</string>
@@ -319,6 +326,8 @@
   <string name="anime4k_quality_fast">Fast</string>
   <string name="anime4k_quality_balanced">Balanced</string>
   <string name="anime4k_quality_high">High</string>
+  <string name="pref_anime4k_in_4k_title">Enable in 4K Videos</string>
+  <string name="pref_anime4k_in_4k_summary">Allow Anime4K upscaling for 4K and 8K videos (may increase GPU load and thermal throttling)</string>
   <string name="pref_anime4k_darken_title">Anime4K darken lines</string>
   <string name="pref_anime4k_darken_summary">Adds line darkening after the main upscaler.</string>
   <string name="pref_anime4k_thin_title">Anime4K thin lines</string>
@@ -340,9 +349,9 @@
   <string name="player_sheets_add_ext_sub">Add external subtitles</string>
   <string name="player_sheets_add_ext_audio">Add external audio tracks</string>
   <string name="player_sheets_tracks_off">Off</string>
-  <string name="player_sheets_track_title_w_lang" translatable="false">#%d: %s (%s)</string>
-  <string name="player_sheets_track_title_wo_lang" translatable="false">#%d: %s</string>
-  <string name="player_sheets_track_lang_wo_title" translatable="false">#%d: %s</string>
+  <string name="player_sheets_track_title_w_lang" translatable="false">#%1$d: %2$s (%3$s)</string>
+  <string name="player_sheets_track_title_wo_lang" translatable="false">#%1$d: %2$s</string>
+  <string name="player_sheets_track_lang_wo_title" translatable="false">#%1$d: %2$s</string>
   <string name="player_sheets_chapter_title_substitute_subtitle" translatable="false">Subtitle #%d</string>
   <string name="player_sheets_chapter_title_substitute_audio" translatable="false">Audio #%d</string>
   <string name="player_sheets_off">Off</string>
@@ -457,6 +466,10 @@
   </plurals>
   <!-- Background Playback -->
   <string name="background_playback_title">Background playback</string>
+  <string name="pref_audio_background_playback_title">Audio Player Background Playback</string>
+  <string name="pref_audio_background_playback_summary">Keep audio playing when leaving the audio player or turning off screen</string>
+  <string name="pref_video_background_playback_title">Video Player Background Playback</string>
+  <string name="pref_video_background_playback_summary">Keep video audio playing when leaving the video player or turning off screen</string>
   <string name="deselect_all">Deselect All</string>
   <string name="select_all">Select All</string>
   <string name="invert_selection">Invert Selection</string>
@@ -490,7 +503,8 @@
   <string name="notification_playing">Playing</string>
   <string name="notification_chapter_counter">Chapter %1$d of %2$d</string>
   <string name="notification_permission_denied">Notification permission is required for background playback controls.</string>
-  <string name="notification_permission_disabled">Notifications are disabled for Replay. Enable them to show playback controls.</string>
+  <string name="notification_permission_disabled">Notifications are disabled for mpvRx. Enable them to show playback controls.</string>
+  <string name="notification_disabled_in_advanced_settings">Enable notifications in Advanced Settings to use background playback.</string>
   <string name="pref_advanced_notification_style">Notification style</string>
   <!-- Media Info Activity -->
   <string name="pref_player_use_precise_seeking">Use precise seeking</string>
@@ -947,7 +961,7 @@
   <string name="hdr_mode_bt2020_description">BT.2020 / BT.1886 conversion using hdr-toys gamut mapping</string>
   <string name="hdr_mode_linear">Linear HDR</string>
   <string name="hdr_mode_linear_short">Linear</string>
-  <string name="hdr_mode_linear_description">High-quality mpv HDR output without hdr-toys shaders</string>
+  <string name="hdr_mode_linear_description">Linear light HDR pipeline with hdr-toys Astra and Bottosson shaders</string>
   <string name="hdr_mode_output_diagnostic">HDR - %1$s Mode Output</string>
   <string name="pref_section_support">Support</string>
   <string name="pref_section_updates">Updates</string>
@@ -1002,6 +1016,28 @@
   <string name="search_category_subtitles">Subtitles</string>
   <string name="search_generated_summary">Configure %1$s option.</string>
   <string name="compressor_reduction_percent">−%1$d%%</string>
+  <string name="compressor_add_preset">Add preset</string>
+  <string name="compressor_default_audio">Default audio</string>
+  <string name="compressor_default_video">Default video</string>
+  <string name="compressor_defaults">Defaults</string>
+  <string name="compressor_delete_preset">Delete preset</string>
+  <string name="compressor_preset_configs">Preset configs</string>
+  <string name="compressor_reset_audio_defaults">Reset audio defaults</string>
+  <string name="compressor_reset_presets">Reset presets</string>
+  <string name="compressor_reset_video_defaults">Reset video defaults</string>
+  <string name="compressor_settings">Compressor settings</string>
+  <string name="compressor_show_target_size_presets">Show target size presets</string>
+  <string name="compressor_size_ratio">Target size ratio (0 - 1)</string>
+  <string name="compressor_storage_saved">Show total storage saved</string>
+  <string name="compressor_target_fps">Target frame rate</string>
+  <string name="compressor_target_preset_name">Preset name</string>
+  <string name="compressor_target_preset_size_mb">Target size (MB)</string>
+  <string name="compressor_target_resolution">Target resolution</string>
+  <string name="compressor_target_size_presets_title">Target size preset</string>
+  <string name="compressor_total_saved">Total storage saved: %1$s</string>
+  <string name="compressor_volume">Volume</string>
+  <string name="compressor_volume_hint" formatted="false">100% is the original audio level. Above 100% amplifies the audio.</string>
+  <string name="compressor_zero_keeps_original">0 keeps the original value.</string>
   <string name="generic_minutes_short">%1$dm</string>
   <string name="player_horizontal_flip_on">Horizontal flip on</string>
   <string name="player_horizontal_flip_off">Horizontal flip off</string>
@@ -1134,6 +1170,7 @@
   <string name="ui_copy">Copy</string>
   <string name="ui_separator">Separator</string>
   <string name="ui_toggle_menu">Toggle menu</string>
+  <string name="ui_quick_play">Quick Play</string>
   <string name="ui_open_file">Open File</string>
   <string name="ui_open_link">Open Link</string>
   <string name="ui_search_folders_and_videos">Search folders and videos...</string>
@@ -1196,6 +1233,21 @@
   <string name="ui_please_know_that_this_permission_is_only_used_for_the_auto_disco">Please know that this permission is only used for the auto-discovery of media/subtitle files on your device and will not allow us to access the private data files stored by other apps in any way.</string>
   <string name="ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a">Replay is an open source project. You can review the source code and verify how permissions are used by visiting our GitHub repository at:</string>
   <string name="ui_be_rest_assured_your_privacy_is_our_utmost_priority_and_we_neith">Be rest assured, your privacy is our utmost priority, and we neither access your files for other purposes nor transfer or store them to our servers. They remain safe on your device.</string>
+  <string name="ui_app_permissions">App Permissions</string>
+  <string name="ui_permissions_setup_subtitle">Configure permissions to enable core features and media playback.</string>
+  <string name="ui_file_permission_title">File &amp; Storage Access</string>
+  <string name="ui_file_permission_desc_playstore_tiramisu">Required to access and play video files stored on your device.</string>
+  <string name="ui_file_permission_desc_playstore">Required to access and play media files stored on your device.</string>
+  <string name="ui_file_permission_desc_all_files">Required to discover media and subtitle files on your device.</string>
+  <string name="ui_notification_permission_title">Notifications</string>
+  <string name="ui_notification_permission_desc">Optional. Required for media playback controls, background status, and update alerts.</string>
+  <string name="ui_audio_record_permission_title">Record Audio</string>
+  <string name="ui_audio_record_permission_desc">Optional. Required for audio visualizers to process real-time spectrum and frequency energy.</string>
+  <string name="ui_permission_mandatory">Mandatory</string>
+  <string name="ui_permission_optional">Optional</string>
+  <string name="ui_permission_granted">Granted</string>
+  <string name="ui_next">Next</string>
+  <string name="ui_grant_permission_hint">Tap to grant permission</string>
   <string name="ui_moved_to_private_space">Moved to Private Space</string>
   <string name="ui_cast">Cast</string>
   <string name="ui_mpv_documentation">Replay Documentation</string>
@@ -1475,4 +1527,95 @@
   <string name="syncplay_connect">Connect</string>
   <string name="syncplay_connecting">Connecting…</string>
   <string name="syncplay_player_status">Syncplay: %1$s (%2$d users)</string>
+
+  <!-- Secure Folder -->
+  <string name="secure_folder_title">Secure Folder</string>
+  <string name="secure_folder_summary">PIN-protected space for videos you want hidden from the library.</string>
+  <string name="secure_folder_dont_ask_again">Don\'t ask again</string>
+
+  <!-- Secure Folder Gate / Setup -->
+  <string name="secure_folder_enter_pin">Enter PIN</string>
+  <string name="secure_folder_unlock">Unlock</string>
+  <string name="secure_folder_forgot_pin">Forgot PIN?</string>
+  <string name="secure_folder_setup_title">Set up Secure Folder</string>
+  <string name="secure_folder_setup_subtitle">Choose a PIN and a recovery question.</string>
+  <string name="secure_folder_choose_new_pin">Choose a new PIN</string>
+  <string name="secure_folder_old_pin_invalid">Your old PIN no longer works.</string>
+  <string name="secure_folder_confirm_current_pin">Confirm current PIN</string>
+  <string name="secure_folder_pin">PIN</string>
+  <string name="secure_folder_current_pin">Current PIN</string>
+  <string name="secure_folder_new_pin">New PIN</string>
+  <string name="secure_folder_confirm_new_pin">Confirm new PIN</string>
+  <string name="secure_folder_confirm_pin">Confirm PIN</string>
+  <string name="secure_folder_security_question">Security question</string>
+  <string name="secure_folder_new_security_question">New security question</string>
+  <string name="secure_folder_question">Question</string>
+  <string name="secure_folder_answer">Answer</string>
+  <string name="secure_folder_answer_security_question">Answer your security question</string>
+  <string name="secure_folder_no_question_set">No security question is set.</string>
+  <string name="secure_folder_finish_setup">Finish setup</string>
+  <string name="secure_folder_show_pin">Show PIN</string>
+  <string name="secure_folder_hide_pin">Hide PIN</string>
+  <string name="secure_folder_verify">Verify</string>
+  <string name="secure_folder_next">Next</string>
+  <string name="secure_folder_save">Save</string>
+  <string name="secure_folder_use_fingerprint">Use Fingerprint</string>
+  <string name="secure_folder_enable_fingerprint">Enable Fingerprint</string>
+  <string name="secure_folder_disable_fingerprint">Disable Fingerprint</string>
+  <string name="secure_folder_use_face_unlock">Use Face Unlock</string>
+  <string name="secure_folder_enable_face_unlock">Enable Face Unlock</string>
+  <string name="secure_folder_disable_face_unlock">Disable Face Unlock</string>
+
+  <!-- Security Questions Presets -->
+  <string name="secure_folder_sq_pet">What was your first pet\'s name?</string>
+  <string name="secure_folder_sq_mother">What is your mother\'s maiden name?</string>
+  <string name="secure_folder_sq_school">What was the name of your first school?</string>
+  <string name="secure_folder_sq_city">What city were you born in?</string>
+  <string name="secure_folder_sq_nickname">What was your childhood nickname?</string>
+  <string name="secure_folder_sq_movie">What is your favorite movie?</string>
+
+  <!-- Secure Folder Screen -->
+  <string name="secure_folder_empty_title">Nothing hidden yet</string>
+  <string name="secure_folder_empty_message">Files you move here won\'t show up anywhere else in the app.</string>
+  <string name="secure_folder_restore_confirm_title">Restore %1$d item(s)?</string>
+  <string name="secure_folder_restore_confirm_subtitle">They\'ll go back to where they were originally, or Movies/Restored if that folder is gone.</string>
+  <string name="secure_folder_delete_confirm_title">Delete %1$d item(s) forever?</string>
+  <string name="secure_folder_delete_confirm_subtitle">This can\'t be undone — the files will be permanently removed from your Secure Folder.</string>
+  <string name="secure_folder_hide_entry_title">Hide Secure Folder from Preferences?</string>
+  <string name="secure_folder_hide_entry_subtitle">The \"Secure Folder\" row will be removed from Preferences. To open it again later, double-tap the app name at the top of the Home screen and enter your PIN.</string>
+  <string name="secure_folder_working_on_it">Working on it…</string>
+  <string name="secure_folder_selected_count">%1$d selected</string>
+  <string name="secure_folder_cancel_selection">Cancel selection</string>
+  <string name="secure_folder_restore">Restore</string>
+  <string name="secure_folder_delete_forever">Delete forever</string>
+  <string name="secure_folder_show_in_preferences">Show in Preferences</string>
+  <string name="secure_folder_hide_from_preferences">Hide from Preferences</string>
+  <string name="secure_folder_change_pin">Change PIN</string>
+  <string name="secure_folder_change_security_question">Change security question</string>
+
+  <!-- Move to Secure Folder & Actions -->
+  <string name="secure_folder_move_to">Move to Secure Folder</string>
+  <string name="secure_folder_moving_progress">Moving to Secure Folder…</string>
+  <string name="secure_folder_move_folders_title">Move %1$d folder(s) to Secure Folder?</string>
+  <string name="secure_folder_move_folders_subtitle">Every video inside will disappear from this list and everywhere else in the app until restored.</string>
+  <string name="secure_folder_move_items_title">Move %1$d item(s) to Secure Folder?</string>
+  <string name="secure_folder_move_items_subtitle">They\'ll disappear from this list and everywhere else in the app until restored.</string>
+  <string name="secure_folder_moved_success">Moved %1$d file(s) to Secure Folder</string>
+  <string name="secure_folder_moved_partial">Moved %1$d, failed %2$d</string>
+  <string name="secure_folder_move_failed">Failed to move files to Secure Folder</string>
+
+  <!-- Errors & Operation Results -->
+  <string name="secure_folder_error_incorrect_pin">Incorrect PIN</string>
+  <string name="secure_folder_error_pin_min_digits">PIN must be at least 4 digits</string>
+  <string name="secure_folder_error_pins_dont_match">PINs don\'t match</string>
+  <string name="secure_folder_error_answer_question">Please answer the security question</string>
+  <string name="secure_folder_error_fill_both_fields">Please fill in both fields</string>
+  <string name="secure_folder_error_recovery_no_match">That doesn\'t match our records</string>
+  <string name="secure_folder_restored_success">Restored %1$d file(s)</string>
+  <string name="secure_folder_restored_partial">Restored %1$d, failed %2$d</string>
+  <string name="secure_folder_restore_failed">Restore failed: %1$s</string>
+  <string name="secure_folder_deleted_success">Deleted %1$d file(s)</string>
+  <string name="secure_folder_deleted_partial">Deleted %1$d, failed %2$d</string>
+  <string name="secure_folder_delete_failed">Delete failed: %1$s</string>
+  <string name="secure_folder_progress_format">%1$d of %2$d · %3$d%%</string>
 </resources>

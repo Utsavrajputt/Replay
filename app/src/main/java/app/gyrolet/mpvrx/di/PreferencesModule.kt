@@ -7,7 +7,6 @@
 
 package app.gyrolet.mpvrx.di
 
-import app.gyrolet.mpvrx.database.mpvRxDatabase
 import app.gyrolet.mpvrx.preferences.AdvancedPreferences
 import app.gyrolet.mpvrx.preferences.AiPreferences
 import app.gyrolet.mpvrx.preferences.AppearancePreferences
@@ -17,6 +16,7 @@ import app.gyrolet.mpvrx.preferences.DecoderPreferences
 import app.gyrolet.mpvrx.preferences.FoldersPreferences
 import app.gyrolet.mpvrx.preferences.GesturePreferences
 import app.gyrolet.mpvrx.preferences.PlayerPreferences
+import app.gyrolet.mpvrx.preferences.SecureFolderPreferences
 import app.gyrolet.mpvrx.preferences.SettingsManager
 import app.gyrolet.mpvrx.preferences.SubtitlesPreferences
 import app.gyrolet.mpvrx.preferences.YtdlPreferences
@@ -43,5 +43,5 @@ val PreferencesModule =
     singleOf(::AiPreferences)
     singleOf(::YtdlPreferences)
     singleOf(::SettingsManager)
+    singleOf(::SecureFolderPreferences)
   }
-
