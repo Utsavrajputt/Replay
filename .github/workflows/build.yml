@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - dev
   pull_request:
   workflow_dispatch:
 
@@ -74,32 +75,4 @@ jobs:
         with:
           name: app-standard-arm64-v8a-release-${{ env.SHORT_SHA }}
           path: app/build/outputs/apk/standard/release/app-standard-arm64-v8a-release*.apk
-          if-no-files-found: warn
-
-      - name: Upload app-armeabi-v7a Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-standard-armeabi-v7a-release-${{ env.SHORT_SHA }}
-          path: app/build/outputs/apk/standard/release/app-standard-armeabi-v7a-release*.apk
-          if-no-files-found: warn
-
-      - name: Upload app-universal Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-standard-universal-release-${{ env.SHORT_SHA }}
-          path: app/build/outputs/apk/standard/release/app-standard-universal-release*.apk
-          if-no-files-found: warn
-
-      - name: Upload app-x86 Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-standard-x86-release-${{ env.SHORT_SHA }}
-          path: app/build/outputs/apk/standard/release/app-standard-x86-release*.apk
-          if-no-files-found: warn
-
-      - name: Upload app-x86_64 Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-standard-x86_64-release-${{ env.SHORT_SHA }}
-          path: app/build/outputs/apk/standard/release/app-standard-x86_64-release*.apk
           if-no-files-found: warn

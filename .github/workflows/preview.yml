@@ -84,7 +84,7 @@ jobs:
           
           for arch in "${apks[@]}"; do
             src="app/build/outputs/apk/standard/preview/app-standard-${arch}-preview.apk"
-            dest="output/mpvRx-preview-r${commit_count}-${arch}.apk"
+            dest="output/Replay-preview-r${commit_count}-${arch}.apk"
             if [ -f "$src" ]; then
               cp "$src" "$dest"
               size=$(du -h "$dest" | cut -f1)

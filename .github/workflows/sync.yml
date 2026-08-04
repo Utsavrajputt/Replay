@@ -1,0 +1,69 @@
+name: Sync Upstream
+
+permissions:
+  contents: write
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  sync:
+    name: "Sync fork with upstream"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Register 'ours' merge driver
+        run: git config merge.ours.driver true
+
+      - name: Add upstream remote
+        run: |
+          if ! git remote | grep -q '^upstream$'; then
+            git remote add upstream https://github.com/Riteshp2001/mpvRx.git
+          fi
+          git fetch upstream
+
+      - name: Detect default branch
+        id: branch
+        run: |
+          upstream_default=$(git remote show upstream | sed -n '/HEAD branch/s/.*: //p')
+          echo "upstream_default=$upstream_default" >> "$GITHUB_OUTPUT"
+
+      - name: Merge upstream into current branch
+        id: merge
+        run: |
+          git merge "upstream/${{ steps.branch.outputs.upstream_default }}" --no-edit
+
+      - name: Report conflicting files (on failure)
+        if: failure() && steps.merge.outcome == 'failure'
+        run: |
+          echo "::error::Merge conflict with upstream. Please resolve manually."
+          echo ""
+          echo "Conflicting files:"
+          git diff --name-only --diff-filter=U | sed 's/^/  - /'
+          echo ""
+          echo "To resolve locally:"
+          echo "  git fetch upstream"
+          echo "  git checkout ${{ github.ref_name }}"
+          echo "  git merge upstream/${{ steps.branch.outputs.upstream_default }}"
+          echo "  # fix conflicts in the files listed above"
+          echo "  git add <file>..."
+          echo "  git commit"
+          echo "  git push"
+          exit 1
+
+      - name: Push
+        if: success()
+        run: git push origin HEAD:${{ github.ref_name }}
