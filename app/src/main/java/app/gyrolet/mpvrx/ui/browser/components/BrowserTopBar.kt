@@ -159,6 +159,15 @@ private fun NormalTopBar(
   val darkTheme = isSystemInDarkTheme()
   val themeTransition = LocalThemeTransitionState.current
   val coroutineScope = rememberCoroutineScope()
+  // A softer, less saturated tone for the header so the title/icons read
+  // as premium accents rather than a flat wash of color.
+  val celestialTitleColor =
+    androidx.compose.ui.graphics.lerp(
+      MaterialTheme.colorScheme.primary,
+      MaterialTheme.colorScheme.onSurface,
+      0.4f,
+    )
+  val celestialIconColor = MaterialTheme.colorScheme.onSurfaceVariant
 
   // Track title bounds for animation position
   val titleBounds = remember { mutableStateOf(Rect.Zero) }
@@ -245,7 +254,7 @@ private fun NormalTopBar(
             MaterialTheme.typography.headlineMediumEmphasized
           },
         fontWeight = FontWeight.ExtraBold,
-        color = MaterialTheme.colorScheme.primary,
+        color = celestialTitleColor,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier =
@@ -268,7 +277,7 @@ private fun NormalTopBar(
             Icons.RoundedFilled.ArrowBack,
             contentDescription = stringResource(R.string.back),
             modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.secondary,
+            tint = celestialIconColor,
           )
         }
       }
@@ -286,7 +295,7 @@ private fun NormalTopBar(
                 app.gyrolet.mpvrx.R.string.settings_search_title,
               ),
             modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.secondary,
+            tint = celestialIconColor,
           )
         }
       }
@@ -299,7 +308,7 @@ private fun NormalTopBar(
             Icons.RoundedFilled.SortByAlpha,
             contentDescription = stringResource(R.string.sort),
             modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.secondary,
+            tint = celestialIconColor,
           )
         }
       }
@@ -314,7 +323,7 @@ private fun NormalTopBar(
               androidx.compose.ui.res
                 .stringResource(app.gyrolet.mpvrx.R.string.ui_settings),
             modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.secondary,
+            tint = celestialIconColor,
           )
         }
       }
