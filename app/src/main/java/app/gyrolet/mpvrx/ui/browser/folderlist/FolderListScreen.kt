@@ -1592,6 +1592,7 @@ private fun SearchResultsContent(
           items(
             count = folders.size,
             key = { index -> folders[index].bucketId },
+            contentType = { "folder_item" },
             span = { GridItemSpan(spansInfo.folderSpan) },
           ) { index ->
             val folder = folders[index]
@@ -1610,6 +1611,7 @@ private fun SearchResultsContent(
           items(
             count = videos.size,
             key = { index -> videos[index].id },
+            contentType = { "video_item" },
             span = { GridItemSpan(spansInfo.videoSpan) },
           ) { index ->
             val video = videos[index]
@@ -1637,7 +1639,11 @@ private fun SearchResultsContent(
             bottom = navigationBarHeight + 8.dp,
           ),
       ) {
-        items(count = folders.size, key = { index -> folders[index].bucketId }) { index ->
+        items(
+          count = folders.size,
+          key = { index -> folders[index].bucketId },
+          contentType = { "folder_item" },
+        ) { index ->
           val folder = folders[index]
           FolderCard(
             folder = folder,
@@ -1651,7 +1657,11 @@ private fun SearchResultsContent(
           )
         }
 
-        items(count = videos.size, key = { index -> videos[index].id }) { index ->
+        items(
+          count = videos.size,
+          key = { index -> videos[index].id },
+          contentType = { "video_item" },
+        ) { index ->
           val video = videos[index]
           VideoCard(
             video = video,

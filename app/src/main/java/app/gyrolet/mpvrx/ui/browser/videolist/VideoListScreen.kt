@@ -1058,6 +1058,7 @@ internal fun VideoListContent(
                 items(
                   count = videosWithInfo.size,
                   key = { index -> videosWithInfo[index].video.id },
+                  contentType = { "video_item" },
                 ) { index ->
                   val videoWithInfo = videosWithInfo[index]
                   val isRecentlyPlayed = recentlyPlayedFilePath?.let { videoWithInfo.video.path == it } ?: false
@@ -1132,6 +1133,7 @@ internal fun VideoListContent(
                 items(
                   count = videosWithInfo.size,
                   key = { index -> videosWithInfo[index].video.id },
+                  contentType = { "video_item" },
                 ) { index ->
                   val videoWithInfo = videosWithInfo[index]
                   val isRecentlyPlayed = recentlyPlayedFilePath?.let { videoWithInfo.video.path == it } ?: false

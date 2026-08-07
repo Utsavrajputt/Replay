@@ -64,6 +64,7 @@
   <string name="pref_appearance_auto_scroll_summary">Rolar automaticamente até o último vídeo reproduzido ao abrir listas de vídeos</string>
   <string name="pref_appearance_watched_threshold_title">Limite de assistido</string>
   <string name="pref_appearance_watched_threshold_summary">Marcar o vídeo como assistido quando a reprodução atingir %d%%</string>
+  <string name="pref_appearance_watched_threshold_summary_infinite">Nunca marcar como assistido automaticamente (Infinitamente)</string>
   <string name="pref_tree_flatten_depth_title">Compressão do caminho em árvore</string>
   <string name="pref_tree_flatten_depth_summary">%1$s ignorado(s) por etapa de navegação em pastas com um único item filho</string>
   <string name="ytdl_audio_quality_title">Qualidade de áudio do yt-dlp</string>
@@ -279,6 +280,8 @@ Próximo: NEXT</string>
   <string name="pref_audio_visualizer_style_galaxy">Galáxia</string>
   <string name="pref_audio_visualizer_style_cuboid">Cuboide</string>
   <string name="pref_audio_visualizer_galaxy_credit">Inspirado por Zain Raza no CodePen</string>
+  <string name="pref_audio_ambient_mode_title">Modo ambiente</string>
+  <string name="pref_audio_ambient_mode_summary">Exibir gradientes de cores dinâmicos derivados da capa do álbum no reprodutor de música (desativado quando o visualizador está ativo)</string>
   <string name="pref_audio_channels">Canais de áudio</string>
   <string name="pref_audio_channels_auto">Automático</string>
   <string name="pref_audio_channels_auto_safe">Automático seguro</string>
@@ -375,7 +378,7 @@ Próximo: NEXT</string>
   <string name="player_sheets_sub_override_ass">Substituir legendas ASS/SSA</string>
   <string name="player_sheets_sub_override_ass_subtitle">Forçar substituição da formatação de legendas ASS/SSA</string>
   <string name="player_sheets_sub_scale_by_window">Dimensionar pela janela</string>
-  <string name="player_sheets_sub_scale_by_window_summary">Dimensionar legendas pelo tamanho da janela e usar as margens do vídeo</string>
+  <string name="player_sheets_sub_scale_by_window_summary">Dimensiona o tamanho da legenda com a janela e as posiciona nas margens seguras do vídeo</string>
   <string name="player_sheets_sub_blend_with_video">Misturar legendas com o vídeo</string>
   <string name="player_sheets_sub_blend_with_video_summary">Quando o modo ambiente estiver ativado, desenhar as legendas junto ao vídeo em vez de sobre a área ambiente</string>
   <string name="player_sheets_sub_scale">Escala</string>
@@ -1472,6 +1475,7 @@ Reinicie o aplicativo para que todas as alterações entrem em vigor.</string>
   <string name="oss_androidx_constraintlayout_description">Gerenciador de layout flexível para interfaces Android.</string>
   <string name="oss_androidx_documentfile_description">Camada de abstração para acesso ao armazenamento de documentos.</string>
   <string name="oss_androidx_media_description">APIs do Android para sessão de mídia e reprodução.</string>
+  <string name="oss_androidx_palette_description">Extrai paletas de cores dominantes e vibrantes das imagens.</string>
   <string name="oss_androidx_preference_description">UI e armazenamento para telas de preferências do app.</string>
   <string name="oss_androidx_profile_installer_description">Pré-carrega classes e métodos para iniciar o app mais rapidamente.</string>
   <string name="oss_google_material_description">Componentes do Material Design e biblioteca de temas.</string>

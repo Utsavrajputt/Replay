@@ -64,6 +64,7 @@
   <string name="pref_appearance_auto_scroll_summary">打开视频列表时自动滚动到上次播放的视频</string>
   <string name="pref_appearance_watched_threshold_title">已观看阈值</string>
   <string name="pref_appearance_watched_threshold_summary">播放进度达到 %d%% 时将视频标记为已观看</string>
+  <string name="pref_appearance_watched_threshold_summary_infinite">永不自动标记为已观看（无限）</string>
   <string name="pref_tree_flatten_depth_title">树路径压缩</string>
   <string name="pref_tree_flatten_depth_summary">对于仅有一个子项的文件夹，每次导航跳过 %1$s</string>
   <string name="ytdl_audio_quality_title">yt-dlp 音频质量</string>
@@ -279,6 +280,8 @@
   <string name="pref_audio_visualizer_style_galaxy">星系</string>
   <string name="pref_audio_visualizer_style_cuboid">长方体</string>
   <string name="pref_audio_visualizer_galaxy_credit">灵感来自 CodePen 上的 Zain Raza</string>
+  <string name="pref_audio_ambient_mode_title">氛围模式</string>
+  <string name="pref_audio_ambient_mode_summary">在音乐播放器中显示基于专辑封面生成的动态色彩渐变（可视化效果开启时禁用）</string>
   <string name="pref_audio_channels">音频声道</string>
   <string name="pref_audio_channels_auto">自动</string>
   <string name="pref_audio_channels_auto_safe">安全自动</string>
@@ -375,7 +378,7 @@
   <string name="player_sheets_sub_override_ass">覆盖 ASS/SSA 字幕</string>
   <string name="player_sheets_sub_override_ass_subtitle">强制覆盖 ASS/SSA 字幕格式</string>
   <string name="player_sheets_sub_scale_by_window">按窗口缩放</string>
-  <string name="player_sheets_sub_scale_by_window_summary">根据窗口大小缩放字幕并使用视频边距</string>
+  <string name="player_sheets_sub_scale_by_window_summary">随窗口缩放字幕大小，并将其置于视频的安全边距内</string>
   <string name="player_sheets_sub_blend_with_video">将字幕与视频混合</string>
   <string name="player_sheets_sub_blend_with_video_summary">环境模式开启时，将字幕绘制在视频中，而不是环境区域上方</string>
   <string name="player_sheets_sub_scale">缩放</string>
@@ -1472,6 +1475,7 @@
   <string name="oss_androidx_constraintlayout_description">用于 Android 界面的灵活布局管理器。</string>
   <string name="oss_androidx_documentfile_description">用于文档存储访问的抽象层。</string>
   <string name="oss_androidx_media_description">Android 媒体会话和播放 API。</string>
+  <string name="oss_androidx_palette_description">从图像中提取主要和鲜明的调色板。</string>
   <string name="oss_androidx_preference_description">用于应用偏好设置页面的 UI 和存储。</string>
   <string name="oss_androidx_profile_installer_description">预取类和方法以加快应用启动速度。</string>
   <string name="oss_google_material_description">Material Design 组件和主题库。</string>

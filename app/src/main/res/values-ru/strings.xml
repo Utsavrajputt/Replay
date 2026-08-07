@@ -64,6 +64,7 @@
   <string name="pref_appearance_auto_scroll_summary">Автоматически прокручивать к последнему воспроизведённому видео при открытии списка</string>
   <string name="pref_appearance_watched_threshold_title">Порог просмотра</string>
   <string name="pref_appearance_watched_threshold_summary">Отмечать видео как просмотренное при достижении %d%% воспроизведения</string>
+  <string name="pref_appearance_watched_threshold_summary_infinite">Никогда не отмечать как просмотренное (бесконечно)</string>
   <string name="pref_tree_flatten_depth_title">Сжатие пути дерева</string>
   <string name="pref_tree_flatten_depth_summary">Пропущено %1$s за шаг навигации для папок с единственным дочерним элементом</string>
   <string name="ytdl_audio_quality_title">Качество аудио yt-dlp</string>
@@ -279,6 +280,8 @@
   <string name="pref_audio_visualizer_style_galaxy">Галактика</string>
   <string name="pref_audio_visualizer_style_cuboid">Кубоид</string>
   <string name="pref_audio_visualizer_galaxy_credit">Вдохновлено работой Zain Raza на CodePen</string>
+  <string name="pref_audio_ambient_mode_title">Эмбиент режим</string>
+  <string name="pref_audio_ambient_mode_summary">Отображать динамические цветовые градиенты на основе обложки альбома в плеере (отключается при включенном визуализаторе)</string>
   <string name="pref_audio_channels">Аудиоканалы</string>
   <string name="pref_audio_channels_auto">Авто</string>
   <string name="pref_audio_channels_auto_safe">Безопасный авто</string>
@@ -375,7 +378,7 @@
   <string name="player_sheets_sub_override_ass">Переопределять субтитры ASS/SSA</string>
   <string name="player_sheets_sub_override_ass_subtitle">Принудительно переопределять форматирование субтитров ASS/SSA</string>
   <string name="player_sheets_sub_scale_by_window">Масштабировать по окну</string>
-  <string name="player_sheets_sub_scale_by_window_summary">Масштабировать субтитры по размеру окна и использовать поля видео</string>
+  <string name="player_sheets_sub_scale_by_window_summary">Масштабировать размер субтитров по размеру окна и размещать их в защитных полях видео</string>
   <string name="player_sheets_sub_blend_with_video">Смешивать субтитры с видео</string>
   <string name="player_sheets_sub_blend_with_video_summary">Когда включён фоновый режим, рисовать субтитры вместе с видео, а не поверх фоновой области</string>
   <string name="player_sheets_sub_scale">Масштаб</string>
@@ -1472,6 +1475,7 @@
   <string name="oss_androidx_constraintlayout_description">Гибкий менеджер компоновки для интерфейсов Android.</string>
   <string name="oss_androidx_documentfile_description">Уровень абстракции для доступа к хранилищу документов.</string>
   <string name="oss_androidx_media_description">API Android для медиасеансов и воспроизведения.</string>
+  <string name="oss_androidx_palette_description">Извлекает доминирующие и яркие цветовые палитры из изображений.</string>
   <string name="oss_androidx_preference_description">Интерфейс и хранение данных для экранов настроек приложения.</string>
   <string name="oss_androidx_profile_installer_description">Предварительно загружает классы и методы для ускорения запуска приложения.</string>
   <string name="oss_google_material_description">Компоненты Material Design и библиотека тем.</string>

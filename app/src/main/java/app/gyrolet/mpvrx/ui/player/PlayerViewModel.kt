@@ -21,6 +21,7 @@ import android.os.BatteryManager
 import android.provider.OpenableColumns
 import android.provider.Settings
 import android.util.DisplayMetrics
+import android.view.WindowManager
 import android.util.Log
 import android.util.LruCache
 import android.view.inputmethod.InputMethodManager
@@ -1182,7 +1183,10 @@ class PlayerViewModel(
         runCatching {
           val time = MPVLib.getPropertyDouble("time-pos")
           if (time != null) {
-            _precisePosition.value = time.toFloat()
+            val posFloat = time.toFloat()
+            if (_precisePosition.value != posFloat) {
+              _precisePosition.value = posFloat
+            }
             maybeAutoSkipIntro(time)
           }
         }.onFailure { error ->
@@ -1192,8 +1196,8 @@ class PlayerViewModel(
         }
         val intervalMs =
           when {
-            paused == false && (seekBarVisibleForPolling || controlsVisibleForPolling) -> 50L
-            paused == false -> 500L // was 250 ms — halved to reduce idle CPU wake-ups
+            paused == true -> 1000L // Reduce polling frequency when paused to conserve CPU/battery
+            seekBarVisibleForPolling || controlsVisibleForPolling -> 50L
             else -> 500L
           }
         delay(intervalMs)
@@ -3860,13 +3864,43 @@ class PlayerViewModel(
     brightnessSliderTimestamp.value = System.currentTimeMillis()
   }
 
+  /**
+   * Resets the window brightness to follow the system. Used when "remember brightness"
+   * is disabled so playback adheres to the device's current brightness (including
+   * auto-brightness) instead of being forced to the manual SCREEN_BRIGHTNESS value,
+   * which is wrong/dimmer when auto-brightness is active.
+   */
+  fun resetBrightnessToSystem() {
+    val systemBrightness =
+      runCatching {
+        Settings.System
+          .getFloat(host.hostContentResolver, Settings.System.SCREEN_BRIGHTNESS)
+          .coerceIn(0f, 255f) / 255f
+      }.getOrNull() ?: 0f
+    currentBrightness.value = systemBrightness
+    runCatching {
+      host.hostWindow.attributes =
+        host.hostWindow.attributes.apply {
+          screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+        }
+    }
+  }
+
   fun changeVolumeBy(
     change: Int,
     showUi: Boolean = false,
   ) {
+    val isAudio = host.isCurrentMediaKnownAudio() || isAudioOnly.value
     val currentSystemVolume = syncCurrentSystemVolume()
     val mpvVolume = MPVLib.getPropertyInt("volume") ?: 100
-    val absoluteMaxVolume = volumeBoostCap ?: (audioPreferences.volumeBoostCap.get() + 100)
+    // Audio playback must not apply gain boost (>100%). Boost is a video-only feature,
+    // so cap the maximum at 100 for audio.
+    val absoluteMaxVolume =
+      if (isAudio) {
+        100
+      } else {
+        volumeBoostCap ?: (audioPreferences.volumeBoostCap.get() + 100)
+      }
 
     if (currentSystemVolume < maxVolume && mpvVolume > 100) {
       changeMPVVolumeTo(100)
@@ -4950,6 +4984,9 @@ class PlayerViewModel(
       decoderPreferences.lastHdrMode.set(resolvedMode)
     }
     applyHdrScreenOutput(resolvedMode)
+    // Ambient shader encodes IS_LINEAR_HDR at compile time — regenerate it so the
+    // new mode (linear vs SDR/hdr-toys) is immediately reflected in the GLSL output.
+    restartAmbientIfActive()
     playerUpdate.value =
       PlayerUpdates.ShowText(
         host.context.getString(R.string.hdr_screen_output_update, host.context.getString(resolvedMode.shortTitleRes)),
@@ -5522,7 +5559,7 @@ class PlayerViewModel(
     fadeCurve: Float,
     opacity: Float,
   ): AmbientShaderSpec {
-    val context = AmbientRenderContext(scaleX = sx, scaleY = sy)
+    val context = AmbientRenderContext(scaleX = sx, scaleY = sy, isLinearHdr = _hdrScreenMode.value == HdrScreenMode.LINEAR)
     val shared =
       AmbientSharedShaderConfig(
         bezelDepth = if (_ambientVisualMode.value == AmbientVisualMode.FRAME_EXTEND) bezelDepth else 0f,

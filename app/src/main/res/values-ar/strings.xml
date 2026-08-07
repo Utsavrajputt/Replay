@@ -64,6 +64,7 @@
   <string name="pref_appearance_auto_scroll_summary">التمرير تلقائيًا إلى آخر فيديو تم تشغيله عند فتح قوائم الفيديو</string>
   <string name="pref_appearance_watched_threshold_title">حد المشاهدة</string>
   <string name="pref_appearance_watched_threshold_summary">وضع علامة تمت المشاهدة عند وصول التشغيل إلى %d%%</string>
+  <string name="pref_appearance_watched_threshold_summary_infinite">عدم وضع علامة تمت المشاهدة تلقائيًا (لانهائي)</string>
   <string name="pref_tree_flatten_depth_title">ضغط مسار الشجرة</string>
   <string name="pref_tree_flatten_depth_summary">تم تخطي %1$s في كل خطوة تنقل للمجلدات ذات العنصر الوحيد</string>
   <string name="ytdl_audio_quality_title">جودة صوت yt-dlp</string>
@@ -279,6 +280,8 @@
   <string name="pref_audio_visualizer_style_galaxy">مجرة</string>
   <string name="pref_audio_visualizer_style_cuboid">مكعباني</string>
   <string name="pref_audio_visualizer_galaxy_credit">مستوحى من عمل Zain Raza على CodePen</string>
+  <string name="pref_audio_ambient_mode_title">الوضع المحيطي</string>
+  <string name="pref_audio_ambient_mode_summary">عرض تدرجات ألوان ديناميكية مستمدة من غلاف الألبوم في مشغل الموسيقى (معطل عند تفعيل المؤثر البصري)</string>
   <string name="pref_audio_channels">قنوات الصوت</string>
   <string name="pref_audio_channels_auto">تلقائي</string>
   <string name="pref_audio_channels_auto_safe">تلقائي آمن</string>
@@ -375,7 +378,7 @@
   <string name="player_sheets_sub_override_ass">تجاوز ترجمة ASS/SSA</string>
   <string name="player_sheets_sub_override_ass_subtitle">فرض تجاوز تنسيق ترجمة ASS/SSA</string>
   <string name="player_sheets_sub_scale_by_window">التحجيم حسب النافذة</string>
-  <string name="player_sheets_sub_scale_by_window_summary">تحجيم الترجمة حسب حجم النافذة واستخدام هوامش الفيديو</string>
+  <string name="player_sheets_sub_scale_by_window_summary">يحجّم حجم الترجمة مع حجم النافذة ويضعها داخل الهوامش الآمنة للفيديو</string>
   <string name="player_sheets_sub_blend_with_video">دمج الترجمة مع الفيديو</string>
   <string name="player_sheets_sub_blend_with_video_summary">عند تفعيل الوضع المحيطي، ارسم الترجمة مع الفيديو بدلًا من فوق المنطقة المحيطية</string>
   <string name="player_sheets_sub_scale">التحجيم</string>
@@ -1472,6 +1475,7 @@
   <string name="oss_androidx_constraintlayout_description">مدير تخطيط مرن لواجهات Android.</string>
   <string name="oss_androidx_documentfile_description">طبقة تجريد للوصول إلى تخزين المستندات.</string>
   <string name="oss_androidx_media_description">واجهات جلسات الوسائط والتشغيل في Android.</string>
+  <string name="oss_androidx_palette_description">يستخرج لوحات ألوان مهيمنة ونابضة بالحياة من الصور.</string>
   <string name="oss_androidx_preference_description">واجهة وتخزين لشاشات تفضيلات التطبيق.</string>
   <string name="oss_androidx_profile_installer_description">يجلب الفئات والطرائق مسبقًا لتسريع بدء تشغيل التطبيق.</string>
   <string name="oss_google_material_description">مكوّنات Material Design ومكتبة السمات.</string>

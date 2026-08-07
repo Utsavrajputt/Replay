@@ -64,6 +64,7 @@
   <string name="pref_appearance_auto_scroll_summary">वीडियो लिस्ट खोलने पर आखिरी चलाई गई वीडियो तक अपने आप स्क्रॉल करें</string>
   <string name="pref_appearance_watched_threshold_title">देखा गया थ्रेशोल्ड</string>
   <string name="pref_appearance_watched_threshold_summary">प्लेबैक %d%% तक पहुंचने पर वीडियो को देखा गया मार्क करें</string>
+  <string name="pref_appearance_watched_threshold_summary_infinite">कभी स्वतः देखा गया मार्क न करें (अनंत)</string>
   <string name="pref_tree_flatten_depth_title">ट्री पाथ कम्प्रेशन</string>
   <string name="pref_tree_flatten_depth_summary">सिंगल-चाइल्ड फोल्डर्स के लिए हर नेविगेशन स्टेप में %1$s छोड़े गए</string>
   <string name="ytdl_audio_quality_title">yt-dlp ऑडियो क्वालिटी</string>
@@ -271,6 +272,8 @@
   <string name="pref_audio_visualizer_style_cuboid">Cuboid</string>
   <string name="pref_audio_visualizer_style_particle">Particles</string>
   <string name="pref_audio_visualizer_galaxy_credit">Zain Raza (CodePen) से प्रेरित</string>
+  <string name="pref_audio_ambient_mode_title">एम्बिएंट मोड</string>
+  <string name="pref_audio_ambient_mode_summary">म्यूजिक प्लेयर में एल्बम कवर आर्ट से बने गतिशील रंग ग्रेडिएंट प्रदर्शित करें (विज़ुअलाइज़र सक्रिय होने पर अक्षम)</string>
   <string name="pref_audio_channels">ऑडियो चैनल</string>
   <string name="pref_audio_channels_auto">ऑटो</string>
   <string name="pref_audio_channels_auto_safe">ऑटो सेफ</string>
@@ -373,7 +376,7 @@
   <string name="player_sheets_sub_override_ass">ASS/SSA सबटाइटल ओवरराइड करें</string>
   <string name="player_sheets_sub_override_ass_subtitle">ASS/SSA सबटाइटल फॉर्मेटिंग को जबरदस्ती ओवरराइड करें</string>
   <string name="player_sheets_sub_scale_by_window">विंडो के हिसाब से स्केल करें</string>
-  <string name="player_sheets_sub_scale_by_window_summary">विंडो साइज़ के हिसाब से सबटाइटल स्केल करें और वीडियो मार्जिन इस्तेमाल करें</string>
+  <string name="player_sheets_sub_scale_by_window_summary">विंडो के साइज़ के साथ सबटाइटल का साइज़ बदलें और उन्हें वीडियो के सुरक्षित मार्जिन (safe-area) में रखें</string>
   <string name="player_sheets_sub_blend_with_video">सबटाइटल को वीडियो के साथ ब्लेंड करें</string>
   <string name="player_sheets_sub_blend_with_video_summary">एम्बिएंट मोड ऑन होने पर, एम्बिएंट एरिया की बजाय सबटाइटल को वीडियो के साथ बनाएं</string>
   <string name="player_sheets_sub_scale">स्केल</string>
@@ -1418,6 +1421,7 @@
   <string name="oss_androidx_constraintlayout_description">Android इंटरफेस के लिए फ्लेक्सिबल लेआउट मैनेजर।</string>
   <string name="oss_androidx_documentfile_description">डॉक्यूमेंट स्टोरेज एक्सेस के लिए एब्स्ट्रैक्शन लेयर।</string>
   <string name="oss_androidx_media_description">Android मीडिया सेशन और प्लेबैक API।</string>
+  <string name="oss_androidx_palette_description">तस्वीरों से प्रमुख और जीवंत रंग पैलेट निकालता है।</string>
   <string name="oss_androidx_preference_description">ऐप प्रेफरेंस स्क्रीन के लिए UI और स्टोरेज।</string>
   <string name="oss_androidx_profile_installer_description">तेज़ ऐप स्टार्टअप के लिए क्लास और मेथड पहले से लोड करता है।</string>
   <string name="oss_google_material_description">Material Design कंपोनेंट और थीमिंग लाइब्रेरी।</string>
