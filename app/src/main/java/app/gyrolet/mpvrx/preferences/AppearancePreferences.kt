@@ -60,6 +60,7 @@ class AppearancePreferences(
   val showNetworkTab = preferenceStore.getBoolean("show_network_tab", false)
   val showQuickPlayFab = preferenceStore.getBoolean("show_quick_play_fab", true)
   val quickPlayFabDirect = preferenceStore.getBoolean("quick_play_fab_direct", false)
+  val showCelestialEffects = preferenceStore.getBoolean("show_celestial_effects", true)
 
   val topLeftControls =
     preferenceStore.getString(
