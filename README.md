@@ -10,9 +10,6 @@
   <i>No ads. No trackers. No noise. Just a serious video player with a calmer surface and a sharper edge.</i>
 </p>
 
-> [!IMPORTANT]
-> **Built on mpvRx, whose development is actively continuing upstream**
-
 <div align="center">
 
 ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
