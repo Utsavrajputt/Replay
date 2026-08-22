@@ -17,7 +17,7 @@
   <string name="pref_appearance_amoled_mode_title">Чёрный режим AMOLED</string>
   <string name="pref_appearance_amoled_mode_summary">Использовать полностью чёрный фон для тёмных тем</string>
   <string name="pref_appearance_system_font_title">Использовать системный шрифт</string>
-  <string name="pref_appearance_system_font_summary">Использовать системный шрифт Android во всём mpvRx вместо Google Sans Flex</string>
+  <string name="pref_appearance_system_font_summary">Использовать системный шрифт Android во всём Replay вместо Google Sans Flex</string>
   <string name="pref_appearance_material_you_title">Material You</string>
   <string name="pref_appearance_material_you_summary">Включить динамические цвета</string>
   <string name="pref_appearance_material_you_summary_disabled">Доступно только на Android 12 и новее</string>
@@ -78,7 +78,7 @@
   <string name="theme_dynamic">Динамическая</string>
   <string name="theme_aurora">Аврора</string>
   <string name="theme_cloudflare">Cloudflare</string>
-  <string name="theme_cotton_candy">Сахарная вата</string>
+  <string name="theme_cotton_candy">Конфета</string>
   <string name="theme_doom">Doom</string>
   <string name="theme_green_apple">Зелёное яблоко</string>
   <string name="theme_lavender">Лаванда</string>
@@ -1220,15 +1220,15 @@
   <string name="ui_allow_access">РАЗРЕШИТЬ ДОСТУП</string>
   <string name="ui_why_do_i_see_this">Почему я это вижу?</string>
   <string name="ui_why_this_permission_is_needed">Зачем нужно это разрешение</string>
-  <string name="ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct">mpvRx необходим доступ к видеофайлам для выполнения основных функций медиаплеера.</string>
+  <string name="ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct">Replay необходим доступ к видеофайлам для выполнения основных функций медиаплеера.</string>
   <string name="ui_the_permission_is_used_exclusively_for">Разрешение используется исключительно для:</string>
   <string name="ui_discovering_and_displaying_your_video_files_n_playing_media_cont">• Поиск и отображение видеофайлов
 • Воспроизведение медиаконтента
 • Загрузка файлов субтитров</string>
-  <string name="ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse">mpvRx всегда требовался доступ к хранилищу, поскольку он необходим для поиска всех медиафайлов и субтитров на устройстве, включая неподдерживаемые системой.</string>
+  <string name="ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse">Replay всегда требовался доступ к хранилищу, поскольку он необходим для поиска всех медиафайлов и субтитров на устройстве, включая неподдерживаемые системой.</string>
   <string name="ui_however_due_to_a_change_in_security_policy_apps_built_for_androi">Однако из-за изменения политики безопасности приложения для Android 11 и новее теперь требуют дополнительного разрешения для сохранения такого доступа.</string>
   <string name="ui_please_know_that_this_permission_is_only_used_for_the_auto_disco">Это разрешение используется только для автоматического поиска медиафайлов и субтитров на устройстве и не позволяет нам получать доступ к личным данным других приложений.</string>
-  <string name="ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a">mpvRx — проект с открытым исходным кодом. Вы можете проверить код и использование разрешений в нашем репозитории GitHub:</string>
+  <string name="ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a">Replay — проект с открытым исходным кодом. Вы можете проверить код и использование разрешений в нашем репозитории GitHub:</string>
   <string name="ui_be_rest_assured_your_privacy_is_our_utmost_priority_and_we_neith">Будьте уверены: конфиденциальность — наш главный приоритет. Мы не используем ваши файлы в других целях, не передаём и не храним их на серверах. Они остаются на устройстве.</string>
   <string name="ui_app_permissions">Разрешения приложения</string>
   <string name="ui_permissions_setup_subtitle">Настройте разрешения для работы основных функций и воспроизведения медиа.</string>
@@ -1247,7 +1247,7 @@
   <string name="ui_grant_permission_hint">Нажмите, чтобы предоставить разрешение</string>
   <string name="ui_moved_to_private_space">Перемещено в личное пространство</string>
   <string name="ui_cast">Трансляция</string>
-  <string name="ui_mpv_documentation">Документация mpv</string>
+  <string name="ui_mpv_documentation">Документация Replay</string>
   <string name="ui_search_commands_options_properties">Поиск команд, параметров и свойств...</string>
   <string name="ui_no_results_found">Результаты не найдены</string>
   <string name="ui_no_android">Не Android</string>
@@ -1309,18 +1309,18 @@
   <string name="ui_pan_zoom">Панорамирование и масштаб</string>
   <string name="ui_decrease_zoom">Уменьшить масштаб</string>
   <string name="ui_increase_zoom">Увеличить масштаб</string>
-  <string name="ui_by_ritesh_pandit">Автор: Ritesh Pandit</string>
+  <string name="ui_by_ritesh_pandit">Автор: Utsav Rajput</string>
   <string name="ui_github">GitHub</string>
   <string name="ui_device_info">Информация об устройстве</string>
   <string name="ui_buy_me_a_coffee">Угостить кофе</string>
-  <string name="ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit">Если вам нравится mpvRx, поддержите его разработку. Важна любая помощь!</string>
+  <string name="ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit">Нравится Replay? Поддержите оригинального разработчика, благодаря которому это стало возможным. Любой вклад важен!</string>
   <string name="ui_upi_id">Идентификатор UPI</string>
   <string name="ui_panditritesh2001_okhdfcbank">panditritesh2001@okhdfcbank</string>
   <string name="ui_send_love">Поддержать</string>
   <string name="ui_auto_check_for_updates">Автоматически проверять обновления</string>
   <string name="ui_check_on_startup">Проверять при запуске</string>
   <string name="ui_check_for_updates_now">Проверить обновления сейчас</string>
-  <string name="ui_core_open_source_dependencies_used_by_mpvrx">Основные зависимости с открытым исходным кодом, используемые mpvRx.</string>
+  <string name="ui_core_open_source_dependencies_used_by_mpvrx">Основные зависимости с открытым исходным кодом, используемые Replay.</string>
   <string name="ui_copy_upi_id">Копировать идентификатор UPI</string>
   <string name="ui_already_using_latest_version">Уже используется последняя версия</string>
   <string name="ui_upi_id_copied">Идентификатор UPI скопирован!</string>
@@ -1518,7 +1518,7 @@
   <string name="syncplay_player_status">Syncplay: %1$s (%2$d пользователей)</string>
   <!-- Additional synchronized strings -->
   <string name="app_name">mpvRx</string>
-  <string name="github_repo_url">https://github.com/Riteshp2001/mpvRx</string>
+  <string name="github_repo_url">https://github.com/Utsavrajputt/Replay</string>
   <string name="hdr_mode_bt2020">BT.2020</string>
   <string name="hdr_mode_bt2100_hlg">BT.2100 HLG</string>
   <string name="hdr_mode_bt2100_pq">BT.2100 PQ</string>
@@ -1640,20 +1640,20 @@
   <string name="secure_folder_progress_format">%1$d из %2$d · %3$d%%</string>
   <string name="pref_codecs_decoders_summary">%1$d аппаратных • %2$d программных декодеров</string>
   <string name="pref_codecs_banner_title">Аппаратное и программное декодирование</string>
-  <string name="pref_codecs_banner_desc">Аппаратные декодеры декодируют видео непосредственно на VPU/GPU, расходуя минимум энергии. Программные декодеры работают на ЦП, вызывая нагрев и разряд батареи при воспроизведении 4K или высоких битрейтов.</string>
+  <string name="pref_codecs_banner_desc">Аппаратные декодеры (⚡) декодируют видео непосредственно на VPU/GPU, расходуя минимум энергии. Программные декодеры (💻) работают на ЦП, вызывая нагрев и разряд батареи при воспроизведении 4K или высоких битрейтов.</string>
   <string name="pref_codecs_core_title">Статус основных видеокодеков</string>
   <string name="pref_codecs_search_placeholder">Поиск кодека, формата или MIME...</string>
   <string name="pref_codecs_filter_all">Все (%d)</string>
-  <string name="pref_codecs_filter_hardware">Аппаратные (%d)</string>
-  <string name="pref_codecs_filter_software">Программные (%d)</string>
+  <string name="pref_codecs_filter_hardware">Аппаратные ⚡ (%d)</string>
+  <string name="pref_codecs_filter_software">Программные 💻 (%d)</string>
   <string name="pref_codecs_filter_video">Видео (%d)</string>
   <string name="pref_codecs_filter_audio">Аудио (%d)</string>
   <string name="pref_codecs_list_header">Подробный список декодеров (%d)</string>
   <string name="pref_codecs_empty">Кодеки по текущему запросу не найдены.</string>
-  <string name="pref_codecs_badge_hardware">Аппаратный</string>
-  <string name="pref_codecs_badge_software">Программный</string>
-  <string name="pref_codecs_badge_hw_short">HW</string>
-  <string name="pref_codecs_badge_sw_short">SW</string>
+  <string name="pref_codecs_badge_hardware">⚡ Аппаратный</string>
+  <string name="pref_codecs_badge_software">💻 Программный</string>
+  <string name="pref_codecs_badge_hw_short">⚡ HW</string>
+  <string name="pref_codecs_badge_sw_short">💻 SW</string>
   <string name="pref_codecs_no_decoder">Декодер не обнаружен</string>
   <string name="pref_codecs_max_limit">Макс. предел: %s</string>
   <string name="pref_codecs_max_resolution">Макс. разрешение: %s</string>

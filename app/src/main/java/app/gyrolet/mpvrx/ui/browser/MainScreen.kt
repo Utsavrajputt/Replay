@@ -471,17 +471,29 @@ private fun ExpressivePillNavigationBar(
   modifier: Modifier = Modifier,
 ) {
   val haptics = LocalHapticFeedback.current
+  val appearancePreferences = koinInject<AppearancePreferences>()
+  val showCelestialEffects by appearancePreferences.showCelestialEffects.collectAsState()
 
   Surface(
     modifier = modifier,
     shape = CircleShape,
-    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    color =
+      if (showCelestialEffects) {
+        MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.72f)
+      } else {
+        MaterialTheme.colorScheme.surfaceContainerHigh
+      },
     tonalElevation = 6.dp,
     shadowElevation = 8.dp,
     border =
       BorderStroke(
         width = 1.dp,
-        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f),
+        color =
+          if (showCelestialEffects) {
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+          } else {
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f)
+          },
       ),
   ) {
     Row(
