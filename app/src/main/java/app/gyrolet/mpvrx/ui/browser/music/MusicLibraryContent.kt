@@ -610,13 +610,6 @@ fun MusicLibraryContent(
             val fabSurfaceContainerHigh = MaterialTheme.colorScheme.surfaceContainerHigh
             val fabPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
             ToggleFloatingActionButton(
-<<<<<<< HEAD
-              modifier =
-                Modifier.animateFloatingActionButton(
-                  visible = isFabShouldBeVisible,
-                  alignment = Alignment.BottomEnd,
-                ),
-=======
               modifier = Modifier.animateFloatingActionButton(
                 visible = showQuickPlayFab && !activeSelectionManager.isInSelectionMode && isFabVisible.value && !MainScreen.getPermissionDeniedState(),
                 alignment = Alignment.BottomEnd,
@@ -635,7 +628,6 @@ fun MusicLibraryContent(
                 )
               },
               containerCornerRadius = { 28.dp },
->>>>>>> 07c3a65c (fix: restore celestial theming, Aurora default, and Replay branding)
               checked = false,
               onCheckedChange = { showCreatePlaylistDialog = true },
             ) {
@@ -662,13 +654,6 @@ fun MusicLibraryContent(
               val fabSurfaceContainerHigh = MaterialTheme.colorScheme.surfaceContainerHigh
               val fabPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
               ToggleFloatingActionButton(
-<<<<<<< HEAD
-                modifier =
-                  Modifier.animateFloatingActionButton(
-                    visible = isFabShouldBeVisible,
-                    alignment = Alignment.BottomEnd,
-                  ),
-=======
                 modifier = Modifier.animateFloatingActionButton(
                   visible = showQuickPlayFab && !activeSelectionManager.isInSelectionMode && isFabVisible.value && !MainScreen.getPermissionDeniedState(),
                   alignment = Alignment.BottomEnd,
@@ -687,7 +672,6 @@ fun MusicLibraryContent(
                   )
                 },
                 containerCornerRadius = { 28.dp },
->>>>>>> 07c3a65c (fix: restore celestial theming, Aurora default, and Replay branding)
                 checked = isFabExpanded.value && !quickPlayFabDirect,
                 onCheckedChange = {
                   if (quickPlayFabDirect) {
