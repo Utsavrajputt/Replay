@@ -304,11 +304,12 @@ object NetworkStreamingScreen : Screen {
         }
       },
       floatingActionButton = {
+        val fabBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)
         val fabBorderModifier: (Modifier) -> Modifier = { base ->
           if (showCelestialEffects) {
             base.border(
               1.5.dp,
-              MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
+              fabBorderColor,
               RoundedCornerShape(16.dp),
             )
           } else {
