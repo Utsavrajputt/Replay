@@ -8,6 +8,7 @@
   <meta name="description" content="Download verified Standard, Fongmi, and non-Vulkan preview APKs for the Replay Android media player.">
   <meta name="robots" content="noindex,follow">
   <meta name="theme-color" content="#1971f4">
+  <meta name="color-scheme" content="light dark">
   <link rel="canonical" href="https://utsavrajputt.github.io/replay/">
   <link rel="icon" href="icon.png" type="image/png">
   <link rel="apple-touch-icon" href="icon.png">
@@ -49,6 +50,8 @@
       --blue-deep: #0a5a78;
       --blue-soft: #d9eef5;
       --acid: #f2a93b;
+      --green: #1a9c5c;
+      --green-deep: #0f7a46;
       --line: color-mix(in srgb, var(--ink) 13%, transparent);
       --shadow: 0 18px 48px rgba(16, 20, 30, .10);
       --ease-out: cubic-bezier(.22, 1, .36, 1);
@@ -429,6 +432,8 @@
         --blue-deep: #8fdcf2;
         --blue-soft: #10303c;
         --acid: #f2a93b;
+        --green: #34d17c;
+        --green-deep: #1fae63;
         --line: rgba(238, 241, 244, .12);
         --shadow: 0 18px 48px rgba(0, 0, 0, .35);
       }
@@ -450,7 +455,7 @@
       .page { width: min(100% - 24px, 1180px); }
       .topbar { min-height: 76px; }
       .brand-name small { display: none; }
-      .navlink:first-child { display: none; }
+      .navlink.nav-secondary { display: none; }
       .hero { padding-top: 52px; }
       h1 { font-size: clamp(48px, 15vw, 70px); }
       .build-ticket { padding: 22px; }
@@ -480,9 +485,9 @@
         <span class="brand-mark"><img src="icon.png" alt="" width="48" height="48"></span>
         <span class="brand-name">Replay<small>Android preview builds</small></span>
       </a>
-      <nav class="navlinks" aria-label="External links">
-        <a class="navlink" href="https://github.com/utsavrajputt/replay/releases" target="_blank" rel="noreferrer">Stable releases</a>
-        <a class="navlink" href="https://github.com/utsavrajputt/replay" target="_blank" rel="noreferrer">GitHub ↗</a>
+      <nav class="navlinks" aria-label="Site and external links">
+        <a class="navlink" href="./releases/">Releases</a>
+        <a class="navlink nav-secondary" href="https://github.com/utsavrajputt/replay" target="_blank" rel="noreferrer">GitHub ↗</a>
       </nav>
     </header>
 
@@ -633,44 +638,69 @@
       return card;
     }
 
-    fetch("./latest.json", { cache: "no-store" })
-      .then(response => { if (!response.ok) throw new Error("Manifest unavailable"); return response.json(); })
-      .then(manifest => {
-        const build = document.getElementById("build");
-        build.textContent = `r${manifest.commit_count}`;
-        build.classList.remove("loading");
-        document.getElementById("commit").textContent = (manifest.commit_sha || "").slice(0, 7) || "Unknown";
-        document.getElementById("published").textContent = new Date(manifest.published_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
-        document.getElementById("flavor").textContent = safeFlavorLabel(manifest.selected_flavor);
+    function renderPreview(manifest) {
+      const build = document.getElementById("build");
+      build.textContent = `r${manifest.commit_count}`;
+      build.classList.remove("loading");
+      document.getElementById("commit").textContent = (manifest.commit_sha || "").slice(0, 7) || "Unknown";
+      document.getElementById("published").textContent = new Date(manifest.published_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+      document.getElementById("flavor").textContent = safeFlavorLabel(manifest.selected_flavor);
 
-        const run = document.getElementById("run");
-        if (manifest.run_url) {
-          const link = document.createElement("a");
-          link.href = manifest.run_url;
-          link.target = "_blank";
-          link.rel = "noreferrer";
-          link.textContent = `#${manifest.run_number}`;
-          run.replaceChildren(link);
-        } else {
-          run.textContent = `#${manifest.run_number || "—"}`;
-        }
+      const run = document.getElementById("run");
+      if (manifest.run_url) {
+        const link = document.createElement("a");
+        link.href = manifest.run_url;
+        link.target = "_blank";
+        link.rel = "noreferrer";
+        link.textContent = `#${manifest.run_number}`;
+        run.replaceChildren(link);
+      } else {
+        run.textContent = `#${manifest.run_number || "—"}`;
+      }
 
-        const grid = document.getElementById("download-grid");
-        const assets = order.map(key => (manifest.assets || []).find(asset => asset.abi === key)).filter(Boolean);
-        grid.replaceChildren(...assets.map((asset, index) => createDownloadCard(asset, index)));
-        grid.setAttribute("aria-busy", "false");
-      })
-      .catch(() => {
-        const build = document.getElementById("build");
-        build.textContent = "Offline";
-        build.classList.remove("loading");
-        const grid = document.getElementById("download-grid");
-        const message = document.createElement("article");
-        message.className = "download-card";
-        message.innerHTML = "<h3>Preview unavailable</h3><p class=\"card-description\">Run the Preview Build workflow or use the latest stable GitHub release.</p>";
-        grid.replaceChildren(message);
-        grid.setAttribute("aria-busy", "false");
-      });
+      const grid = document.getElementById("download-grid");
+      const assets = order.map(key => (manifest.assets || []).find(asset => asset.abi === key)).filter(Boolean);
+      grid.replaceChildren(...assets.map((asset, index) => createDownloadCard(asset, index)));
+      grid.setAttribute("aria-busy", "false");
+    }
+
+    function renderPreviewOffline() {
+      const build = document.getElementById("build");
+      build.textContent = "Offline";
+      build.classList.remove("loading");
+      const grid = document.getElementById("download-grid");
+      const message = document.createElement("article");
+      message.className = "download-card";
+      message.innerHTML = "<h3>Preview unavailable</h3><p class=\"card-description\">Run the Preview Build workflow or use the latest stable GitHub release.</p>";
+      grid.replaceChildren(message);
+      grid.setAttribute("aria-busy", "false");
+    }
+
+    // Decide whether this link should show the Preview channel (this page) or
+    // hand off to the Releases page, based on whichever channel is actually newer.
+    const previewManifestRequest = fetch("./latest.json", { cache: "no-store" })
+      .then(response => (response.ok ? response.json() : null))
+      .catch(() => null);
+
+    const latestReleaseRequest = fetch("https://api.github.com/repos/utsavrajputt/Replay/releases/latest")
+      .then(response => (response.ok ? response.json() : null))
+      .catch(() => null);
+
+    Promise.all([latestReleaseRequest, previewManifestRequest]).then(([release, manifest]) => {
+      const releaseTime = release && release.published_at ? new Date(release.published_at).getTime() : 0;
+      const previewTime = manifest && manifest.published_at ? new Date(manifest.published_at).getTime() : 0;
+
+      if (releaseTime > previewTime) {
+        window.location.replace("./releases/");
+        return;
+      }
+
+      if (manifest) {
+        renderPreview(manifest);
+      } else {
+        renderPreviewOffline();
+      }
+    });
   </script>
 </body>
 
