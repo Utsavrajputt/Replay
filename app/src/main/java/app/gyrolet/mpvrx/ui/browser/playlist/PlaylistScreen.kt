@@ -11,6 +11,7 @@ package app.gyrolet.mpvrx.ui.browser.playlist
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
@@ -84,6 +86,8 @@ object PlaylistScreen : Screen {
   override fun Content() {
     val context = LocalContext.current
     val browserPreferences = koinInject<BrowserPreferences>()
+    val appearancePreferences = koinInject<app.gyrolet.mpvrx.preferences.AppearancePreferences>()
+    val showCelestialEffects by appearancePreferences.showCelestialEffects.collectAsState()
     val backStack = LocalBackStack.current
     val scope = rememberCoroutineScope()
 
@@ -272,12 +276,29 @@ object PlaylistScreen : Screen {
                   .stringResource(app.gyrolet.mpvrx.R.string.ui_create_playlist),
               )
             },
-            modifier = Modifier.padding(bottom = (navigationBarHeight - 16.dp).coerceAtLeast(0.dp)),
+            modifier =
+              Modifier
+                .padding(bottom = (navigationBarHeight - 16.dp).coerceAtLeast(0.dp))
+                .let {
+                  if (showCelestialEffects) {
+                    it.border(
+                      1.5.dp,
+                      MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
+                      RoundedCornerShape(16.dp),
+                    )
+                  } else {
+                    it
+                  }
+                },
           )
         }
       },
     ) { paddingValues ->
-      if (isSearching && filteredPlaylists.isEmpty() && searchQuery.isNotBlank()) {
+      Box(modifier = Modifier.fillMaxSize()) {
+        if (showCelestialEffects) {
+          app.gyrolet.mpvrx.ui.browser.folderlist.CelestialFolderListBackground()
+        }
+        if (isSearching && filteredPlaylists.isEmpty() && searchQuery.isNotBlank()) {
         // Show "no results" for search
         Box(
           modifier =
@@ -332,6 +353,7 @@ object PlaylistScreen : Screen {
           modifier = Modifier.padding(paddingValues),
           isInSelectionMode = selectionManager.isInSelectionMode,
         )
+      }
       }
     }
 

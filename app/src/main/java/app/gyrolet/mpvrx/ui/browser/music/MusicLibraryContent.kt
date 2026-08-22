@@ -11,6 +11,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -253,6 +254,7 @@ fun MusicLibraryContent(
 
   val appearancePreferences = koinInject<AppearancePreferences>()
   val showQuickPlayFab by appearancePreferences.showQuickPlayFab.collectAsState()
+  val showCelestialEffects by appearancePreferences.showCelestialEffects.collectAsState()
   val quickPlayFabDirect by appearancePreferences.quickPlayFabDirect.collectAsState()
   val isFabVisible = remember { mutableStateOf(true) }
   val isFabExpanded = remember { mutableStateOf(false) }
@@ -510,11 +512,27 @@ fun MusicLibraryContent(
           modifier = Modifier.padding(bottom = (navigationBarHeight - 16.dp).coerceAtLeast(0.dp)),
           expanded = false,
           button = {
+            val fabSurfaceContainerHigh = MaterialTheme.colorScheme.surfaceContainerHigh
+            val fabPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
             ToggleFloatingActionButton(
               modifier = Modifier.animateFloatingActionButton(
                 visible = showQuickPlayFab && !activeSelectionManager.isInSelectionMode && isFabVisible.value && !MainScreen.getPermissionDeniedState(),
                 alignment = Alignment.BottomEnd,
-              ),
+              ).let {
+                if (showCelestialEffects) {
+                  it.border(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.75f), CircleShape)
+                } else {
+                  it
+                }
+              },
+              containerColor = { progress ->
+                androidx.compose.ui.graphics.lerp(
+                  fabSurfaceContainerHigh,
+                  fabPrimaryContainer,
+                  progress,
+                )
+              },
+              containerCornerRadius = { 28.dp },
               checked = false,
               onCheckedChange = { showCreatePlaylistDialog = true }
             ) {
@@ -537,11 +555,27 @@ fun MusicLibraryContent(
               tooltip = { PlainTooltip { Text(stringResource(R.string.ui_toggle_menu)) } },
               state = rememberTooltipState(),
             ) {
+              val fabSurfaceContainerHigh = MaterialTheme.colorScheme.surfaceContainerHigh
+              val fabPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
               ToggleFloatingActionButton(
                 modifier = Modifier.animateFloatingActionButton(
                   visible = showQuickPlayFab && !activeSelectionManager.isInSelectionMode && isFabVisible.value && !MainScreen.getPermissionDeniedState(),
                   alignment = Alignment.BottomEnd,
-                ),
+                ).let {
+                  if (showCelestialEffects) {
+                    it.border(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.75f), CircleShape)
+                  } else {
+                    it
+                  }
+                },
+                containerColor = { progress ->
+                  androidx.compose.ui.graphics.lerp(
+                    fabSurfaceContainerHigh,
+                    fabPrimaryContainer,
+                    progress,
+                  )
+                },
+                containerCornerRadius = { 28.dp },
                 checked = isFabExpanded.value && !quickPlayFabDirect,
                 onCheckedChange = {
                   if (quickPlayFabDirect) {
@@ -592,6 +626,9 @@ fun MusicLibraryContent(
         .fillMaxSize()
         .padding(innerPadding)
     ) {
+      if (showCelestialEffects && visibleTabs.getOrNull(pagerState.currentPage) != MusicTab.FOLDERS) {
+        app.gyrolet.mpvrx.ui.browser.folderlist.CelestialFolderListBackground()
+      }
       PullRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = { musicViewModel.refreshLibrary(context) },

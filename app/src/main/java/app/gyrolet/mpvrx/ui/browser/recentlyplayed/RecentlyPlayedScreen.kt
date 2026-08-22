@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -112,6 +114,7 @@ object RecentlyPlayedScreen : Screen {
     val appearancePreferences = koinInject<AppearancePreferences>()
     val enableRecentlyPlayed by advancedPreferences.enableRecentlyPlayed.collectAsState()
     val showQuickPlayFab by appearancePreferences.showQuickPlayFab.collectAsState()
+    val showCelestialEffects by appearancePreferences.showCelestialEffects.collectAsState()
     val quickPlayFabDirect by appearancePreferences.quickPlayFabDirect.collectAsState()
     val navigationBarHeight = app.gyrolet.mpvrx.ui.browser.LocalNavigationBarHeight.current
 
@@ -248,13 +251,29 @@ object RecentlyPlayedScreen : Screen {
               },
               state = rememberTooltipState(),
             ) {
+              val fabSurfaceContainerHigh = MaterialTheme.colorScheme.surfaceContainerHigh
+              val fabPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
               ToggleFloatingActionButton(
                 modifier =
                   Modifier
                     .animateFloatingActionButton(
                       visible = showQuickPlayFab && !selectionManager.isInSelectionMode && isFabVisible.value,
                       alignment = Alignment.BottomEnd,
-                    ),
+                    ).let {
+                      if (showCelestialEffects) {
+                        it.border(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.75f), CircleShape)
+                      } else {
+                        it
+                      }
+                    },
+                containerColor = { progress ->
+                  androidx.compose.ui.graphics.lerp(
+                    fabSurfaceContainerHigh,
+                    fabPrimaryContainer,
+                    progress,
+                  )
+                },
+                containerCornerRadius = { 28.dp },
                 checked = isFabExpanded.value && !quickPlayFabDirect,
                 onCheckedChange = {
                   if (quickPlayFabDirect) {
@@ -356,7 +375,11 @@ object RecentlyPlayedScreen : Screen {
         }
       },
     ) { padding ->
-      when {
+      Box(modifier = Modifier.fillMaxSize()) {
+        if (showCelestialEffects) {
+          app.gyrolet.mpvrx.ui.browser.folderlist.CelestialFolderListBackground()
+        }
+        when {
         !enableRecentlyPlayed -> {
           Box(
             modifier =
@@ -503,6 +526,7 @@ object RecentlyPlayedScreen : Screen {
         onDismiss = { showLinkDialog.value = false },
         onPlayLink = { url -> MediaUtils.playFile(url, context, "play_link") },
       )
+      }
     }
   }
 }

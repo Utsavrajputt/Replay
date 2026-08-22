@@ -20,6 +20,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +35,7 @@ import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
@@ -124,6 +126,7 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
   val browserPreferences = koinInject<BrowserPreferences>()
   val appearancePreferences = koinInject<app.gyrolet.mpvrx.preferences.AppearancePreferences>()
   val showQuickPlayFab by appearancePreferences.showQuickPlayFab.collectAsState()
+  val showCelestialEffects by appearancePreferences.showCelestialEffects.collectAsState()
   val playerPreferences = koinInject<PlayerPreferences>()
   val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
   val navigationBarHeight = LocalNavigationBarHeight.current
@@ -517,6 +520,8 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
               },
               state = rememberTooltipState(),
             ) {
+              val fabSurfaceContainerHigh = MaterialTheme.colorScheme.surfaceContainerHigh
+              val fabPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
               ToggleFloatingActionButton(
                 modifier =
                   Modifier.animateFloatingActionButton(
@@ -526,7 +531,21 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
                         isFabVisible.value &&
                         !MainScreen.getPermissionDeniedState(),
                     alignment = Alignment.BottomEnd,
-                  ),
+                  ).let {
+                    if (showCelestialEffects) {
+                      it.border(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.75f), CircleShape)
+                    } else {
+                      it
+                    }
+                  },
+                containerColor = { progress ->
+                  androidx.compose.ui.graphics.lerp(
+                    fabSurfaceContainerHigh,
+                    fabPrimaryContainer,
+                    progress,
+                  )
+                },
+                containerCornerRadius = { 28.dp },
                 checked = isFabExpanded.value && !quickPlayFabDirect,
                 onCheckedChange = {
                   if (quickPlayFabDirect) {
@@ -613,6 +632,9 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
     val videosWereDeletedOrMoved = false
 
     Box(modifier = Modifier.fillMaxSize()) {
+      if (showCelestialEffects) {
+        app.gyrolet.mpvrx.ui.browser.folderlist.CelestialFolderListBackground()
+      }
       Column(
         modifier =
           Modifier

@@ -67,6 +67,7 @@ object Icons {
     val Close by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Close) }
     val CloudDownload by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Cloud_download) }
     val Code by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Code) }
+    val Coffee by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Coffee) }
     val ContentCopy by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Content_copy) }
     val ContentPaste by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Content_paste) }
     val CreateNewFolder by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Create_new_folder) }
@@ -303,6 +304,7 @@ object Icons {
     val Close get() = Shared.Close
     val CloudDownload get() = Shared.CloudDownload
     val Code get() = Shared.Code
+    val Coffee get() = Shared.Coffee
     val ContentCopy get() = Shared.ContentCopy
     val ContentPaste get() = Shared.ContentPaste
     val CreateNewFolder get() = Shared.CreateNewFolder
