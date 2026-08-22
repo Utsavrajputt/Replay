@@ -36,7 +36,7 @@ android {
   ndkVersion = "27.3.13750724"
 
   defaultConfig {
-    applicationId = "app.gyrolet.mpvrx"
+    applicationId = "app.invictus.replay"
     minSdk = 26
     targetSdk = 36
     versionCode = 222
