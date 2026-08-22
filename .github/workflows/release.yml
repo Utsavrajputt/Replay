@@ -188,3 +188,69 @@ jobs:
           files: release-assets/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-release-pages:
+    name: Publish updated site
+    needs: release-for-github
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: replay-preview-pages
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Stage site
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf site
+          mkdir -p site/downloads site/releases
+          cp fastlane/metadata/android/preview-site/index.html site/index.html
+          cp fastlane/metadata/android/en-US/images/icon.png site/icon.png
+          cp fastlane/metadata/android/preview-site/site.webmanifest site/site.webmanifest
+          cp fastlane/metadata/android/preview-site/releases/index.html site/releases/index.html
+          touch site/.nojekyll
+
+      - name: Preserve existing preview build data
+        shell: bash
+        run: |
+          set -uo pipefail
+          if curl -fsSL "https://utsavrajputt.github.io/Replay/latest.json" -o site/latest.json; then
+            echo "Existing preview manifest found, re-publishing it alongside the release update."
+          else
+            echo "No existing preview manifest found yet; preview tab will show offline until the next Preview Build run."
+            rm -f site/latest.json
+          fi
+
+      - name: Re-download preserved preview APKs
+        shell: bash
+        run: |
+          set -uo pipefail
+          if [[ -f site/latest.json ]]; then
+            jq -r '.assets[]?.browser_download_url // empty' site/latest.json | while read -r url; do
+              name="$(basename "$url")"
+              curl -fsSL "$url" -o "site/downloads/$name" || echo "Warning: could not preserve $name, link may 404 until the next Preview Build run."
+            done
+          fi
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
