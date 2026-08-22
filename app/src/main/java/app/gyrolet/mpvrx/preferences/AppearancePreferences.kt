@@ -42,7 +42,7 @@ class AppearancePreferences(
   preferenceStore: PreferenceStore,
 ) {
   val darkMode = preferenceStore.getEnum("dark_mode", DarkMode.System)
-  val appTheme = preferenceStore.getEnum("app_theme", AppTheme.Dynamic)
+  val appTheme = preferenceStore.getEnum("app_theme", AppTheme.Aurora)
   val amoledMode = preferenceStore.getBoolean("amoled_mode", false)
   val useSystemFont = preferenceStore.getBoolean("use_system_font", false)
   val unlimitedNameLines = preferenceStore.getBoolean("unlimited_name_lines", false)
@@ -61,6 +61,7 @@ class AppearancePreferences(
   val showJellyfinTab = preferenceStore.getBoolean("show_jellyfin_tab", false)
   val showQuickPlayFab = preferenceStore.getBoolean("show_quick_play_fab", true)
   val quickPlayFabDirect = preferenceStore.getBoolean("quick_play_fab_direct", false)
+  val showCelestialEffects = preferenceStore.getBoolean("show_celestial_effects", true)
 
   val topLeftControls =
     preferenceStore.getString(

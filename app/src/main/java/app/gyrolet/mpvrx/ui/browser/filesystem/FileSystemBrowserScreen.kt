@@ -24,6 +24,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import app.gyrolet.mpvrx.ui.browser.fab.FabScrollHelper
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -43,6 +44,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButtonMenu
@@ -177,6 +179,7 @@ fun FileSystemBrowserScreen(path: String? = null) {
   val browserPreferences = koinInject<BrowserPreferences>()
   val appearancePreferences = koinInject<app.gyrolet.mpvrx.preferences.AppearancePreferences>()
   val showQuickPlayFab by appearancePreferences.showQuickPlayFab.collectAsState()
+  val showCelestialEffects by appearancePreferences.showCelestialEffects.collectAsState()
   val quickPlayFabDirect by appearancePreferences.quickPlayFabDirect.collectAsState()
   val playerPreferences = koinInject<app.gyrolet.mpvrx.preferences.PlayerPreferences>()
   val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
@@ -675,13 +678,29 @@ fun FileSystemBrowserScreen(path: String? = null) {
                 },
                 state = rememberTooltipState(),
               ) {
+                val fabSurfaceContainerHigh = MaterialTheme.colorScheme.surfaceContainerHigh
+                val fabPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
                 ToggleFloatingActionButton(
                   modifier =
                     Modifier
                       .animateFloatingActionButton(
                         visible = isFabShouldBeVisible,
                         alignment = Alignment.BottomEnd,
-                      ),
+                      ).let {
+                        if (showCelestialEffects) {
+                          it.border(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.75f), CircleShape)
+                        } else {
+                          it
+                        }
+                      },
+                  containerColor = { progress ->
+                    androidx.compose.ui.graphics.lerp(
+                      fabSurfaceContainerHigh,
+                      fabPrimaryContainer,
+                      progress,
+                    )
+                  },
+                  containerCornerRadius = { 28.dp },
                   checked = isFabExpanded.value && !quickPlayFabDirect,
                   onCheckedChange = {
                     if (quickPlayFabDirect) {
@@ -780,6 +799,9 @@ fun FileSystemBrowserScreen(path: String? = null) {
       }
   ) { padding ->
       Box(modifier = Modifier.padding(padding)) {
+        if (showCelestialEffects) {
+          app.gyrolet.mpvrx.ui.browser.folderlist.CelestialFolderListBackground()
+        }
         if (isPermissionSetupCompleted && permissionState.status == PermissionStatus.Granted) {
             if (isSearching) {
               // Show search results

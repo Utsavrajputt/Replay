@@ -16,6 +16,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -142,6 +144,7 @@ data class VideoListScreen(
     val browserPreferences = koinInject<BrowserPreferences>()
     val appearancePreferences = koinInject<app.gyrolet.mpvrx.preferences.AppearancePreferences>()
     val showQuickPlayFab by appearancePreferences.showQuickPlayFab.collectAsState()
+    val showCelestialEffects by appearancePreferences.showCelestialEffects.collectAsState()
     val playerPreferences = koinInject<PlayerPreferences>()
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     val navigationBarHeight = app.gyrolet.mpvrx.ui.browser.LocalNavigationBarHeight.current
@@ -404,7 +407,10 @@ data class VideoListScreen(
             },
             state = rememberTooltipState(),
           ) {
+            val fabBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)
+            val fabContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
             FloatingActionButton(
+              containerColor = fabContainerColor,
               modifier =
                 Modifier
                   .windowInsetsPadding(WindowInsets.systemBars)
@@ -412,7 +418,14 @@ data class VideoListScreen(
                   .animateFloatingActionButton(
                     visible = isFabShouldBeVisible,
                     alignment = Alignment.BottomEnd,
-                  ),
+                  ).let {
+                    if (showCelestialEffects) {
+                      it.border(1.5.dp, fabBorderColor, CircleShape)
+                    } else {
+                      it
+                    }
+                  },
+              shape = CircleShape,
               onClick = {
                 coroutineScope.launch {
                   val folderPath =

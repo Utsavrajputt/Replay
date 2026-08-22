@@ -21,6 +21,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -98,6 +99,7 @@ import app.gyrolet.mpvrx.domain.torrent.formatTorrentBytes
 import app.gyrolet.mpvrx.domain.torrent.isTorrentSource
 import app.gyrolet.mpvrx.domain.torrent.normalizeTorrentSource
 import app.gyrolet.mpvrx.presentation.Screen
+import app.gyrolet.mpvrx.preferences.preference.collectAsState
 import app.gyrolet.mpvrx.presentation.components.RemoteImage
 import app.gyrolet.mpvrx.repository.wyzie.WyzieSearchRepository
 import app.gyrolet.mpvrx.utils.media.MediaInfoParser
@@ -135,6 +137,8 @@ object NetworkStreamingScreen : Screen {
     val viewModel: NetworkStreamingViewModel =
       viewModel(factory = NetworkStreamingViewModel.factory(context.applicationContext as android.app.Application))
     val torrentStreamingEngine = koinInject<TorrentStreamingEngine>()
+    val appearancePreferences = koinInject<app.gyrolet.mpvrx.preferences.AppearancePreferences>()
+    val showCelestialEffects by appearancePreferences.showCelestialEffects.collectAsState()
     val streamEntryRepository = koinInject<NetworkStreamEntryRepository>()
     val wyzieSearchRepository = koinInject<WyzieSearchRepository>()
     val torrentPickerViewModel: TorrentSelectionViewModel =
@@ -341,6 +345,18 @@ object NetworkStreamingScreen : Screen {
         }
       },
       floatingActionButton = {
+        val fabBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f)
+        val fabBorderModifier: (Modifier) -> Modifier = { base ->
+          if (showCelestialEffects) {
+            base.border(
+              1.5.dp,
+              fabBorderColor,
+              RoundedCornerShape(16.dp),
+            )
+          } else {
+            base
+          }
+        }
         when (pagerState.currentPage) {
           NetworkTab.LOCAL_NETWORK.ordinal -> {
             ExtendedFloatingActionButton(
@@ -351,7 +367,7 @@ object NetworkStreamingScreen : Screen {
                   stringResource(R.string.ui_add_connection),
                 )
               },
-              modifier = Modifier.padding(bottom = navigationBarHeight),
+              modifier = fabBorderModifier(Modifier.padding(bottom = navigationBarHeight)),
             )
           }
           NetworkTab.MEDIA.ordinal -> {
@@ -359,13 +375,17 @@ object NetworkStreamingScreen : Screen {
               onClick = { showAddMediaDialog = true },
               icon = { Icon(Icons.RoundedFilled.Add, contentDescription = null) },
               text = { Text("Add Media") },
-              modifier = Modifier.padding(bottom = navigationBarHeight),
+              modifier = fabBorderModifier(Modifier.padding(bottom = navigationBarHeight)),
             )
           }
         }
       },
     ) { padding ->
-      Box(
+      Box(modifier = Modifier.fillMaxSize()) {
+        if (showCelestialEffects) {
+          app.gyrolet.mpvrx.ui.browser.folderlist.CelestialFolderListBackground()
+        }
+        Column(
         modifier =
           Modifier
             .fillMaxSize()
@@ -467,6 +487,7 @@ object NetworkStreamingScreen : Screen {
             }
           }
         }
+      }
       }
 
       AddConnectionSheet(

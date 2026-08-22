@@ -25,6 +25,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import app.gyrolet.mpvrx.ui.browser.fab.FabScrollHelper
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,6 +40,7 @@ import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
@@ -131,6 +133,7 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
   val browserPreferences = koinInject<BrowserPreferences>()
   val appearancePreferences = koinInject<app.gyrolet.mpvrx.preferences.AppearancePreferences>()
   val showQuickPlayFab by appearancePreferences.showQuickPlayFab.collectAsState()
+  val showCelestialEffects by appearancePreferences.showCelestialEffects.collectAsState()
   val playerPreferences = koinInject<PlayerPreferences>()
   val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
   val navigationBarHeight = LocalNavigationBarHeight.current
@@ -531,46 +534,62 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
             },
             state = rememberTooltipState(),
           ) {
+            val fabSurfaceContainerHigh = MaterialTheme.colorScheme.surfaceContainerHigh
+            val fabPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
             ToggleFloatingActionButton(
               modifier =
                 Modifier.animateFloatingActionButton(
                   visible = isFabShouldBeVisible,
                   alignment = Alignment.BottomEnd,
-                ),
-              checked = isFabExpanded.value && !quickPlayFabDirect,
-                onCheckedChange = {
-                  if (quickPlayFabDirect) {
-                    coroutineScope.launch {
-                      val recentlyPlayedVideos = RecentlyPlayedOps.getRecentlyPlayed(limit = 1)
-                      val lastPlayed = recentlyPlayedVideos.firstOrNull()
-                      val targetVideo =
-                        if (lastPlayed != null) {
-                          filteredVideosWithInfo.firstOrNull { it.video.path == lastPlayed.filePath }?.video
-                        } else {
-                          null
-                        }
-
-                      playFromMediaLibrary(targetVideo ?: filteredVideosWithInfo.first().video)
-                    }
+                ).let {
+                  if (showCelestialEffects) {
+                    it.border(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.75f), CircleShape)
                   } else {
-                    isFabExpanded.value = !isFabExpanded.value
+                    it
                   }
                 },
-              ) {
-                val imageVector by remember {
-                  derivedStateOf {
-                    if (checkedProgress > 0.5f && !quickPlayFabDirect) Icons.RoundedFilled.Close else Icons.RoundedFilled.PlayArrow
-                  }
-                }
-                Icon(
-                  imageVector = imageVector,
-                  contentDescription = null,
-                  modifier = Modifier.animateIcon({ if (quickPlayFabDirect) 0f else checkedProgress }),
+              containerColor = { progress ->
+                androidx.compose.ui.graphics.lerp(
+                  fabSurfaceContainerHigh,
+                  fabPrimaryContainer,
+                  progress,
                 )
+              },
+              containerCornerRadius = { 28.dp },
+              checked = isFabExpanded.value && !quickPlayFabDirect,
+              onCheckedChange = {
+                if (quickPlayFabDirect) {
+                  coroutineScope.launch {
+                    val recentlyPlayedVideos = RecentlyPlayedOps.getRecentlyPlayed(limit = 1)
+                    val lastPlayed = recentlyPlayedVideos.firstOrNull()
+                    val targetVideo =
+                      if (lastPlayed != null) {
+                        filteredVideosWithInfo.firstOrNull { it.video.path == lastPlayed.filePath }?.video
+                      } else {
+                        null
+                      }
+
+                    playFromMediaLibrary(targetVideo ?: filteredVideosWithInfo.first().video)
+                  }
+                } else {
+                  isFabExpanded.value = !isFabExpanded.value
+                }
+              },
+            ) {
+              val imageVector by remember {
+                derivedStateOf {
+                  if (checkedProgress > 0.5f && !quickPlayFabDirect) Icons.RoundedFilled.Close else Icons.RoundedFilled.PlayArrow
+                }
               }
+              Icon(
+                imageVector = imageVector,
+                contentDescription = null,
+                modifier = Modifier.animateIcon({ if (quickPlayFabDirect) 0f else checkedProgress }),
+              )
             }
-          },
-        ) {
+          }
+        },
+      ) {
           if (!quickPlayFabDirect) {
             FloatingActionButtonMenuItem(
               onClick = {
@@ -615,13 +634,16 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
               },
             )
           }
-        }
-      },
-    ) { padding ->
+      }
+    },
+  ) { padding ->
     val autoScrollToLastPlayed by browserPreferences.autoScrollToLastPlayed.collectAsState()
     val videosWereDeletedOrMoved = false
 
     Box(modifier = Modifier.fillMaxSize()) {
+      if (showCelestialEffects) {
+        app.gyrolet.mpvrx.ui.browser.folderlist.CelestialFolderListBackground()
+      }
       Column(
         modifier =
           Modifier

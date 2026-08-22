@@ -14,6 +14,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -118,6 +119,8 @@ data class PlaylistDetailScreen(
     val context = LocalContext.current
     val backStack = LocalBackStack.current
     val coroutineScope = rememberCoroutineScope()
+    val appearancePreferences = koinInject<AppearancePreferences>()
+    val showCelestialEffects by appearancePreferences.showCelestialEffects.collectAsState()
 
     // ViewModel
     val viewModel: PlaylistDetailViewModel =
@@ -485,7 +488,19 @@ data class PlaylistDetailScreen(
           val isAudioPlaylist = playlist?.isAudio == true || videoItems.any { it.video.isAudio }
           ExtendedFloatingActionButton(
             modifier =
-              Modifier.padding(bottom = app.gyrolet.mpvrx.ui.browser.NavigationBarState.miniPlayerClearance),
+              Modifier
+                .padding(bottom = app.gyrolet.mpvrx.ui.browser.NavigationBarState.miniPlayerClearance)
+                .let {
+                  if (showCelestialEffects) {
+                    it.border(
+                      1.5.dp,
+                      MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
+                      RoundedCornerShape(16.dp),
+                    )
+                  } else {
+                    it
+                  }
+                },
             onClick = { backStack.add(PlaylistAddVideosScreen(playlistId, isAudio = isAudioPlaylist)) },
             icon = { Icon(Icons.RoundedFilled.Add, contentDescription = null) },
             text = { Text(if (isAudioPlaylist) "Add Songs" else stringResource(R.string.playlist_add_videos)) },
