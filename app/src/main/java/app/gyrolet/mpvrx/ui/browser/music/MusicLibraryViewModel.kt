@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.gyrolet.mpvrx.database.entities.PlaylistEntity
 import app.gyrolet.mpvrx.database.repository.PlaylistRepository
+import app.gyrolet.mpvrx.ui.player.MediaPlaybackService
 import app.gyrolet.mpvrx.ui.player.PlaybackItem
 import app.gyrolet.mpvrx.ui.player.PlaybackSession
 import app.gyrolet.mpvrx.ui.player.PlayerActivity
@@ -300,6 +301,11 @@ class MusicLibraryViewModel : ViewModel(), KoinComponent {
     if (songList.isEmpty()) return
     val index = songList.indexOfFirst { it.id == song.id }.coerceAtLeast(0)
 
+    // The detached video service still owns the shared PlaybackSession until PlayerActivity starts.
+    // Mark the handoff before replacing the queue so its asynchronous onDestroy cannot stop the
+    // newly selected music item after the Activity has already taken over playback.
+    MediaPlaybackService.prepareForActivityHandoff()
+
     val queueItems = songList.map { item ->
       PlaybackItem.fromUri(
         uri = item.uri.toString(),
@@ -333,6 +339,9 @@ class MusicLibraryViewModel : ViewModel(), KoinComponent {
     if (songsToPlay.isEmpty()) return
     val list = if (shuffle) songsToPlay.shuffled() else songsToPlay
     val firstSong = list.first()
+
+    // See playSong(): prevent a detached video service teardown from racing this audio launch.
+    MediaPlaybackService.prepareForActivityHandoff()
 
     val queueItems = list.map { item ->
       PlaybackItem.fromUri(
