@@ -4,54 +4,57 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>mpvRx — Preview & Stable Releases</title>
-  <meta name="description" content="Preview and stable releases for the mpvRx Android media player, pulled live from GitHub.">
+  <title>Replay Preview & Stable Releases</title>
+  <meta name="description" content="Preview and stable releases for the Replay Android media player, pulled live from GitHub.">
   <meta name="robots" content="index,follow">
-  <meta name="theme-color" content="#6f4ee8">
+  <meta name="theme-color" content="#1971f4">
   <meta name="color-scheme" content="light dark">
-  <link rel="canonical" href="https://riteshp2001.github.io/mpvRx/">
+  <link rel="canonical" href="https://utsavrajputt.github.io/replay/">
   <link rel="icon" href="icon.png" type="image/png">
   <link rel="apple-touch-icon" href="icon.png">
   <link rel="manifest" href="site.webmanifest">
 
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="mpvRx">
+  <meta property="og:site_name" content="Replay">
   <meta property="og:locale" content="en_US">
-  <meta property="og:title" content="mpvRx — Preview & Stable Releases">
-  <meta property="og:description" content="Preview and stable releases for the mpvRx Android media player.">
-  <meta property="og:url" content="https://riteshp2001.github.io/mpvRx/">
-  <meta property="og:image" content="https://riteshp2001.github.io/mpvRx/icon.png">
+  <meta property="og:title" content="Replay Preview & Stable Releases">
+  <meta property="og:description" content="Preview and stable releases for the Replay Android media player.">
+  <meta property="og:url" content="https://utsavrajputt.github.io/replay/">
+  <meta property="og:image" content="https://utsavrajputt.github.io/replay/icon.png">
   <meta property="og:image:width" content="324">
   <meta property="og:image:height" content="324">
-  <meta property="og:image:alt" content="mpvRx app logo">
+  <meta property="og:image:alt" content="Replay app logo">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="mpvRx — Preview & Stable Releases">
+  <meta name="twitter:title" content="Replay Preview & Stable Releases">
   <meta name="twitter:description" content="Stable and preview release history, pulled live from GitHub.">
-  <meta name="twitter:image" content="https://riteshp2001.github.io/mpvRx/icon.png">
+  <meta name="twitter:image" content="https://utsavrajputt.github.io/replay/icon.png">
 
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": "mpvRx",
-      "url": "https://riteshp2001.github.io/mpvRx/",
-      "description": "Preview and stable releases for the mpvRx Android media player."
+      "name": "Replay",
+      "url": "https://utsavrajputt.github.io/replay/",
+      "description": "Preview and stable releases for the Replay Android media player."
     }
   </script>
 
   <style>
     :root {
       color-scheme: light;
-      --paper: #f3efe7;
-      --paper-raised: #fbf8f1;
-      --ink: #19161f;
-      --ink-soft: #5e5867;
-      --violet: #6f4ee8;
-      --violet-deep: #4e32b6;
-      --violet-soft: #e6ddff;
-      --acid: #c9f45a;
-      --line: color-mix(in srgb, var(--ink) 16%, transparent);
-      --shadow: 0 22px 60px rgba(34, 24, 52, .12);
+      --paper: #eef1f4;
+      --paper-raised: #ffffff;
+      --ink: #10141c;
+      --ink-soft: #5a6270;
+      --blue: #0f7ea8;
+      --blue-deep: #0a5a78;
+      --blue-soft: #d9eef5;
+      --acid: #f2a93b;
+      --green: #1a9c5c;
+      --green-deep: #0f7a46;
+      --green-soft: #d9f2e3;
+      --line: color-mix(in srgb, var(--ink) 13%, transparent);
+      --shadow: 0 18px 48px rgba(16, 20, 30, .10);
       --ease-out: cubic-bezier(.22, 1, .36, 1);
     }
 
@@ -64,8 +67,8 @@
       min-width: 320px;
       overflow-x: hidden;
       background:
-        radial-gradient(ellipse 80% 60% at 20% 0%, color-mix(in srgb, var(--violet) 8%, transparent), transparent 70%),
-        radial-gradient(ellipse 60% 50% at 90% 100%, color-mix(in srgb, var(--acid) 6%, transparent), transparent 60%),
+        radial-gradient(ellipse 80% 60% at 20% 0%, color-mix(in srgb, var(--blue) 8%, transparent), transparent 70%),
+        radial-gradient(ellipse 60% 50% at 90% 100%, color-mix(in srgb, var(--green) 7%, transparent), transparent 60%),
         var(--paper);
       color: var(--ink);
       font-family: Aptos, "Segoe UI Variable Text", "Helvetica Neue", sans-serif;
@@ -77,7 +80,7 @@
     a { color: inherit; }
     button, a { -webkit-tap-highlight-color: transparent; }
 
-    :focus-visible { outline: 3px solid var(--violet); outline-offset: 4px; }
+    :focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
 
     .page { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
 
@@ -99,7 +102,7 @@
       border: 1px solid var(--line);
       border-radius: 14px;
       background: var(--ink);
-      box-shadow: 5px 5px 0 var(--violet-soft);
+      box-shadow: 5px 5px 0 var(--blue-soft);
     }
 
     .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
@@ -123,8 +126,8 @@
       transition: transform 180ms var(--ease-out), background 180ms ease, border-color 180ms ease;
     }
 
-    .navlink:hover { transform: translateY(-2px); border-color: var(--violet); background: var(--paper-raised); }
-    .navlink.current { border-color: var(--violet); background: var(--violet-soft); color: var(--violet-deep); }
+    .navlink:hover { transform: translateY(-2px); border-color: var(--blue); background: var(--paper-raised); }
+    .navlink.current { border-color: var(--blue); background: var(--blue-soft); color: var(--blue-deep); }
 
     h1, h2, h3 { font-family: Charter, "Bitstream Charter", "Iowan Old Style", serif; font-weight: 700; }
 
@@ -138,8 +141,8 @@
 
     .live-dot {
       width: 9px; height: 9px; border-radius: 50%;
-      background: var(--violet);
-      box-shadow: 0 0 0 6px color-mix(in srgb, var(--violet) 13%, transparent);
+      background: var(--blue);
+      box-shadow: 0 0 0 6px color-mix(in srgb, var(--blue) 13%, transparent);
       animation: breathe 2.4s ease-in-out infinite;
     }
 
@@ -151,7 +154,7 @@
       letter-spacing: -.06em;
     }
 
-    h1 em { color: var(--violet); font-style: italic; font-weight: 600; }
+    h1 em { color: var(--blue); font-style: italic; font-weight: 600; }
 
     .lead {
       max-width: 640px;
@@ -192,8 +195,8 @@
       margin-left: 7px;
       padding: 2px 7px;
       border-radius: 999px;
-      background: var(--acid);
-      color: #1f240f;
+      background: var(--green);
+      color: #fff;
       font-size: 9px;
       font-weight: 900;
       letter-spacing: .06em;
@@ -216,8 +219,10 @@
 
     .button:hover { transform: translateY(-3px); box-shadow: 5px 5px 0 var(--ink); }
     .button:active { transform: translateY(0) scale(.98); box-shadow: 2px 2px 0 var(--ink); }
-    .button.primary { background: var(--violet); color: #fcfaff; }
+    .button.primary { background: var(--blue); color: #fcfaff; }
     .button.secondary { background: var(--paper-raised); }
+    .button.green { background: var(--green); color: #fcfaff; border-color: var(--green-deep); }
+    .button.green:hover { box-shadow: 5px 5px 0 var(--green-deep); }
 
     /* Release hero ticket */
     .ticket {
@@ -228,15 +233,15 @@
       border-radius: 4px 28px 4px 28px;
       background: var(--ink);
       color: #f8f4ff;
-      box-shadow: 14px 14px 0 var(--violet-soft), var(--shadow);
+      box-shadow: 14px 14px 0 var(--blue-soft), var(--shadow);
       margin-bottom: clamp(48px, 7vw, 72px);
     }
 
     .ticket::after {
-      content: "Rx";
+      content: "Re";
       position: absolute; z-index: -1;
       right: -18px; bottom: -55px;
-      color: rgba(130, 96, 255, .24);
+      color: rgba(15, 126, 168, .22);
       font-family: Charter, "Bitstream Charter", serif;
       font-size: 220px; font-style: italic; font-weight: 700; line-height: 1;
     }
@@ -249,7 +254,7 @@
       background: var(--acid); color: #20250e;
       font-size: 10px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase;
     }
-    .channel-pill.preview { background: var(--violet-soft); color: var(--violet-deep); }
+    .channel-pill.preview { background: var(--blue-soft); color: var(--blue-deep); }
 
     .ticket-version {
       margin: 26px 0 10px;
@@ -265,15 +270,15 @@
     .ticket-meta div { min-width: 0; padding: 14px; background: var(--ink); }
     .ticket-meta span { display: block; margin-bottom: 5px; color: #a9a0b4; font-size: 9px; letter-spacing: .11em; text-transform: uppercase; }
     .ticket-meta strong { display: block; overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
-    .ticket-meta a { text-decoration-color: var(--violet-soft); text-underline-offset: 3px; }
+    .ticket-meta a { text-decoration-color: var(--blue-soft); text-underline-offset: 3px; }
 
     .ticket-actions { display: flex; flex-wrap: wrap; gap: 10px; }
     .ticket-actions .button.secondary { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.3); color: #fffaff; }
     .ticket-actions .button.secondary:hover { box-shadow: 5px 5px 0 rgba(255,255,255,.2); }
 
     .section-head { display: grid; grid-template-columns: 1fr minmax(220px, 380px); gap: 32px; align-items: end; margin-bottom: 24px; }
-    .section-index { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; color: var(--violet-deep); font-size: 11px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
-    .section-index::before { content: ""; width: 16px; height: 1px; background: var(--violet-deep); }
+    .section-index { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; color: var(--blue-deep); font-size: 11px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
+    .section-index::before { content: ""; width: 16px; height: 1px; background: var(--blue-deep); }
     h2 { margin: 0; font-size: clamp(30px, 4vw, 46px); line-height: .98; letter-spacing: -.04em; }
     .section-head p { margin: 0; color: var(--ink-soft); font-size: 13px; line-height: 1.6; }
 
@@ -290,7 +295,7 @@
       animation-delay: calc(var(--i, 0) * 70ms);
     }
     .stat-card span { display: block; color: var(--ink-soft); font-size: 11px; font-weight: 750; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
-    .stat-card strong { font-family: Charter, "Bitstream Charter", serif; font-size: clamp(24px, 3vw, 34px); letter-spacing: -.03em; color: var(--violet-deep); }
+    .stat-card strong { font-family: Charter, "Bitstream Charter", serif; font-size: clamp(24px, 3vw, 34px); letter-spacing: -.03em; color: var(--blue-deep); }
 
     /* Release notes */
     .notes {
@@ -303,7 +308,7 @@
     .notes ul { margin: 0 0 14px; padding-left: 20px; }
     .notes li { margin-bottom: 4px; color: var(--ink-soft); overflow-wrap: anywhere; }
     .notes p { margin: 0 0 12px; color: var(--ink-soft); overflow-wrap: anywhere; }
-    .notes code { background: var(--violet-soft); color: var(--violet-deep); padding: 1px 6px; border-radius: 5px; font-size: 12px; word-break: break-word; }
+    .notes code { background: var(--blue-soft); color: var(--blue-deep); padding: 1px 6px; border-radius: 5px; font-size: 12px; word-break: break-word; }
     .notes pre { max-width: 100%; overflow-x: auto; padding: 12px; margin: 0 0 14px; border-radius: 8px; background: color-mix(in srgb, var(--ink) 5%, var(--paper-raised)); white-space: pre-wrap; word-break: break-word; font-size: 12px; }
     .notes strong { color: var(--ink); }
 
@@ -319,35 +324,36 @@
       animation-delay: calc(var(--card-index, 0) * 70ms);
       transition: transform 220ms var(--ease-out), border-color 180ms ease, box-shadow 220ms var(--ease-out);
     }
-    .download-card:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--violet) 58%, transparent); box-shadow: var(--shadow); }
+    .download-card:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--blue) 58%, transparent); box-shadow: var(--shadow); }
     .download-card.recommended {
       grid-column: span 2;
-      --card-bg: color-mix(in srgb, var(--violet) 7%, var(--paper-raised));
-      border-color: color-mix(in srgb, var(--violet) 45%, var(--line));
+      --card-bg: color-mix(in srgb, var(--blue) 7%, var(--paper-raised));
+      border-color: color-mix(in srgb, var(--blue) 45%, var(--line));
     }
-    .recommended .pill { border-color: var(--violet-deep); color: var(--violet-deep); }
+    .recommended .pill { border-color: var(--blue-deep); color: var(--blue-deep); }
     .recommended .format { color: var(--ink-soft); }
-    .recommended .target { color: var(--violet-deep); }
+    .recommended .target { color: var(--blue-deep); }
     .recommended .card-description { color: var(--ink-soft); }
-    .recommended .sha-button.copied { color: var(--violet-deep); }
+    .recommended .sha-button.copied { color: var(--green-deep); }
     .card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .pill { padding: 4px 7px; border: 1px solid currentColor; border-radius: 999px; font-size: 8.5px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
     .format { color: var(--ink-soft); font-size: 9px; font-weight: 800; text-transform: uppercase; }
     .download-card h3 { margin: 10px 0 2px; font-family: Charter, "Bitstream Charter", serif; font-size: 17px; letter-spacing: -.03em; }
-    .target { color: var(--violet-deep); font-size: 9px; font-weight: 850; letter-spacing: .04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .target { color: var(--blue-deep); font-size: 9px; font-weight: 850; letter-spacing: .04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .card-description { display: -webkit-box; line-clamp: 2; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: 6px 0 10px; color: var(--ink-soft); font-size: 11px; line-height: 1.4; }
     .file-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 8px; border-top: 1px solid var(--line); font-size: 9.5px; }
     .sha-button { padding: 0; border: 0; background: none; color: inherit; cursor: pointer; font: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
-    .sha-button.copied { color: var(--violet-deep); transform: scale(1.04); }
+    .sha-button.copied { color: var(--green-deep); transform: scale(1.04); }
     .download-link {
       display: flex; align-items: center; justify-content: space-between; margin-top: 8px;
-      padding: 8px 10px; border: 1px solid var(--violet); border-radius: 7px;
-      background: var(--violet); color: #fcfaff; font-size: 11px; font-weight: 900; text-decoration: none;
+      padding: 8px 10px; border: 1px solid var(--green-deep); border-radius: 7px;
+      background: var(--green); color: #fffaff; font-size: 11px; font-weight: 900; text-decoration: none;
       transition: transform 140ms var(--ease-out), background 180ms ease, color 180ms ease;
     }
-    .download-link:hover { transform: translateX(3px); background: var(--acid); color: #1f240f; }
+    .download-link:hover { transform: translateX(3px); background: var(--green-deep); }
     .download-link::after { content: "↓"; font-size: 15px; }
-    .loading-card { min-height: 138px; border: 1px solid var(--line); border-radius: 12px 4px; background: linear-gradient(100deg, var(--paper-raised) 30%, var(--violet-soft) 50%, var(--paper-raised) 70%); background-size: 220% 100%; animation: skeleton 1.4s ease infinite; }
+    .loading-card { min-height: 138px; border: 1px solid var(--line); border-radius: 12px 4px; background: linear-gradient(100deg, var(--paper-raised) 30%, var(--blue-soft) 50%, var(--paper-raised) 70%); background-size: 220% 100%; animation: skeleton 1.4s ease infinite; }
 
     /* Previous releases */
     .prev-list { display: flex; flex-direction: column; gap: 10px; }
@@ -358,28 +364,32 @@
       text-decoration: none; color: var(--ink);
       transition: transform 180ms var(--ease-out), border-color 180ms ease;
     }
-    .prev-item:hover { transform: translateX(4px); border-color: color-mix(in srgb, var(--violet) 50%, transparent); }
-    .prev-item .v { flex-shrink: 0; padding: 5px 10px; border-radius: 999px; background: var(--violet-soft); color: var(--violet-deep); font-family: Charter, "Bitstream Charter", serif; font-size: 13px; font-weight: 700; }
+    .prev-item:hover { transform: translateX(4px); border-color: color-mix(in srgb, var(--blue) 50%, transparent); }
+    .prev-item .v { flex-shrink: 0; padding: 5px 10px; border-radius: 999px; background: var(--blue-soft); color: var(--blue-deep); font-family: Charter, "Bitstream Charter", serif; font-size: 13px; font-weight: 700; }
     .prev-item .body { flex: 1; min-width: 0; }
     .prev-item .d { display: block; overflow: hidden; color: var(--ink); font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
     .prev-item .t { display: block; margin-top: 2px; color: var(--ink-soft); font-size: 10.5px; }
     .prev-item .view { flex-shrink: 0; padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); font-size: 11px; font-weight: 800; white-space: nowrap; transition: border-color 180ms ease, color 180ms ease; }
-    .prev-item:hover .view { border-color: var(--violet); color: var(--violet-deep); }
+    .prev-item:hover .view { border-color: var(--blue); color: var(--blue-deep); }
 
     .empty-note { padding: 22px; border: 1px dashed var(--line); border-radius: 12px; color: var(--ink-soft); font-size: 13px; text-align: center; }
 
-    /* Preview channel: build-flavor context (kept from upstream, resized to this spacing scale) */
+    /* Preview channel: build-flavor context, resized to this page's compact spacing scale */
     .warning-strip {
       display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start;
       margin-bottom: clamp(40px, 6vw, 56px); padding: 14px 0; border-block: 1px solid var(--line);
     }
-    .warning-strip strong { color: var(--violet-deep); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
-    .warning-strip p { margin: 0; color: var(--ink-soft); font-size: 12px; line-height: 1.55; }
+    .warning-strip .flag { display: grid; width: 20px; height: 20px; place-items: center; border-radius: 50%; background: var(--blue-soft); color: var(--blue-deep); font-size: 11px; font-weight: 900; }
+    .warning-strip strong { color: var(--blue-deep); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+    .warning-strip p { margin: 4px 0 0; color: var(--ink-soft); font-size: 12px; line-height: 1.55; }
 
     .choice-guide { display: grid; grid-template-columns: repeat(3, 1fr); margin-bottom: 18px; border-block: 1px solid var(--line); }
     .choice-guide div { padding: 14px 16px 14px 0; }
     .choice-guide div + div { padding-left: 16px; border-left: 1px solid var(--line); }
-    .choice-guide strong { display: block; margin-bottom: 5px; font-size: 12px; }
+    .choice-guide strong { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; font-size: 12px; }
+    .choice-guide strong::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); flex-shrink: 0; }
+    .choice-guide div:nth-child(2) strong::before { background: #0a5a78; }
+    .choice-guide div:nth-child(3) strong::before { background: var(--acid); box-shadow: 0 0 0 1px var(--line); }
     .choice-guide span { color: var(--ink-soft); font-size: 11px; line-height: 1.5; }
 
     .provenance {
@@ -389,13 +399,13 @@
     .seal { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 50%; background: var(--acid); font-size: 16px; }
     .provenance strong { display: block; margin-bottom: 3px; font-size: 12px; }
     .provenance p { margin: 0; color: var(--ink-soft); font-size: 11px; line-height: 1.5; }
-    .provenance code { font-size: 9px; color: var(--violet-deep); }
+    .provenance code { font-size: 9px; color: var(--blue-deep); }
 
     footer { padding: 28px 0 44px; border-top: 1px solid var(--line); }
     .footer-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; color: var(--ink-soft); font-size: 11px; }
     .footer-row strong { color: var(--ink); }
     .footer-row a { text-decoration-color: color-mix(in srgb, var(--ink-soft) 50%, transparent); text-underline-offset: 3px; transition: color 160ms ease; }
-    .footer-row a:hover { color: var(--violet); }
+    .footer-row a:hover { color: var(--blue); }
 
     .reveal { opacity: 0; transform: translateY(18px); animation: reveal 680ms var(--ease-out) forwards; }
     .delay-1 { animation-delay: 80ms; }
@@ -411,21 +421,24 @@
     @media (prefers-color-scheme: dark) {
       :root {
         color-scheme: dark;
-        --paper: #16131b;
-        --paper-raised: #201b27;
-        --ink: #f2edf7;
-        --ink-soft: #b8afc1;
-        --violet: #8b6cff;
-        --violet-deep: #b9a7ff;
-        --violet-soft: #31264b;
-        --acid: #c9f45a;
-        --line: rgba(242, 237, 247, .14);
-        --shadow: 0 22px 60px rgba(0, 0, 0, .32);
+        --paper: #0b0d12;
+        --paper-raised: #12151c;
+        --ink: #eef1f4;
+        --ink-soft: #a7aebb;
+        --blue: #3fc4e8;
+        --blue-deep: #8fdcf2;
+        --blue-soft: #10303c;
+        --acid: #f2a93b;
+        --green: #34d17c;
+        --green-deep: #1fae63;
+        --green-soft: #103c22;
+        --line: rgba(238, 241, 244, .12);
+        --shadow: 0 18px 48px rgba(0, 0, 0, .35);
       }
       .brand-mark, .ticket { background: #0f0c13; }
       .ticket-meta div { background: #0f0c13; }
       .button.primary { color: #fffaff; }
-      .navlink.current { background: color-mix(in srgb, var(--violet) 22%, transparent); }
+      .navlink.current { background: color-mix(in srgb, var(--blue) 22%, transparent); }
     }
 
     @media (max-width: 900px) {
@@ -465,25 +478,25 @@
 <body class="route-gate">
   <div class="page">
     <header class="topbar reveal">
-      <a class="brand" href="./" aria-label="mpvRx home">
+      <a class="brand" href="./" aria-label="Replay home">
         <span class="brand-mark"><img src="icon.png" alt="" width="48" height="48"></span>
-        <span class="brand-name">mpvRx<small>Android preview builds</small></span>
+        <span class="brand-name">Replay<small>Android preview builds</small></span>
       </a>
       <nav class="navlinks" aria-label="Site and external links">
         <a class="navlink" href="#release" id="nav-release-link">Releases</a>
-        <a class="navlink nav-secondary" href="https://github.com/Riteshp2001/mpvRx" target="_blank" rel="noreferrer">GitHub ↗</a>
+        <a class="navlink nav-secondary" href="https://github.com/utsavrajputt/replay" target="_blank" rel="noreferrer">GitHub ↗</a>
       </nav>
     </header>
 
     <main>
       <section class="hero-head">
         <div class="kicker reveal delay-1"><span class="live-dot" aria-hidden="true"></span>Live from GitHub</div>
-        <h1 class="reveal delay-2">Every build,<br><em>right here.</em></h1>
-        <p class="lead reveal delay-3">Preview and stable APKs for mpvRx — signed, checksummed, and published straight from GitHub Actions and Releases.</p>
+        <h1 class="reveal delay-2">Every build,<br><em>tracked here.</em></h1>
+        <p class="lead reveal delay-3">Stable releases and preview builds for Replay, pulled directly from GitHub — real version numbers, real file sizes, real checksums.</p>
 
         <div class="tabs reveal delay-3" role="tablist" aria-label="Release channel">
-          <button class="tab-btn" id="tab-btn-preview" role="tab" type="button" aria-selected="false" aria-controls="panel-preview">Preview build</button>
           <button class="tab-btn" id="tab-btn-release" role="tab" type="button" aria-selected="false" aria-controls="panel-release">Stable release</button>
+          <button class="tab-btn" id="tab-btn-preview" role="tab" type="button" aria-selected="false" aria-controls="panel-preview">Preview build</button>
         </div>
       </section>
 
@@ -503,8 +516,8 @@
             <div><span>Tag</span><strong id="rel-tag">—</strong></div>
           </div>
           <div class="ticket-actions">
-            <a class="button primary" id="rel-cta" href="https://github.com/Riteshp2001/mpvRx/releases" target="_blank" rel="noreferrer">Download APK</a>
-            <a class="button secondary" id="rel-github" href="https://github.com/Riteshp2001/mpvRx/releases" target="_blank" rel="noreferrer">View on GitHub ↗</a>
+            <a class="button green" id="rel-cta" href="https://github.com/utsavrajputt/replay/releases" target="_blank" rel="noreferrer">Download APK</a>
+            <a class="button secondary" id="rel-github" href="https://github.com/utsavrajputt/replay/releases" target="_blank" rel="noreferrer">View on GitHub ↗</a>
           </div>
         </div>
 
@@ -578,14 +591,17 @@
             <div><span>Flavor set</span><strong id="pre-flavor">—</strong></div>
           </div>
           <div class="ticket-actions">
-            <a class="button primary" id="pre-cta" href="#downloads">Choose a build ↓</a>
-            <a class="button secondary" href="https://github.com/Riteshp2001/mpvRx" target="_blank" rel="noreferrer">View on GitHub ↗</a>
+            <a class="button green" id="pre-cta" href="#downloads">Choose a build ↓</a>
+            <a class="button secondary" href="https://github.com/utsavrajputt/replay" target="_blank" rel="noreferrer">View on GitHub ↗</a>
           </div>
         </div>
 
         <div class="warning-strip" role="note">
-          <strong>Preview channel</strong>
-          <p>These builds may be unstable. Back up important settings or choose a stable release for everyday playback.</p>
+          <span class="flag" aria-hidden="true">!</span>
+          <div>
+            <strong>Preview channel</strong>
+            <p>These builds may be unstable. Back up important settings or choose a stable release for everyday playback.</p>
+          </div>
         </div>
 
         <section class="block" id="downloads">
@@ -598,12 +614,12 @@
           </div>
 
           <div class="choice-guide" aria-label="Build flavor guide">
-            <div><strong>Standard</strong><span>The regular mpvRx core, available as Universal and architecture-specific APKs.</span></div>
+            <div><strong>Standard</strong><span>The regular Replay core, available as Universal and architecture-specific APKs.</span></div>
             <div><strong>Fongmi</strong><span>Universal Vulkan core with direct MediaCodec and Dolby Vision support.</span></div>
             <div><strong>Non-Vulkan</strong><span>Universal OpenGL-only core for devices without the required Vulkan support.</span></div>
           </div>
 
-          <div class="downloads" id="pre-download-grid" aria-live="polite" aria-busy="true">
+          <div id="pre-download-grid" class="downloads" aria-live="polite" aria-busy="true">
             <div class="loading-card" aria-hidden="true"></div>
             <div class="loading-card" aria-hidden="true"></div>
             <div class="loading-card" aria-hidden="true"></div>
@@ -620,14 +636,14 @@
 
     <footer>
       <div class="footer-row">
-        <span><strong>mpvRx</strong> · Feature-rich Android media player powered by libmpv.</span>
+        <span><strong>Replay</strong> · Feature-rich Android media player powered by libmpv. Built by <a href="https://github.com/utsavrajputt" target="_blank" rel="noreferrer">utsavrajputt</a>.</span>
         <span>AGPL-3.0 · No ads · No trackers</span>
       </div>
     </footer>
   </div>
 
   <script>
-    const REPO = "Riteshp2001/mpvRx";
+    const REPO = "utsavrajputt/Replay";
     const API = `https://api.github.com/repos/${REPO}`;
 
     const formatSize = bytes => {
