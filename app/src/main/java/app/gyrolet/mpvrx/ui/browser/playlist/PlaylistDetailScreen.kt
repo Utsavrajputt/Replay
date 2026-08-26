@@ -71,6 +71,7 @@ import app.gyrolet.mpvrx.domain.media.model.Video
 import app.gyrolet.mpvrx.preferences.AppearancePreferences
 import app.gyrolet.mpvrx.preferences.GesturePreferences
 import app.gyrolet.mpvrx.preferences.preference.collectAsState
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.presentation.Screen
 import app.gyrolet.mpvrx.presentation.components.pullrefresh.PullRefreshBox
 import app.gyrolet.mpvrx.ui.browser.cards.M3UVideoCard
@@ -493,7 +494,9 @@ data class PlaylistDetailScreen(
           val isAudioPlaylist = playlist?.isAudio == true || videoItems.any { it.video.isAudio }
           ExtendedFloatingActionButton(
             modifier =
-              Modifier.padding(bottom = app.gyrolet.mpvrx.ui.browser.NavigationBarState.miniPlayerClearance),
+              Modifier
+                .padding(bottom = app.gyrolet.mpvrx.ui.browser.NavigationBarState.miniPlayerClearance)
+                .celestialBorder(shape = RoundedCornerShape(16.dp)),
             onClick = { backStack.add(PlaylistAddVideosScreen(playlistId, isAudio = isAudioPlaylist)) },
             icon = { Icon(Icons.RoundedFilled.Add, contentDescription = null) },
             text = { Text(if (isAudioPlaylist) "Add Songs" else stringResource(R.string.playlist_add_videos)) },

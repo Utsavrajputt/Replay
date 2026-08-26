@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import app.gyrolet.mpvrx.R
 import app.gyrolet.mpvrx.domain.thumbnail.ThumbnailRepository
 import app.gyrolet.mpvrx.preferences.AppearancePreferences
+import app.gyrolet.mpvrx.ui.celestial.CelestialEffectsToggle
 import app.gyrolet.mpvrx.preferences.BrowserPreferences
 import app.gyrolet.mpvrx.preferences.GesturePreferences
 import app.gyrolet.mpvrx.preferences.MultiChoiceSegmentedButton
@@ -865,6 +866,10 @@ object AppearancePreferencesScreen : Screen {
                   )
                 },
               )
+
+              PreferenceDivider()
+
+              CelestialEffectsToggle()
             }
           }
 
