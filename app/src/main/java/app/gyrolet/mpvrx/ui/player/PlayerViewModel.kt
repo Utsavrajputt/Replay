@@ -4137,15 +4137,16 @@ class PlayerViewModel : ViewModel(),
       viewModelScope.async(Dispatchers.IO) {
         val bitmap =
           try {
-            // This is the independent ThumbFast engine, not the active playback core. It decodes
-            // with its own MediaCodec instance and falls back to software automatically, so a
-            // hardware-first decode is both fast and safe alongside the playing video.
+            if (!FastThumbnails.isInitialized()) {
+              FastThumbnails.initialize(appContext)
+            }
             withTimeout(SEEK_THUMBNAIL_DECODE_MAX_MS) {
               FastThumbnails.generateAsync(
                 source,
                 thumbnailTime.toDouble(),
                 SEEK_THUMBNAIL_MAX_SIZE,
-                useHwDec = true,
+                // Match the repository thumbnail cache and avoid competing with mpv's decoder.
+                useHwDec = false,
               )
             }
           } catch (timeout: TimeoutCancellationException) {
