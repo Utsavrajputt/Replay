@@ -1,0 +1,785 @@
+{
+  "values-ar": [
+    [
+      "pref_appearance_system_font_summary",
+      "استخدام محرف نظام Android في mpvRx بدلًا من Google Sans Flex",
+      "استخدام محرف نظام Android في Replay بدلًا من Google Sans Flex"
+    ],
+    [
+      "theme_cotton_candy",
+      "حلوى القطن",
+      "حلوى"
+    ],
+    [
+      "ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct",
+      "يحتاج mpvRx إلى الوصول إلى ملفات الفيديو لتوفير وظائفه الأساسية كمشغّل وسائط.",
+      "يحتاج Replay إلى الوصول إلى ملفات الفيديو لتوفير وظائفه الأساسية كمشغّل وسائط."
+    ],
+    [
+      "ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse",
+      "لطالما احتاج mpvRx إلى إذن الوصول إلى وحدة التخزين لأنه ضروري للعثور على جميع ملفات الوسائط والترجمة على جهازك، بما فيها الملفات التي لا يدعمها النظام.",
+      "لطالما احتاج Replay إلى إذن الوصول إلى وحدة التخزين لأنه ضروري للعثور على جميع ملفات الوسائط والترجمة على جهازك، بما فيها الملفات التي لا يدعمها النظام."
+    ],
+    [
+      "ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a",
+      "mpvRx مشروع مفتوح المصدر. يمكنك مراجعة الشفرة المصدرية والتحقق من كيفية استخدام الأذونات بزيارة مستودع GitHub الخاص بنا على:",
+      "Replay مشروع مفتوح المصدر. يمكنك مراجعة الشفرة المصدرية والتحقق من كيفية استخدام الأذونات بزيارة مستودع GitHub الخاص بنا على:"
+    ],
+    [
+      "ui_mpv_documentation",
+      "وثائق mpv",
+      "وثائق Replay"
+    ],
+    [
+      "ui_by_ritesh_pandit",
+      "إعداد Ritesh Pandit",
+      "إعداد Utsav Rajput"
+    ],
+    [
+      "ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit",
+      "إذا أعجبك mpvRx، فكّر في دعم تطويره. كل مساهمة تساعد!",
+      "هل تستمتع بـ Replay؟ فكّر في دعم المطور الأصلي الذي جعل هذا ممكنًا. كل مساهمة تُحدث فرقًا!"
+    ],
+    [
+      "ui_core_open_source_dependencies_used_by_mpvrx",
+      "التبعيات الأساسية مفتوحة المصدر التي يستخدمها mpvRx.",
+      "التبعيات الأساسية مفتوحة المصدر التي يستخدمها Replay."
+    ],
+    [
+      "github_repo_url",
+      "https://github.com/Riteshp2001/mpvRx",
+      "https://github.com/Utsavrajputt/Replay"
+    ],
+    [
+      "pref_codecs_banner_desc",
+      "تقوم أدوات فك التشفير العتادية بفك تشفير الفيديو مباشرة على معالج الفيديو/الرسوميات، مما يستهلك طاقة أقل. بينما تعمل البرمجية على المعالج الرئيسي مما يزيد من استهلاك البطارية والحرارة.",
+      "تقوم أدوات فك التشفير العتادية (⚡) بفك تشفير الفيديو مباشرة على معالج الفيديو/الرسوميات، مما يستهلك طاقة أقل. بينما تعمل البرمجية (💻) على المعالج الرئيسي مما يزيد من استهلاك البطارية والحرارة."
+    ],
+    [
+      "pref_codecs_filter_hardware",
+      "عتادي (%d)",
+      "عتادي ⚡ (%d)"
+    ],
+    [
+      "pref_codecs_filter_software",
+      "برمجي (%d)",
+      "برمجي 💻 (%d)"
+    ],
+    [
+      "pref_codecs_badge_hardware",
+      "عتادي",
+      "⚡ عتادي"
+    ],
+    [
+      "pref_codecs_badge_software",
+      "برمجي",
+      "💻 برمجي"
+    ],
+    [
+      "pref_codecs_badge_hw_short",
+      "عتادي",
+      "⚡ عتادي"
+    ],
+    [
+      "pref_codecs_badge_sw_short",
+      "برمجي",
+      "💻 برمجي"
+    ]
+  ],
+  "values-de": [
+    [
+      "pref_appearance_system_font_summary",
+      "In mpvRx die Android-Systemschrift anstelle von Google Sans Flex verwenden",
+      "In Replay die Android-Systemschrift anstelle von Google Sans Flex verwenden"
+    ],
+    [
+      "theme_cotton_candy",
+      "Zuckerwatte",
+      "Bonbon"
+    ],
+    [
+      "ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct",
+      "mpvRx benötigt Zugriff auf Ihre Videodateien, um seine Kernfunktion als Mediaplayer bereitzustellen.",
+      "Replay benötigt Zugriff auf Ihre Videodateien, um seine Kernfunktion als Mediaplayer bereitzustellen."
+    ],
+    [
+      "ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse",
+      "mpvRx benötigte schon immer Speicherzugriff, da dieser erforderlich ist, um alle Medien- und Untertiteldateien auf dem Gerät zu finden, einschließlich solcher, die vom System nicht unterstützt werden.",
+      "Replay benötigte schon immer Speicherzugriff, da dieser erforderlich ist, um alle Medien- und Untertiteldateien auf dem Gerät zu finden, einschließlich solcher, die vom System nicht unterstützt werden."
+    ],
+    [
+      "ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a",
+      "mpvRx ist ein Open-Source-Projekt. Sie können den Quellcode prüfen und die Verwendung der Berechtigungen in unserem GitHub-Repository nachvollziehen:",
+      "Replay ist ein Open-Source-Projekt. Sie können den Quellcode prüfen und die Verwendung der Berechtigungen in unserem GitHub-Repository nachvollziehen:"
+    ],
+    [
+      "ui_mpv_documentation",
+      "mpv-Dokumentation",
+      "Replay-Dokumentation"
+    ],
+    [
+      "ui_by_ritesh_pandit",
+      "Von Ritesh Pandit",
+      "Von Utsav Rajput"
+    ],
+    [
+      "ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit",
+      "Wenn Ihnen mpvRx gefällt, unterstützen Sie die Entwicklung. Jeder Beitrag hilft!",
+      "Gefällt Ihnen Replay? Unterstützen Sie den ursprünglichen Entwickler, der es möglich gemacht hat. Jeder Beitrag zählt!"
+    ],
+    [
+      "ui_core_open_source_dependencies_used_by_mpvrx",
+      "Von mpvRx verwendete zentrale Open-Source-Abhängigkeiten.",
+      "Von Replay verwendete zentrale Open-Source-Abhängigkeiten."
+    ],
+    [
+      "github_repo_url",
+      "https://github.com/Riteshp2001/mpvRx",
+      "https://github.com/Utsavrajputt/Replay"
+    ],
+    [
+      "pref_codecs_banner_desc",
+      "Hardware-Decoder dekodieren Video direkt auf VPU/GPU-Chips mit minimalem Stromverbrauch. Software-Decoder laufen auf CPU-Kernen, was bei 4K oder hoher Bitrate zu Akkuverbrauch und Erwärmung führt.",
+      "Hardware-Decoder (⚡) dekodieren Video direkt auf VPU/GPU-Chips mit minimalem Stromverbrauch. Software-Decoder (💻) laufen auf CPU-Kernen, was bei 4K oder hoher Bitrate zu Akkuverbrauch und Erwärmung führt."
+    ],
+    [
+      "pref_codecs_filter_hardware",
+      "Hardware (%d)",
+      "Hardware ⚡ (%d)"
+    ],
+    [
+      "pref_codecs_filter_software",
+      "Software (%d)",
+      "Software 💻 (%d)"
+    ],
+    [
+      "pref_codecs_badge_hardware",
+      "Hardware",
+      "⚡ Hardware"
+    ],
+    [
+      "pref_codecs_badge_software",
+      "Software",
+      "💻 Software"
+    ],
+    [
+      "pref_codecs_badge_hw_short",
+      "HW",
+      "⚡ HW"
+    ],
+    [
+      "pref_codecs_badge_sw_short",
+      "SW",
+      "💻 SW"
+    ]
+  ],
+  "values-es": [
+    [
+      "pref_appearance_system_font_summary",
+      "Usar la tipografía del sistema Android en todo mpvRx en lugar de Google Sans Flex",
+      "Usar la tipografía del sistema Android en todo Replay en lugar de Google Sans Flex"
+    ],
+    [
+      "theme_cotton_candy",
+      "Algodón de azúcar",
+      "Caramelo"
+    ],
+    [
+      "ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct",
+      "mpvRx necesita acceder a tus archivos de video para ofrecer sus funciones principales como reproductor multimedia.",
+      "Replay necesita acceder a tus archivos de video para ofrecer sus funciones principales como reproductor multimedia."
+    ],
+    [
+      "ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse",
+      "mpvRx siempre ha necesitado permiso de acceso al almacenamiento, ya que es esencial para encontrar todos los archivos multimedia y de subtítulos del dispositivo, incluidos los no compatibles con el sistema.",
+      "Replay siempre ha necesitado permiso de acceso al almacenamiento, ya que es esencial para encontrar todos los archivos multimedia y de subtítulos del dispositivo, incluidos los no compatibles con el sistema."
+    ],
+    [
+      "ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a",
+      "mpvRx es un proyecto de código abierto. Puedes revisar el código fuente y comprobar cómo se usan los permisos en nuestro repositorio de GitHub:",
+      "Replay es un proyecto de código abierto. Puedes revisar el código fuente y comprobar cómo se usan los permisos en nuestro repositorio de GitHub:"
+    ],
+    [
+      "ui_mpv_documentation",
+      "Documentación de mpv",
+      "Documentación de Replay"
+    ],
+    [
+      "ui_by_ritesh_pandit",
+      "Por Ritesh Pandit",
+      "Por Utsav Rajput"
+    ],
+    [
+      "ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit",
+      "Si disfrutas mpvRx, considera apoyar su desarrollo. ¡Cada aporte ayuda!",
+      "¿Disfrutas Replay? Considera apoyar al desarrollador original que lo hizo posible. ¡Cada contribución marca la diferencia!"
+    ],
+    [
+      "ui_core_open_source_dependencies_used_by_mpvrx",
+      "Dependencias principales de código abierto utilizadas por mpvRx.",
+      "Dependencias principales de código abierto utilizadas por Replay."
+    ],
+    [
+      "github_repo_url",
+      "https://github.com/Riteshp2001/mpvRx",
+      "https://github.com/Utsavrajputt/Replay"
+    ],
+    [
+      "pref_codecs_banner_desc",
+      "Los decodificadores por hardware procesan el video directamente en la VPU/GPU consumiendo mínima energía. Los de software usan la CPU, aumentando el consumo de batería y temperatura en 4K.",
+      "Los decodificadores por hardware (⚡) procesan el video directamente en la VPU/GPU consumiendo mínima energía. Los de software (💻) usan la CPU, aumentando el consumo de batería y temperatura en 4K."
+    ],
+    [
+      "pref_codecs_filter_hardware",
+      "Hardware (%d)",
+      "Hardware ⚡ (%d)"
+    ],
+    [
+      "pref_codecs_filter_software",
+      "Software (%d)",
+      "Software 💻 (%d)"
+    ],
+    [
+      "pref_codecs_badge_hardware",
+      "Hardware",
+      "⚡ Hardware"
+    ],
+    [
+      "pref_codecs_badge_software",
+      "Software",
+      "💻 Software"
+    ],
+    [
+      "pref_codecs_badge_hw_short",
+      "HW",
+      "⚡ HW"
+    ],
+    [
+      "pref_codecs_badge_sw_short",
+      "SW",
+      "💻 SW"
+    ]
+  ],
+  "values-fr": [
+    [
+      "pref_appearance_system_font_summary",
+      "Utiliser la police système Android dans mpvRx à la place de Google Sans Flex",
+      "Utiliser la police système Android dans Replay à la place de Google Sans Flex"
+    ],
+    [
+      "theme_cotton_candy",
+      "Barbe à papa",
+      "Bonbon"
+    ],
+    [
+      "ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct",
+      "mpvRx doit accéder à vos fichiers vidéo pour assurer ses fonctions essentielles de lecteur multimédia.",
+      "Replay doit accéder à vos fichiers vidéo pour assurer ses fonctions essentielles de lecteur multimédia."
+    ],
+    [
+      "ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse",
+      "mpvRx a toujours nécessité l’accès au stockage, indispensable pour trouver tous les fichiers multimédias et de sous-titres de votre appareil, y compris ceux que le système ne prend pas en charge.",
+      "Replay a toujours nécessité l’accès au stockage, indispensable pour trouver tous les fichiers multimédias et de sous-titres de votre appareil, y compris ceux que le système ne prend pas en charge."
+    ],
+    [
+      "ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a",
+      "mpvRx est un projet open source. Vous pouvez consulter le code source et vérifier l’utilisation des autorisations dans notre dépôt GitHub :",
+      "Replay est un projet open source. Vous pouvez consulter le code source et vérifier l’utilisation des autorisations dans notre dépôt GitHub :"
+    ],
+    [
+      "ui_mpv_documentation",
+      "Documentation de mpv",
+      "Documentation de Replay"
+    ],
+    [
+      "ui_by_ritesh_pandit",
+      "Par Ritesh Pandit",
+      "Par Utsav Rajput"
+    ],
+    [
+      "ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit",
+      "Si vous appréciez mpvRx, pensez à soutenir son développement. Chaque contribution compte !",
+      "Vous appréciez Replay ? Pensez à soutenir le développeur original qui l\\'a rendu possible. Chaque contribution compte !"
+    ],
+    [
+      "ui_core_open_source_dependencies_used_by_mpvrx",
+      "Principales dépendances open source utilisées par mpvRx.",
+      "Principales dépendances open source utilisées par Replay."
+    ],
+    [
+      "github_repo_url",
+      "https://github.com/Riteshp2001/mpvRx",
+      "https://github.com/Utsavrajputt/Replay"
+    ],
+    [
+      "pref_codecs_banner_desc",
+      "\"Les décodeurs matériels décodent le flux directement sur les puces VPU/GPU dédiées. Les décodeurs logiciels s'exécutent sur le processeur (CPU), augmentant la consommation de batterie et la chauffe lors de la lecture 4K.\"",
+      "\"Les décodeurs matériels (⚡) décodent le flux directement sur les puces VPU/GPU dédiées. Les décodeurs logiciels (💻) s'exécutent sur le processeur (CPU), augmentant la consommation de batterie et la chauffe lors de la lecture 4K.\""
+    ],
+    [
+      "pref_codecs_filter_hardware",
+      "Matériel (%d)",
+      "Matériel ⚡ (%d)"
+    ],
+    [
+      "pref_codecs_filter_software",
+      "Logiciel (%d)",
+      "Logiciel 💻 (%d)"
+    ],
+    [
+      "pref_codecs_badge_hardware",
+      "Matériel",
+      "⚡ Matériel"
+    ],
+    [
+      "pref_codecs_badge_software",
+      "Logiciel",
+      "💻 Logiciel"
+    ],
+    [
+      "pref_codecs_badge_hw_short",
+      "HW",
+      "⚡ HW"
+    ],
+    [
+      "pref_codecs_badge_sw_short",
+      "SW",
+      "💻 SW"
+    ]
+  ],
+  "values-hi": [
+    [
+      "pref_appearance_system_font_summary",
+      "Google Sans Flex की जगह mpvRx में Android सिस्टम टाइपफेस इस्तेमाल करें",
+      "Google Sans Flex की जगह Replay में Android सिस्टम टाइपफेस इस्तेमाल करें"
+    ],
+    [
+      "theme_cotton_candy",
+      "Cotton Candy",
+      "कैंडी"
+    ],
+    [
+      "github_repo_url",
+      "https://github.com/Riteshp2001/mpvRx",
+      "https://github.com/Utsavrajputt/Replay"
+    ],
+    [
+      "ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct",
+      "mpvRx को अपनी मुख्य कार्यक्षमता एक मीडिया प्लेयर के रूप में देने के लिए आपकी वीडियो फाइलों तक एक्सेस चाहिए।",
+      "Replay को अपनी मुख्य कार्यक्षमता एक मीडिया प्लेयर के रूप में देने के लिए आपकी वीडियो फाइलों तक एक्सेस चाहिए।"
+    ],
+    [
+      "ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse",
+      "mpvRx को हमेशा स्टोरेज एक्सेस परमिशन की ज़रूरत रही है क्योंकि ऐप के लिए आपके डिवाइस पर सभी मीडिया और सबटाइटल फाइलें ढूंढना ज़रूरी है, जिनमें वे भी शामिल हैं जो सिस्टम द्वारा समर्थित नहीं हैं।",
+      "Replay को हमेशा स्टोरेज एक्सेस परमिशन की ज़रूरत रही है क्योंकि ऐप के लिए आपके डिवाइस पर सभी मीडिया और सबटाइटल फाइलें ढूंढना ज़रूरी है, जिनमें वे भी शामिल हैं जो सिस्टम द्वारा समर्थित नहीं हैं।"
+    ],
+    [
+      "ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a",
+      "mpvRx एक ओपन सोर्स प्रोजेक्ट है। आप हमारी GitHub रिपॉज़िटरी पर जाकर सोर्स कोड देख सकते हैं और परमिशन कैसे इस्तेमाल होती है, यह जांच सकते हैं:",
+      "Replay एक ओपन सोर्स प्रोजेक्ट है। आप हमारी GitHub रिपॉज़िटरी पर जाकर सोर्स कोड देख सकते हैं और परमिशन कैसे इस्तेमाल होती है, यह जांच सकते हैं:"
+    ],
+    [
+      "ui_mpv_documentation",
+      "mpv डॉक्यूमेंटेशन",
+      "Replay डॉक्यूमेंटेशन"
+    ],
+    [
+      "ui_by_ritesh_pandit",
+      "Ritesh Pandit द्वारा",
+      "Utsav Rajput द्वारा"
+    ],
+    [
+      "ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit",
+      "अगर आपको mpvRx पसंद है, तो इसके डेवलपमेंट को सपोर्ट करने पर विचार करें। हर छोटी मदद मायने रखती है!",
+      "Replay पसंद आ रहा है? इसे बनाने वाले मूल डेवलपर को सपोर्ट करने पर विचार करें। हर योगदान मायने रखता है!"
+    ],
+    [
+      "ui_core_open_source_dependencies_used_by_mpvrx",
+      "mpvRx द्वारा इस्तेमाल की जाने वाली मुख्य ओपन सोर्स डिपेंडेंसी।",
+      "Replay द्वारा इस्तेमाल की जाने वाली मुख्य ओपन सोर्स डिपेंडेंसी।"
+    ],
+    [
+      "pref_codecs_banner_desc",
+      "हार्डवेयर डिकोडर डेडिकेटेड VPU/GPU चिप पर सीधे वीडियो डिकोड करते हैं, न्यूनतम पावर इस्तेमाल करते हुए। सॉफ्टवेयर डिकोडर CPU कोर पर चलते हैं, जिससे हाई-बिटरेट या 4K प्लेबैक (जैसे बिना HW सपोर्ट वाला AV1) के दौरान बैटरी ज्यादा खर्च होती है और गर्मी बढ़ती है।",
+      "हार्डवेयर डिकोडर (⚡) डेडिकेटेड VPU/GPU चिप पर सीधे वीडियो डिकोड करते हैं, न्यूनतम पावर इस्तेमाल करते हुए। सॉफ्टवेयर डिकोडर (💻) CPU कोर पर चलते हैं, जिससे हाई-बिटरेट या 4K प्लेबैक (जैसे बिना HW सपोर्ट वाला AV1) के दौरान बैटरी ज्यादा खर्च होती है और गर्मी बढ़ती है।"
+    ],
+    [
+      "pref_codecs_filter_hardware",
+      "हार्डवेयर (%d)",
+      "हार्डवेयर ⚡ (%d)"
+    ],
+    [
+      "pref_codecs_filter_software",
+      "सॉफ्टवेयर (%d)",
+      "सॉफ्टवेयर 💻 (%d)"
+    ],
+    [
+      "pref_codecs_badge_hardware",
+      "हार्डवेयर",
+      "⚡ हार्डवेयर"
+    ],
+    [
+      "pref_codecs_badge_software",
+      "सॉफ्टवेयर",
+      "💻 सॉफ्टवेयर"
+    ],
+    [
+      "pref_codecs_badge_hw_short",
+      "HW",
+      "⚡ HW"
+    ],
+    [
+      "pref_codecs_badge_sw_short",
+      "SW",
+      "💻 SW"
+    ]
+  ],
+  "values-ja": [
+    [
+      "pref_appearance_system_font_summary",
+      "Google Sans Flexの代わりにAndroidのシステム書体をmpvRx全体で使用します",
+      "Google Sans Flexの代わりにAndroidのシステム書体をReplay全体で使用します"
+    ],
+    [
+      "theme_cotton_candy",
+      "コットンキャンディ",
+      "キャンディ"
+    ],
+    [
+      "ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct",
+      "mpvRxがメディアプレーヤーとしての基本機能を提供するには、動画ファイルへのアクセスが必要です。",
+      "Replayがメディアプレーヤーとしての基本機能を提供するには、動画ファイルへのアクセスが必要です。"
+    ],
+    [
+      "ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse",
+      "mpvRxでは、システムが対応していないものを含む端末上のすべてのメディアおよび字幕ファイルを見つけるために、以前からストレージへのアクセス権限が必要でした。",
+      "Replayでは、システムが対応していないものを含む端末上のすべてのメディアおよび字幕ファイルを見つけるために、以前からストレージへのアクセス権限が必要でした。"
+    ],
+    [
+      "ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a",
+      "mpvRxはオープンソースプロジェクトです。GitHubリポジトリでソースコードと権限の使用方法を確認できます：",
+      "Replayはオープンソースプロジェクトです。GitHubリポジトリでソースコードと権限の使用方法を確認できます："
+    ],
+    [
+      "ui_mpv_documentation",
+      "mpvドキュメント",
+      "Replayドキュメント"
+    ],
+    [
+      "ui_by_ritesh_pandit",
+      "Ritesh Pandit 作",
+      "Utsav Rajput 作"
+    ],
+    [
+      "ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit",
+      "mpvRxを気に入っていただけたら、開発支援をご検討ください。どんな支援も助けになります！",
+      "Replayを楽しんでいますか？これを実現した開発者の支援をご検討ください。どんな貢献も助けになります！"
+    ],
+    [
+      "ui_core_open_source_dependencies_used_by_mpvrx",
+      "mpvRxで使用している主要なオープンソース依存関係。",
+      "Replayで使用している主要なオープンソース依存関係。"
+    ],
+    [
+      "github_repo_url",
+      "https://github.com/Riteshp2001/mpvRx",
+      "https://github.com/Utsavrajputt/Replay"
+    ],
+    [
+      "pref_codecs_banner_desc",
+      "ハードウェアデコーダーは専用の VPU/GPU チップで直接処理し、省電力です。ソフトウェアデコーダーは CPU で実行されるため、4K などの再生時にバッテリー消費と発熱が増加します。",
+      "ハードウェアデコーダー（⚡）は専用の VPU/GPU チップで直接処理し、省電力です。ソフトウェアデコーダー（💻）は CPU で実行されるため、4K などの再生時にバッテリー消費と発熱が増加します。"
+    ],
+    [
+      "pref_codecs_filter_hardware",
+      "ハードウェア (%d)",
+      "ハードウェア ⚡ (%d)"
+    ],
+    [
+      "pref_codecs_filter_software",
+      "ソフトウェア (%d)",
+      "ソフトウェア 💻 (%d)"
+    ],
+    [
+      "pref_codecs_badge_hardware",
+      "ハードウェア",
+      "⚡ ハードウェア"
+    ],
+    [
+      "pref_codecs_badge_software",
+      "ソフトウェア",
+      "💻 ソフトウェア"
+    ],
+    [
+      "pref_codecs_badge_hw_short",
+      "HW",
+      "⚡ HW"
+    ],
+    [
+      "pref_codecs_badge_sw_short",
+      "SW",
+      "💻 SW"
+    ]
+  ],
+  "values-pt-rBR": [
+    [
+      "pref_appearance_system_font_summary",
+      "Usar a fonte do sistema Android em todo o mpvRx no lugar da Google Sans Flex",
+      "Usar a fonte do sistema Android em todo o Replay no lugar da Google Sans Flex"
+    ],
+    [
+      "theme_cotton_candy",
+      "Algodão-doce",
+      "Bala"
+    ],
+    [
+      "ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct",
+      "O mpvRx precisa acessar seus arquivos de vídeo para oferecer sua funcionalidade principal como player de mídia.",
+      "O Replay precisa acessar seus arquivos de vídeo para oferecer sua funcionalidade principal como player de mídia."
+    ],
+    [
+      "ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse",
+      "O mpvRx sempre exigiu permissão de acesso ao armazenamento, pois ela é essencial para localizar todos os arquivos de mídia e legenda no dispositivo, inclusive os não compatíveis com o sistema.",
+      "O Replay sempre exigiu permissão de acesso ao armazenamento, pois ela é essencial para localizar todos os arquivos de mídia e legenda no dispositivo, inclusive os não compatíveis com o sistema."
+    ],
+    [
+      "ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a",
+      "O mpvRx é um projeto de código aberto. Você pode revisar o código-fonte e verificar como as permissões são usadas em nosso repositório do GitHub:",
+      "O Replay é um projeto de código aberto. Você pode revisar o código-fonte e verificar como as permissões são usadas em nosso repositório do GitHub:"
+    ],
+    [
+      "ui_mpv_documentation",
+      "Documentação do mpv",
+      "Documentação do Replay"
+    ],
+    [
+      "ui_by_ritesh_pandit",
+      "Por Ritesh Pandit",
+      "Por Utsav Rajput"
+    ],
+    [
+      "ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit",
+      "Se você gosta do mpvRx, considere apoiar o desenvolvimento. Toda ajuda conta!",
+      "Está gostando do Replay? Considere apoiar o desenvolvedor original que o tornou possível. Toda contribuição faz a diferença!"
+    ],
+    [
+      "ui_core_open_source_dependencies_used_by_mpvrx",
+      "Principais dependências de código aberto usadas pelo mpvRx.",
+      "Principais dependências de código aberto usadas pelo Replay."
+    ],
+    [
+      "github_repo_url",
+      "https://github.com/Riteshp2001/mpvRx",
+      "https://github.com/Utsavrajputt/Replay"
+    ],
+    [
+      "pref_codecs_banner_desc",
+      "Decodificadores por hardware processam o vídeo diretamente nos chips VPU/GPU. Os por software usam o CPU, aumentando o consumo de bateria e aquecimento em 4K.",
+      "Decodificadores por hardware (⚡) processam o vídeo diretamente nos chips VPU/GPU. Os por software (💻) usam o CPU, aumentando o consumo de bateria e aquecimento em 4K."
+    ],
+    [
+      "pref_codecs_filter_hardware",
+      "Hardware (%d)",
+      "Hardware ⚡ (%d)"
+    ],
+    [
+      "pref_codecs_filter_software",
+      "Software (%d)",
+      "Software 💻 (%d)"
+    ],
+    [
+      "pref_codecs_badge_hardware",
+      "Hardware",
+      "⚡ Hardware"
+    ],
+    [
+      "pref_codecs_badge_software",
+      "Software",
+      "💻 Software"
+    ],
+    [
+      "pref_codecs_badge_hw_short",
+      "HW",
+      "⚡ HW"
+    ],
+    [
+      "pref_codecs_badge_sw_short",
+      "SW",
+      "💻 SW"
+    ]
+  ],
+  "values-ru": [
+    [
+      "pref_appearance_system_font_summary",
+      "Использовать системный шрифт Android во всём mpvRx вместо Google Sans Flex",
+      "Использовать системный шрифт Android во всём Replay вместо Google Sans Flex"
+    ],
+    [
+      "theme_cotton_candy",
+      "Сахарная вата",
+      "Конфета"
+    ],
+    [
+      "ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct",
+      "mpvRx необходим доступ к видеофайлам для выполнения основных функций медиаплеера.",
+      "Replay необходим доступ к видеофайлам для выполнения основных функций медиаплеера."
+    ],
+    [
+      "ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse",
+      "mpvRx всегда требовался доступ к хранилищу, поскольку он необходим для поиска всех медиафайлов и субтитров на устройстве, включая неподдерживаемые системой.",
+      "Replay всегда требовался доступ к хранилищу, поскольку он необходим для поиска всех медиафайлов и субтитров на устройстве, включая неподдерживаемые системой."
+    ],
+    [
+      "ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a",
+      "mpvRx — проект с открытым исходным кодом. Вы можете проверить код и использование разрешений в нашем репозитории GitHub:",
+      "Replay — проект с открытым исходным кодом. Вы можете проверить код и использование разрешений в нашем репозитории GitHub:"
+    ],
+    [
+      "ui_mpv_documentation",
+      "Документация mpv",
+      "Документация Replay"
+    ],
+    [
+      "ui_by_ritesh_pandit",
+      "Автор: Ritesh Pandit",
+      "Автор: Utsav Rajput"
+    ],
+    [
+      "ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit",
+      "Если вам нравится mpvRx, поддержите его разработку. Важна любая помощь!",
+      "Нравится Replay? Поддержите оригинального разработчика, благодаря которому это стало возможным. Любой вклад важен!"
+    ],
+    [
+      "ui_core_open_source_dependencies_used_by_mpvrx",
+      "Основные зависимости с открытым исходным кодом, используемые mpvRx.",
+      "Основные зависимости с открытым исходным кодом, используемые Replay."
+    ],
+    [
+      "github_repo_url",
+      "https://github.com/Riteshp2001/mpvRx",
+      "https://github.com/Utsavrajputt/Replay"
+    ],
+    [
+      "pref_codecs_banner_desc",
+      "Аппаратные декодеры декодируют видео непосредственно на VPU/GPU, расходуя минимум энергии. Программные декодеры работают на ЦП, вызывая нагрев и разряд батареи при воспроизведении 4K или высоких битрейтов.",
+      "Аппаратные декодеры (⚡) декодируют видео непосредственно на VPU/GPU, расходуя минимум энергии. Программные декодеры (💻) работают на ЦП, вызывая нагрев и разряд батареи при воспроизведении 4K или высоких битрейтов."
+    ],
+    [
+      "pref_codecs_filter_hardware",
+      "Аппаратные (%d)",
+      "Аппаратные ⚡ (%d)"
+    ],
+    [
+      "pref_codecs_filter_software",
+      "Программные (%d)",
+      "Программные 💻 (%d)"
+    ],
+    [
+      "pref_codecs_badge_hardware",
+      "Аппаратный",
+      "⚡ Аппаратный"
+    ],
+    [
+      "pref_codecs_badge_software",
+      "Программный",
+      "💻 Программный"
+    ],
+    [
+      "pref_codecs_badge_hw_short",
+      "HW",
+      "⚡ HW"
+    ],
+    [
+      "pref_codecs_badge_sw_short",
+      "SW",
+      "💻 SW"
+    ]
+  ],
+  "values-zh-rCN": [
+    [
+      "pref_appearance_system_font_summary",
+      "在整个 mpvRx 中使用 Android 系统字体，而不是 Google Sans Flex",
+      "在整个 Replay 中使用 Android 系统字体，而不是 Google Sans Flex"
+    ],
+    [
+      "theme_cotton_candy",
+      "棉花糖",
+      "糖果"
+    ],
+    [
+      "ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct",
+      "mpvRx 需要访问您的视频文件，才能提供媒体播放器的核心功能。",
+      "Replay 需要访问您的视频文件，才能提供媒体播放器的核心功能。"
+    ],
+    [
+      "ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse",
+      "mpvRx 一直需要存储访问权限，因为这是查找设备上所有媒体和字幕文件所必需的，包括系统不支持的文件。",
+      "Replay 一直需要存储访问权限，因为这是查找设备上所有媒体和字幕文件所必需的，包括系统不支持的文件。"
+    ],
+    [
+      "ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a",
+      "mpvRx 是一个开源项目。您可以访问我们的 GitHub 仓库查看源代码并验证权限的使用方式：",
+      "Replay 是一个开源项目。您可以访问我们的 GitHub 仓库查看源代码并验证权限的使用方式："
+    ],
+    [
+      "ui_mpv_documentation",
+      "mpv 文档",
+      "Replay 文档"
+    ],
+    [
+      "ui_by_ritesh_pandit",
+      "作者：Ritesh Pandit",
+      "作者：Utsav Rajput"
+    ],
+    [
+      "ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit",
+      "如果您喜欢 mpvRx，请考虑支持其开发。每一份支持都有帮助！",
+      "喜欢 Replay 吗？欢迎支持让它成为可能的原始开发者。每一份支持都很重要！"
+    ],
+    [
+      "ui_core_open_source_dependencies_used_by_mpvrx",
+      "mpvRx 使用的核心开源依赖项。",
+      "Replay 使用的核心开源依赖项。"
+    ],
+    [
+      "github_repo_url",
+      "https://github.com/Riteshp2001/mpvRx",
+      "https://github.com/Utsavrajputt/Replay"
+    ],
+    [
+      "pref_codecs_banner_desc",
+      "硬件解码器直接在专用 VPU/GPU 芯片上解码视频，功耗极低。软件解码器在 CPU 上运行，在播放 4K 或高码率视频（如无硬解支持的 AV1）时可能导致发热和电池快耗。",
+      "硬件解码器（⚡）直接在专用 VPU/GPU 芯片上解码视频，功耗极低。软件解码器（💻）在 CPU 上运行，在播放 4K 或高码率视频（如无硬解支持的 AV1）时可能导致发热和电池快耗。"
+    ],
+    [
+      "pref_codecs_filter_hardware",
+      "硬件解码 (%d)",
+      "硬件解码 ⚡ (%d)"
+    ],
+    [
+      "pref_codecs_filter_software",
+      "软件解码 (%d)",
+      "软件解码 💻 (%d)"
+    ],
+    [
+      "pref_codecs_badge_hardware",
+      "硬件解码",
+      "⚡ 硬件解码"
+    ],
+    [
+      "pref_codecs_badge_software",
+      "软件解码",
+      "💻 软件解码"
+    ],
+    [
+      "pref_codecs_badge_hw_short",
+      "硬解",
+      "⚡ 硬解"
+    ],
+    [
+      "pref_codecs_badge_sw_short",
+      "软解",
+      "💻 软解"
+    ]
+  ]
+}
