@@ -98,6 +98,8 @@ import app.gyrolet.mpvrx.domain.torrent.formatTorrentBytes
 import app.gyrolet.mpvrx.domain.torrent.isTorrentSource
 import app.gyrolet.mpvrx.domain.torrent.normalizeTorrentSource
 import app.gyrolet.mpvrx.presentation.Screen
+import app.gyrolet.mpvrx.ui.celestial.CelestialBackground
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.presentation.components.RemoteImage
 import app.gyrolet.mpvrx.repository.wyzie.WyzieSearchRepository
 import app.gyrolet.mpvrx.utils.media.MediaInfoParser
@@ -352,7 +354,10 @@ object NetworkStreamingScreen : Screen {
                   stringResource(R.string.ui_add_connection),
                 )
               },
-              modifier = Modifier.padding(bottom = navigationBarHeight),
+              modifier =
+                Modifier
+                  .padding(bottom = navigationBarHeight)
+                  .celestialBorder(shape = RoundedCornerShape(16.dp)),
             )
           }
           NetworkTab.MEDIA.ordinal -> {
@@ -360,7 +365,10 @@ object NetworkStreamingScreen : Screen {
               onClick = { showAddMediaDialog = true },
               icon = { Icon(Icons.RoundedFilled.Add, contentDescription = null) },
               text = { Text("Add Media") },
-              modifier = Modifier.padding(bottom = navigationBarHeight),
+              modifier =
+                Modifier
+                  .padding(bottom = navigationBarHeight)
+                  .celestialBorder(shape = RoundedCornerShape(16.dp)),
             )
           }
         }
@@ -372,6 +380,7 @@ object NetworkStreamingScreen : Screen {
             .fillMaxSize()
             .padding(padding),
       ) {
+        CelestialBackground()
         HorizontalPager(
           state = pagerState,
           modifier =

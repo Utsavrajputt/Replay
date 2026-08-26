@@ -124,6 +124,9 @@ import app.gyrolet.mpvrx.presentation.components.pullrefresh.PullRefreshBox
 import app.gyrolet.mpvrx.preferences.BrowserPreferences
 import app.gyrolet.mpvrx.preferences.AppearancePreferences
 import app.gyrolet.mpvrx.preferences.preference.collectAsState
+import app.gyrolet.mpvrx.ui.celestial.CelestialBackground
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
+import app.gyrolet.mpvrx.ui.celestial.celestialFabColors
 import app.gyrolet.mpvrx.ui.preferences.PreferencesScreen
 import app.gyrolet.mpvrx.ui.browser.LocalNavigationBarHeight
 import app.gyrolet.mpvrx.ui.browser.MainScreen
@@ -631,12 +634,15 @@ fun MusicLibraryContent(
           modifier = Modifier.padding(bottom = (navigationBarHeight - 16.dp).coerceAtLeast(0.dp)),
           expanded = false,
           button = {
+            val celestialFab = celestialFabColors()
             ToggleFloatingActionButton(
               modifier =
                 Modifier.animateFloatingActionButton(
                   visible = isFabShouldBeVisible,
                   alignment = Alignment.BottomEnd,
-                ),
+                ).celestialBorder(),
+              containerColor = celestialFab.containerColor,
+              containerCornerRadius = celestialFab.containerCornerRadius,
               checked = false,
               onCheckedChange = { showCreatePlaylistDialog = true },
             ) {
@@ -660,12 +666,15 @@ fun MusicLibraryContent(
               tooltip = { PlainTooltip { Text(stringResource(R.string.ui_toggle_menu)) } },
               state = rememberTooltipState(),
             ) {
+              val celestialFab = celestialFabColors()
               ToggleFloatingActionButton(
                 modifier =
                   Modifier.animateFloatingActionButton(
                     visible = isFabShouldBeVisible,
                     alignment = Alignment.BottomEnd,
-                  ),
+                  ).celestialBorder(),
+                containerColor = celestialFab.containerColor,
+                containerCornerRadius = celestialFab.containerCornerRadius,
                 checked = isFabExpanded.value && !quickPlayFabDirect,
                 onCheckedChange = {
                   if (quickPlayFabDirect) {
@@ -716,6 +725,9 @@ fun MusicLibraryContent(
         .fillMaxSize()
         .padding(innerPadding)
     ) {
+      if (visibleTabs.getOrNull(pagerState.currentPage) != MusicTab.FOLDERS) {
+        CelestialBackground()
+      }
       PullRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = { musicViewModel.refreshLibrary(context) },

@@ -60,6 +60,8 @@ import app.gyrolet.mpvrx.R
 import app.gyrolet.mpvrx.preferences.BrowserPreferences
 import app.gyrolet.mpvrx.preferences.MediaLayoutMode
 import app.gyrolet.mpvrx.preferences.preference.collectAsState
+import app.gyrolet.mpvrx.ui.celestial.CelestialBackground
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.presentation.Screen
 import app.gyrolet.mpvrx.presentation.components.pullrefresh.PullRefreshBox
 import app.gyrolet.mpvrx.ui.browser.cards.PlaylistCard
@@ -272,12 +274,17 @@ object PlaylistScreen : Screen {
                   .stringResource(app.gyrolet.mpvrx.R.string.ui_create_playlist),
               )
             },
-            modifier = Modifier.padding(bottom = (navigationBarHeight - 16.dp).coerceAtLeast(0.dp)),
+            modifier =
+              Modifier
+                .padding(bottom = (navigationBarHeight - 16.dp).coerceAtLeast(0.dp))
+                .celestialBorder(shape = RoundedCornerShape(16.dp)),
           )
         }
       },
     ) { paddingValues ->
-      if (isSearching && filteredPlaylists.isEmpty() && searchQuery.isNotBlank()) {
+      Box(modifier = Modifier.fillMaxSize()) {
+        CelestialBackground()
+        if (isSearching && filteredPlaylists.isEmpty() && searchQuery.isNotBlank()) {
         // Show "no results" for search
         Box(
           modifier =
@@ -332,6 +339,7 @@ object PlaylistScreen : Screen {
           modifier = Modifier.padding(paddingValues),
           isInSelectionMode = selectionManager.isInSelectionMode,
         )
+      }
       }
     }
 

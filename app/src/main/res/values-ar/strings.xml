@@ -17,7 +17,7 @@
   <string name="pref_appearance_amoled_mode_title">وضع الأسود AMOLED</string>
   <string name="pref_appearance_amoled_mode_summary">استخدام خلفية سوداء خالصة للسمات الداكنة</string>
   <string name="pref_appearance_system_font_title">استخدام خط النظام</string>
-  <string name="pref_appearance_system_font_summary">استخدام محرف نظام Android في mpvRx بدلًا من Google Sans Flex</string>
+  <string name="pref_appearance_system_font_summary">استخدام محرف نظام Android في Replay بدلًا من Google Sans Flex</string>
   <string name="pref_appearance_material_you_title">Material You</string>
   <string name="pref_appearance_material_you_summary">تفعيل الألوان الديناميكية</string>
   <string name="pref_appearance_material_you_summary_disabled">متاح فقط على Android 12 والإصدارات الأحدث</string>
@@ -76,7 +76,7 @@
   <string name="theme_dynamic">ديناميكي</string>
   <string name="theme_aurora">الشفق القطبي</string>
   <string name="theme_cloudflare">Cloudflare</string>
-  <string name="theme_cotton_candy">حلوى القطن</string>
+  <string name="theme_cotton_candy">حلوى</string>
   <string name="theme_doom">Doom</string>
   <string name="theme_green_apple">تفاحة خضراء</string>
   <string name="theme_lavender">لافندر</string>
@@ -1218,15 +1218,15 @@
   <string name="ui_allow_access">السماح بالوصول</string>
   <string name="ui_why_do_i_see_this">لماذا أرى هذا؟</string>
   <string name="ui_why_this_permission_is_needed">لماذا يلزم هذا الإذن</string>
-  <string name="ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct">يحتاج mpvRx إلى الوصول إلى ملفات الفيديو لتوفير وظائفه الأساسية كمشغّل وسائط.</string>
+  <string name="ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct">يحتاج Replay إلى الوصول إلى ملفات الفيديو لتوفير وظائفه الأساسية كمشغّل وسائط.</string>
   <string name="ui_the_permission_is_used_exclusively_for">يُستخدم الإذن حصريًا من أجل:</string>
   <string name="ui_discovering_and_displaying_your_video_files_n_playing_media_cont">• اكتشاف ملفات الفيديو وعرضها
 • تشغيل محتوى الوسائط
 • تحميل ملفات الترجمة</string>
-  <string name="ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse">لطالما احتاج mpvRx إلى إذن الوصول إلى وحدة التخزين لأنه ضروري للعثور على جميع ملفات الوسائط والترجمة على جهازك، بما فيها الملفات التي لا يدعمها النظام.</string>
+  <string name="ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse">لطالما احتاج Replay إلى إذن الوصول إلى وحدة التخزين لأنه ضروري للعثور على جميع ملفات الوسائط والترجمة على جهازك، بما فيها الملفات التي لا يدعمها النظام.</string>
   <string name="ui_however_due_to_a_change_in_security_policy_apps_built_for_androi">لكن بسبب تغيير في سياسة الأمان، تتطلب التطبيقات المصممة لنظام Android 11 والإصدارات الأحدث إذنًا إضافيًا لمواصلة الوصول نفسه.</string>
   <string name="ui_please_know_that_this_permission_is_only_used_for_the_auto_disco">يُرجى العلم أن هذا الإذن لا يُستخدم إلا للاكتشاف التلقائي لملفات الوسائط والترجمة على جهازك، ولا يتيح لنا بأي شكل الوصول إلى ملفات البيانات الخاصة التي تخزّنها التطبيقات الأخرى.</string>
-  <string name="ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a">mpvRx مشروع مفتوح المصدر. يمكنك مراجعة الشفرة المصدرية والتحقق من كيفية استخدام الأذونات بزيارة مستودع GitHub الخاص بنا على:</string>
+  <string name="ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a">Replay مشروع مفتوح المصدر. يمكنك مراجعة الشفرة المصدرية والتحقق من كيفية استخدام الأذونات بزيارة مستودع GitHub الخاص بنا على:</string>
   <string name="ui_be_rest_assured_your_privacy_is_our_utmost_priority_and_we_neith">اطمئن، خصوصيتك هي أولويتنا القصوى. لا نصل إلى ملفاتك لأغراض أخرى ولا ننقلها أو نخزّنها على خوادمنا؛ بل تبقى آمنة على جهازك.</string>
   <string name="ui_app_permissions">أذونات التطبيق</string>
   <string name="ui_permissions_setup_subtitle">قم بتكوين الأذونات لتمكين الميزات الأساسية وتشغيل الوسائط.</string>
@@ -1245,7 +1245,7 @@
   <string name="ui_grant_permission_hint">انقر لمنح الإذن</string>
   <string name="ui_moved_to_private_space">تم النقل إلى المساحة الخاصة</string>
   <string name="ui_cast">البث</string>
-  <string name="ui_mpv_documentation">وثائق mpv</string>
+  <string name="ui_mpv_documentation">وثائق Replay</string>
   <string name="ui_search_commands_options_properties">البحث في الأوامر والخيارات والخصائص...</string>
   <string name="ui_no_results_found">لم يتم العثور على نتائج</string>
   <string name="ui_no_android">لا يدعم Android</string>
@@ -1307,18 +1307,18 @@
   <string name="ui_pan_zoom">التحريك والتكبير</string>
   <string name="ui_decrease_zoom">تصغير</string>
   <string name="ui_increase_zoom">تكبير</string>
-  <string name="ui_by_ritesh_pandit">إعداد Ritesh Pandit</string>
+  <string name="ui_by_ritesh_pandit">إعداد Utsav Rajput</string>
   <string name="ui_github">GitHub</string>
   <string name="ui_device_info">معلومات الجهاز</string>
   <string name="ui_buy_me_a_coffee">ادعمني بقهوة</string>
-  <string name="ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit">إذا أعجبك mpvRx، فكّر في دعم تطويره. كل مساهمة تساعد!</string>
+  <string name="ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit">هل تستمتع بـ Replay؟ فكّر في دعم المطور الأصلي الذي جعل هذا ممكنًا. كل مساهمة تُحدث فرقًا!</string>
   <string name="ui_upi_id">معرّف UPI</string>
   <string name="ui_panditritesh2001_okhdfcbank">panditritesh2001@okhdfcbank</string>
   <string name="ui_send_love">أرسل دعمك</string>
   <string name="ui_auto_check_for_updates">البحث التلقائي عن التحديثات</string>
   <string name="ui_check_on_startup">التحقق عند بدء التشغيل</string>
   <string name="ui_check_for_updates_now">البحث عن تحديثات الآن</string>
-  <string name="ui_core_open_source_dependencies_used_by_mpvrx">التبعيات الأساسية مفتوحة المصدر التي يستخدمها mpvRx.</string>
+  <string name="ui_core_open_source_dependencies_used_by_mpvrx">التبعيات الأساسية مفتوحة المصدر التي يستخدمها Replay.</string>
   <string name="ui_copy_upi_id">نسخ معرّف UPI</string>
   <string name="ui_already_using_latest_version">أنت تستخدم أحدث إصدار بالفعل</string>
   <string name="ui_upi_id_copied">تم نسخ معرّف UPI!</string>
@@ -1516,7 +1516,7 @@
   <string name="syncplay_player_status">Syncplay: %1$s (%2$d مستخدمين)</string>
   <!-- Additional synchronized strings -->
   <string name="app_name">mpvRx</string>
-  <string name="github_repo_url">https://github.com/Riteshp2001/mpvRx</string>
+  <string name="github_repo_url">https://github.com/Utsavrajputt/Replay</string>
   <string name="hdr_mode_bt2020">BT.2020</string>
   <string name="hdr_mode_bt2100_hlg">BT.2100 HLG</string>
   <string name="hdr_mode_bt2100_pq">BT.2100 PQ</string>
@@ -1638,20 +1638,20 @@
   <string name="secure_folder_progress_format">%1$d من %2$d · %3$d%%</string>
   <string name="pref_codecs_decoders_summary">%1$d عتادي • %2$d فك تشفير برمجي</string>
   <string name="pref_codecs_banner_title">فك التشفير العتادي مقابل البرمجي</string>
-  <string name="pref_codecs_banner_desc">تقوم أدوات فك التشفير العتادية بفك تشفير الفيديو مباشرة على معالج الفيديو/الرسوميات، مما يستهلك طاقة أقل. بينما تعمل البرمجية على المعالج الرئيسي مما يزيد من استهلاك البطارية والحرارة.</string>
+  <string name="pref_codecs_banner_desc">تقوم أدوات فك التشفير العتادية (⚡) بفك تشفير الفيديو مباشرة على معالج الفيديو/الرسوميات، مما يستهلك طاقة أقل. بينما تعمل البرمجية (💻) على المعالج الرئيسي مما يزيد من استهلاك البطارية والحرارة.</string>
   <string name="pref_codecs_core_title">حالة ترميزات الفيديو الأساسية</string>
   <string name="pref_codecs_search_placeholder">البحث عن اسم الترميز أو التنسيق أو MIME...</string>
   <string name="pref_codecs_filter_all">الكل (%d)</string>
-  <string name="pref_codecs_filter_hardware">عتادي (%d)</string>
-  <string name="pref_codecs_filter_software">برمجي (%d)</string>
+  <string name="pref_codecs_filter_hardware">عتادي ⚡ (%d)</string>
+  <string name="pref_codecs_filter_software">برمجي 💻 (%d)</string>
   <string name="pref_codecs_filter_video">فيديو (%d)</string>
   <string name="pref_codecs_filter_audio">صوت (%d)</string>
   <string name="pref_codecs_list_header">قائمة أدوات فك التشفير التفصيلية (%d)</string>
   <string name="pref_codecs_empty">لم يتم العثور على ترميزات مطابقة.</string>
-  <string name="pref_codecs_badge_hardware">عتادي</string>
-  <string name="pref_codecs_badge_software">برمجي</string>
-  <string name="pref_codecs_badge_hw_short">عتادي</string>
-  <string name="pref_codecs_badge_sw_short">برمجي</string>
+  <string name="pref_codecs_badge_hardware">⚡ عتادي</string>
+  <string name="pref_codecs_badge_software">💻 برمجي</string>
+  <string name="pref_codecs_badge_hw_short">⚡ عتادي</string>
+  <string name="pref_codecs_badge_sw_short">💻 برمجي</string>
   <string name="pref_codecs_no_decoder">لم يتم الإبلاغ عن أداة فك تشفير</string>
   <string name="pref_codecs_max_limit">الحد الأقصى: %s</string>
   <string name="pref_codecs_max_resolution">أقصى دقة: %s</string>
