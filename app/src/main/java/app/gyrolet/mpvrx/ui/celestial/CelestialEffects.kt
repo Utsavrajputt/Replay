@@ -85,7 +85,7 @@ fun Modifier.celestialBorder(shape: Shape = CircleShape): Modifier {
 /** containerColor + containerCornerRadius pair for ToggleFloatingActionButton. */
 data class CelestialFabColors(
   val containerColor: (Float) -> Color,
-  val containerCornerRadius: () -> Dp,
+  val containerCornerRadius: (Float) -> Dp,
 )
 
 @Composable
