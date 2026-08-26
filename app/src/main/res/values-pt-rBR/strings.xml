@@ -17,7 +17,7 @@
   <string name="pref_appearance_amoled_mode_title">Modo preto AMOLED</string>
   <string name="pref_appearance_amoled_mode_summary">Usar fundo totalmente preto em temas escuros</string>
   <string name="pref_appearance_system_font_title">Usar fonte do sistema</string>
-  <string name="pref_appearance_system_font_summary">Usar a fonte do sistema Android em todo o mpvRx no lugar da Google Sans Flex</string>
+  <string name="pref_appearance_system_font_summary">Usar a fonte do sistema Android em todo o Replay no lugar da Google Sans Flex</string>
   <string name="pref_appearance_material_you_title">Material You</string>
   <string name="pref_appearance_material_you_summary">Ativar cores dinâmicas</string>
   <string name="pref_appearance_material_you_summary_disabled">Disponível somente no Android 12 ou superior</string>
@@ -78,7 +78,7 @@
   <string name="theme_dynamic">Dinâmico</string>
   <string name="theme_aurora">Aurora</string>
   <string name="theme_cloudflare">Cloudflare</string>
-  <string name="theme_cotton_candy">Algodão-doce</string>
+  <string name="theme_cotton_candy">Bala</string>
   <string name="theme_doom">Doom</string>
   <string name="theme_green_apple">Maçã verde</string>
   <string name="theme_lavender">Lavanda</string>
@@ -1270,15 +1270,15 @@ Reinicie o aplicativo para que todas as alterações entrem em vigor.</string>
   <string name="ui_allow_access">PERMITIR ACESSO</string>
   <string name="ui_why_do_i_see_this">Por que estou vendo isso?</string>
   <string name="ui_why_this_permission_is_needed">Por que esta permissão é necessária</string>
-  <string name="ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct">O mpvRx precisa acessar seus arquivos de vídeo para oferecer sua funcionalidade principal como player de mídia.</string>
+  <string name="ui_mpvrx_needs_access_to_your_video_files_to_provide_its_core_funct">O Replay precisa acessar seus arquivos de vídeo para oferecer sua funcionalidade principal como player de mídia.</string>
   <string name="ui_the_permission_is_used_exclusively_for">A permissão é usada exclusivamente para:</string>
   <string name="ui_discovering_and_displaying_your_video_files_n_playing_media_cont">• Descobrir e exibir seus arquivos de vídeo
 • Reproduzir conteúdo de mídia
 • Carregar arquivos de legenda</string>
-  <string name="ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse">O mpvRx sempre exigiu permissão de acesso ao armazenamento, pois ela é essencial para localizar todos os arquivos de mídia e legenda no dispositivo, inclusive os não compatíveis com o sistema.</string>
+  <string name="ui_mpvrx_has_always_required_storage_access_permission_as_it_s_esse">O Replay sempre exigiu permissão de acesso ao armazenamento, pois ela é essencial para localizar todos os arquivos de mídia e legenda no dispositivo, inclusive os não compatíveis com o sistema.</string>
   <string name="ui_however_due_to_a_change_in_security_policy_apps_built_for_androi">No entanto, devido a uma mudança na política de segurança, apps criados para Android 11 ou superior agora precisam de uma permissão adicional para continuar com o mesmo acesso.</string>
   <string name="ui_please_know_that_this_permission_is_only_used_for_the_auto_disco">Esta permissão é usada apenas para descobrir automaticamente arquivos de mídia e legenda no dispositivo e não permite que acessemos de forma alguma os dados privados armazenados por outros apps.</string>
-  <string name="ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a">O mpvRx é um projeto de código aberto. Você pode revisar o código-fonte e verificar como as permissões são usadas em nosso repositório do GitHub:</string>
+  <string name="ui_mpvrx_is_an_open_source_project_you_can_review_the_source_code_a">O Replay é um projeto de código aberto. Você pode revisar o código-fonte e verificar como as permissões são usadas em nosso repositório do GitHub:</string>
   <string name="ui_be_rest_assured_your_privacy_is_our_utmost_priority_and_we_neith">Fique tranquilo: sua privacidade é nossa maior prioridade. Não acessamos seus arquivos para outros fins nem os transferimos ou armazenamos em nossos servidores. Eles permanecem seguros no dispositivo.</string>
   <string name="ui_app_permissions">Permissões do aplicativo</string>
   <string name="ui_permissions_setup_subtitle">Configure as permissões para ativar os recursos principais e a reprodução de mídia.</string>
@@ -1297,7 +1297,7 @@ Reinicie o aplicativo para que todas as alterações entrem em vigor.</string>
   <string name="ui_grant_permission_hint">Toque para conceder permissão</string>
   <string name="ui_moved_to_private_space">Movido para o Espaço privado</string>
   <string name="ui_cast">Transmitir</string>
-  <string name="ui_mpv_documentation">Documentação do mpv</string>
+  <string name="ui_mpv_documentation">Documentação do Replay</string>
   <string name="ui_search_commands_options_properties">Pesquisar comandos, opções e propriedades...</string>
   <string name="ui_no_results_found">Nenhum resultado encontrado</string>
   <string name="ui_no_android">Sem Android</string>
@@ -1367,18 +1367,18 @@ Reinicie o aplicativo para que todas as alterações entrem em vigor.</string>
   <string name="ui_pan_zoom">Mover e ampliar</string>
   <string name="ui_decrease_zoom">Diminuir zoom</string>
   <string name="ui_increase_zoom">Aumentar zoom</string>
-  <string name="ui_by_ritesh_pandit">Por Ritesh Pandit</string>
+  <string name="ui_by_ritesh_pandit">Por Utsav Rajput</string>
   <string name="ui_github">GitHub</string>
   <string name="ui_device_info">Informações do dispositivo</string>
   <string name="ui_buy_me_a_coffee">Pague-me um café</string>
-  <string name="ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit">Se você gosta do mpvRx, considere apoiar o desenvolvimento. Toda ajuda conta!</string>
+  <string name="ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit">Está gostando do Replay? Considere apoiar o desenvolvedor original que o tornou possível. Toda contribuição faz a diferença!</string>
   <string name="ui_upi_id">ID UPI</string>
   <string name="ui_panditritesh2001_okhdfcbank">panditritesh2001@okhdfcbank</string>
   <string name="ui_send_love">Enviar carinho</string>
   <string name="ui_auto_check_for_updates">Verificar atualizações automaticamente</string>
   <string name="ui_check_on_startup">Verificar ao iniciar</string>
   <string name="ui_check_for_updates_now">Verificar atualizações agora</string>
-  <string name="ui_core_open_source_dependencies_used_by_mpvrx">Principais dependências de código aberto usadas pelo mpvRx.</string>
+  <string name="ui_core_open_source_dependencies_used_by_mpvrx">Principais dependências de código aberto usadas pelo Replay.</string>
   <string name="ui_copy_upi_id">Copiar ID UPI</string>
   <string name="ui_already_using_latest_version">Você já está usando a versão mais recente</string>
   <string name="ui_upi_id_copied">ID UPI copiado!</string>
@@ -1585,7 +1585,7 @@ Reinicie o aplicativo para que todas as alterações entrem em vigor.</string>
   <string name="syncplay_player_status">Syncplay: %1$s (%2$d usuários)</string>
   <!-- Additional synchronized strings -->
   <string name="app_name">mpvRx</string>
-  <string name="github_repo_url">https://github.com/Riteshp2001/mpvRx</string>
+  <string name="github_repo_url">https://github.com/Utsavrajputt/Replay</string>
   <string name="hdr_mode_bt2020">BT.2020</string>
   <string name="hdr_mode_bt2100_hlg">BT.2100 HLG</string>
   <string name="hdr_mode_bt2100_pq">BT.2100 PQ</string>
@@ -1707,20 +1707,20 @@ Reinicie o aplicativo para que todas as alterações entrem em vigor.</string>
   <string name="secure_folder_progress_format">%1$d de %2$d · %3$d%%</string>
   <string name="pref_codecs_decoders_summary">%1$d Hardware • %2$d Decodificadores por Software</string>
   <string name="pref_codecs_banner_title">Decodificação por Hardware vs. Software</string>
-  <string name="pref_codecs_banner_desc">Decodificadores por hardware processam o vídeo diretamente nos chips VPU/GPU. Os por software usam o CPU, aumentando o consumo de bateria e aquecimento em 4K.</string>
+  <string name="pref_codecs_banner_desc">Decodificadores por hardware (⚡) processam o vídeo diretamente nos chips VPU/GPU. Os por software (💻) usam o CPU, aumentando o consumo de bateria e aquecimento em 4K.</string>
   <string name="pref_codecs_core_title">Status dos Principais Codecs de Vídeo</string>
   <string name="pref_codecs_search_placeholder">Pesquisar nome do codec, formato ou MIME...</string>
   <string name="pref_codecs_filter_all">Todos (%d)</string>
-  <string name="pref_codecs_filter_hardware">Hardware (%d)</string>
-  <string name="pref_codecs_filter_software">Software (%d)</string>
+  <string name="pref_codecs_filter_hardware">Hardware ⚡ (%d)</string>
+  <string name="pref_codecs_filter_software">Software 💻 (%d)</string>
   <string name="pref_codecs_filter_video">Vídeo (%d)</string>
   <string name="pref_codecs_filter_audio">Áudio (%d)</string>
   <string name="pref_codecs_list_header">Lista Detalhada de Decodificadores (%d)</string>
   <string name="pref_codecs_empty">Nenhum codec correspondente encontrado.</string>
-  <string name="pref_codecs_badge_hardware">Hardware</string>
-  <string name="pref_codecs_badge_software">Software</string>
-  <string name="pref_codecs_badge_hw_short">HW</string>
-  <string name="pref_codecs_badge_sw_short">SW</string>
+  <string name="pref_codecs_badge_hardware">⚡ Hardware</string>
+  <string name="pref_codecs_badge_software">💻 Software</string>
+  <string name="pref_codecs_badge_hw_short">⚡ HW</string>
+  <string name="pref_codecs_badge_sw_short">💻 SW</string>
   <string name="pref_codecs_no_decoder">Nenhum decodificador informado</string>
   <string name="pref_codecs_max_limit">Limite Máx: %s</string>
   <string name="pref_codecs_max_resolution">Resolução Máxima: %s</string>

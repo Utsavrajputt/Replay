@@ -93,6 +93,9 @@ import androidx.compose.ui.util.lerp
 import kotlin.math.roundToInt
 import app.gyrolet.mpvrx.R
 import app.gyrolet.mpvrx.preferences.AppearancePreferences
+import app.gyrolet.mpvrx.ui.celestial.celestialNavBarBorderColor
+import app.gyrolet.mpvrx.ui.celestial.celestialNavBarContainerColor
+import app.gyrolet.mpvrx.preferences.PlayerPreferences
 import app.gyrolet.mpvrx.preferences.preference.collectAsState
 import app.gyrolet.mpvrx.presentation.Screen
 import app.gyrolet.mpvrx.ui.browser.folderlist.FolderListScreen
@@ -578,13 +581,13 @@ private fun ExpressivePillNavigationBar(
   Surface(
     modifier = modifier,
     shape = CircleShape,
-    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    color = celestialNavBarContainerColor(),
     tonalElevation = 6.dp,
     shadowElevation = 8.dp,
     border =
       BorderStroke(
         width = 1.dp,
-        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f),
+        color = celestialNavBarBorderColor(),
       ),
   ) {
     Box(
