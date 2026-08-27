@@ -2,7 +2,7 @@ name: Preview Build
 
 on:
   schedule:
-    - cron: '*/300 * * * *'
+    - cron: '*/1440 * * * *'
   workflow_dispatch:
 
 permissions:

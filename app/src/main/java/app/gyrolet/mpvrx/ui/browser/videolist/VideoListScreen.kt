@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -457,6 +458,8 @@ data class VideoListScreen(
             state = rememberTooltipState(),
           ) {
             FloatingActionButton(
+              containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+              shape = CircleShape,
               modifier =
                 Modifier
                   .windowInsetsPadding(WindowInsets.systemBars)
