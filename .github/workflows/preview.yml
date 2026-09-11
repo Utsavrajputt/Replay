@@ -2,7 +2,7 @@ name: Preview Build
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '*/300 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: mpvrx-preview-pages
+  group: replay-preview-pages
   cancel-in-progress: true
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
         shell: bash
         env:
           EVENT_NAME: ${{ github.event_name }}
-          PREVIEW_MANIFEST_URL: https://riteshp2001.github.io/mpvRx/latest.json
+          PREVIEW_MANIFEST_URL: https://utsavrajputt.github.io/replay/latest.json
         run: |
           set -euo pipefail
 
@@ -203,7 +203,7 @@ jobs:
       - name: Stage GitHub Pages preview site
         if: steps.activity.outputs.should_build == 'true'
         env:
-          SITE_BASE_URL: https://riteshp2001.github.io/mpvRx
+          SITE_BASE_URL: https://utsavrajputt.github.io/replay
         shell: bash
         run: |
           set -euo pipefail
@@ -255,7 +255,7 @@ jobs:
               if not source.is_file():
                   raise SystemExit(f"Missing signed APK for {public_name}: {source}")
 
-              name = f"mpvRx-preview-r{commit_count}-{public_name}.apk"
+              name = f"replay-preview-r{commit_count}-{public_name}.apk"
               destination = downloads_dir / name
               shutil.copy2(source, destination)
 
@@ -270,7 +270,7 @@ jobs:
 
           manifest = {
               "tag_name": f"preview-r{commit_count}",
-              "name": f"mpvRx Preview r{commit_count}",
+              "name": f"replay Preview r{commit_count}",
               "body": (
                   f"{publication_mode.title()} preview from workflow run #{run_number}. "
                   f"Source commit: {source_sha[:7]}."
@@ -305,7 +305,7 @@ jobs:
         if: steps.activity.outputs.should_build == 'true'
         uses: actions/upload-artifact@v7
         with:
-          name: mpvRx-preview-r${{ steps.metadata.outputs.commit_count }}
+          name: replay-preview-r${{ steps.metadata.outputs.commit_count }}
           path: |
             site/downloads/*.apk
             site/latest.json
