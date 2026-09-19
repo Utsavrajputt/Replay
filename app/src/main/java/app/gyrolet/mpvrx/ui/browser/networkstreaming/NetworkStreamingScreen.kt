@@ -36,6 +36,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import app.gyrolet.mpvrx.ui.celestial.CelestialBackground
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.ui.utils.NavigationPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -441,7 +443,10 @@ object NetworkStreamingScreen : Screen {
                   stringResource(R.string.ui_add_connection),
                 )
               },
-              modifier = Modifier.padding(bottom = navigationBarHeight),
+              modifier =
+                Modifier
+                  .padding(bottom = navigationBarHeight)
+                  .celestialBorder(shape = RoundedCornerShape(16.dp)),
             )
           }
           NetworkTab.MEDIA.ordinal -> {
@@ -449,7 +454,10 @@ object NetworkStreamingScreen : Screen {
               onClick = { showAddMediaDialog = true },
               icon = { Icon(Icons.RoundedFilled.Add, contentDescription = null) },
               text = { Text("Add Media") },
-              modifier = Modifier.padding(bottom = navigationBarHeight),
+              modifier =
+                Modifier
+                  .padding(bottom = navigationBarHeight)
+                  .celestialBorder(shape = RoundedCornerShape(16.dp)),
             )
           }
         }
@@ -461,6 +469,7 @@ object NetworkStreamingScreen : Screen {
             .fillMaxSize()
             .padding(padding),
       ) {
+        CelestialBackground()
         NavigationPager(
           state = pagerState,
           modifier =

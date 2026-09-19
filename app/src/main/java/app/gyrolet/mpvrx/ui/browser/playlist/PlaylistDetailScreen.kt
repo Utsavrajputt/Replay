@@ -53,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.ui.utils.dragElevation
 import app.gyrolet.mpvrx.ui.utils.rememberReorderFeedback
 import androidx.compose.ui.focus.FocusRequester
@@ -500,13 +501,14 @@ data class PlaylistDetailScreen(
           val miniPlayerClearance = app.gyrolet.mpvrx.ui.browser.NavigationBarState.miniPlayerClearance
           ExtendedFloatingActionButton(
             modifier =
-              Modifier.padding(
-                bottom =
-                  maxOf(
-                    (navigationBarHeight - 16.dp).coerceAtLeast(0.dp),
-                    miniPlayerClearance,
-                  ),
-              ),
+              Modifier
+                .padding(
+                  bottom =
+                    maxOf(
+                      (navigationBarHeight - 16.dp).coerceAtLeast(0.dp),
+                      miniPlayerClearance,
+                    ),
+                ).celestialBorder(shape = RoundedCornerShape(16.dp)),
             onClick = { backStack.navigateTo(PlaylistAddVideosScreen(playlistId, isAudio = isAudioPlaylist)) },
             icon = { Icon(Icons.RoundedFilled.Add, contentDescription = null) },
               text = { Text(stringResource(if (isAudioPlaylist) R.string.playlist_add_songs else R.string.playlist_add_videos)) },

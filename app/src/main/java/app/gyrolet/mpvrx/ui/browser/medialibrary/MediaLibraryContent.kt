@@ -24,6 +24,9 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import app.gyrolet.mpvrx.ui.browser.fab.FabScrollHelper
+import app.gyrolet.mpvrx.ui.celestial.CelestialBackground
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
+import app.gyrolet.mpvrx.ui.celestial.celestialFabColors
 import app.gyrolet.mpvrx.ui.components.InlineSearchBar
 import app.gyrolet.mpvrx.ui.components.themedSegmentedButtonColors
 import androidx.compose.foundation.layout.Box
@@ -515,13 +518,17 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
             },
             state = rememberTooltipState(),
           ) {
+            val celestialFab = celestialFabColors()
             ToggleFloatingActionButton(
               modifier =
-                Modifier.animateFloatingActionButton(
-                  visible = isFabShouldBeVisible,
-                  alignment = Alignment.BottomEnd,
-                ),
+                Modifier
+                  .animateFloatingActionButton(
+                    visible = isFabShouldBeVisible,
+                    alignment = Alignment.BottomEnd,
+                  ).celestialBorder(),
               checked = isFabExpanded.value && !quickPlayFabDirect,
+              containerColor = celestialFab.containerColor,
+              containerCornerRadius = celestialFab.containerCornerRadius,
                 onCheckedChange = {
                   if (quickPlayFabDirect) {
                     coroutineScope.launch {
@@ -606,6 +613,7 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
     val videosWereDeletedOrMoved = false
 
     Box(modifier = Modifier.fillMaxSize()) {
+      CelestialBackground()
       Column(
         modifier =
           Modifier

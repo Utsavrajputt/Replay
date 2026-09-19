@@ -43,6 +43,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import app.gyrolet.mpvrx.ui.celestial.CelestialBackground
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
+import app.gyrolet.mpvrx.ui.celestial.celestialFabColors
 import app.gyrolet.mpvrx.ui.utils.NavigationPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -797,13 +800,17 @@ fun MusicLibraryContent(
           modifier = Modifier.padding(bottom = (navigationBarHeight - 16.dp).coerceAtLeast(0.dp)),
           expanded = false,
           button = {
+            val celestialFab = celestialFabColors()
             ToggleFloatingActionButton(
               modifier =
-                Modifier.animateFloatingActionButton(
-                  visible = isFabShouldBeVisible,
-                  alignment = Alignment.BottomEnd,
-                ),
+                Modifier
+                  .animateFloatingActionButton(
+                    visible = isFabShouldBeVisible,
+                    alignment = Alignment.BottomEnd,
+                  ).celestialBorder(),
               checked = false,
+              containerColor = celestialFab.containerColor,
+              containerCornerRadius = celestialFab.containerCornerRadius,
               onCheckedChange = { showCreatePlaylistDialog = true },
             ) {
               Icon(
@@ -826,13 +833,17 @@ fun MusicLibraryContent(
               tooltip = { PlainTooltip { Text(stringResource(R.string.ui_toggle_menu)) } },
               state = rememberTooltipState(),
             ) {
+              val celestialFab = celestialFabColors()
               ToggleFloatingActionButton(
                 modifier =
-                  Modifier.animateFloatingActionButton(
-                    visible = isFabShouldBeVisible,
-                    alignment = Alignment.BottomEnd,
-                  ),
+                  Modifier
+                    .animateFloatingActionButton(
+                      visible = isFabShouldBeVisible,
+                      alignment = Alignment.BottomEnd,
+                    ).celestialBorder(),
                 checked = isFabExpanded.value && !quickPlayFabDirect,
+                containerColor = celestialFab.containerColor,
+                containerCornerRadius = celestialFab.containerCornerRadius,
                 onCheckedChange = {
                   if (quickPlayFabDirect) {
                     musicViewModel.playAllSongs(context, songs, shuffle = false)
@@ -882,6 +893,9 @@ fun MusicLibraryContent(
         .fillMaxSize()
         .padding(innerPadding)
     ) {
+      if (visibleTabs.getOrNull(pagerState.currentPage) != MusicTab.FOLDERS) {
+        CelestialBackground()
+      }
       PullRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = { musicViewModel.refreshLibrary(context) },

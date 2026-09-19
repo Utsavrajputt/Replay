@@ -58,6 +58,7 @@ import app.gyrolet.mpvrx.preferences.PlayerPreferences
 import app.gyrolet.mpvrx.preferences.ThumbnailMode
 import app.gyrolet.mpvrx.preferences.ThumbnailQuality
 import app.gyrolet.mpvrx.preferences.TreeFlattenDepth
+import app.gyrolet.mpvrx.ui.celestial.CelestialEffectsToggle
 import app.gyrolet.mpvrx.preferences.preference.collectAsState
 import app.gyrolet.mpvrx.presentation.Screen
 import app.gyrolet.mpvrx.presentation.components.ConfirmDialog
@@ -951,6 +952,9 @@ object AppearancePreferencesScreen : Screen {
                   )
                 },
               )
+
+              PreferenceDivider()
+              CelestialEffectsToggle()
             }
           }
 

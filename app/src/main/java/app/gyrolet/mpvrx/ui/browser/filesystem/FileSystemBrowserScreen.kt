@@ -112,6 +112,9 @@ import app.gyrolet.mpvrx.ui.browser.selection.rememberSelectionManager
 import app.gyrolet.mpvrx.ui.browser.sheets.PlayLinkSheet
 import app.gyrolet.mpvrx.ui.browser.states.EmptyState
 import app.gyrolet.mpvrx.ui.browser.states.PermissionDeniedState
+import app.gyrolet.mpvrx.ui.celestial.CelestialBackground
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
+import app.gyrolet.mpvrx.ui.celestial.celestialFabColors
 import app.gyrolet.mpvrx.ui.components.InlineSearchBar
 import app.gyrolet.mpvrx.ui.icons.Icon
 import app.gyrolet.mpvrx.ui.icons.Icons
@@ -621,14 +624,17 @@ fun FileSystemBrowserScreen(path: String? = null) {
                 },
                 state = rememberTooltipState(),
               ) {
+                val celestialFab = celestialFabColors()
                 ToggleFloatingActionButton(
                   modifier =
                     Modifier
                       .animateFloatingActionButton(
                         visible = isFabShouldBeVisible,
                         alignment = Alignment.BottomEnd,
-                      ),
+                      ).celestialBorder(),
                   checked = isFabExpanded.value && !quickPlayFabDirect,
+                  containerColor = celestialFab.containerColor,
+                  containerCornerRadius = celestialFab.containerCornerRadius,
                   onCheckedChange = {
                     if (quickPlayFabDirect) {
                       coroutineScope.launch {
@@ -726,6 +732,7 @@ fun FileSystemBrowserScreen(path: String? = null) {
       }
   ) { padding ->
       Box(modifier = Modifier.padding(padding)) {
+        CelestialBackground()
         if (isPermissionSetupCompleted && permissionState.status == PermissionStatus.Granted) {
             if (isSearching) {
               // Show search results

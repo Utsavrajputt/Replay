@@ -99,6 +99,8 @@ import app.gyrolet.mpvrx.ui.browser.music.MusicLibraryContent
 import app.gyrolet.mpvrx.ui.browser.networkstreaming.NetworkStreamingScreen
 import app.gyrolet.mpvrx.ui.browser.playlist.PlaylistScreen
 import app.gyrolet.mpvrx.ui.browser.recentlyplayed.RecentlyPlayedScreen
+import app.gyrolet.mpvrx.ui.celestial.celestialNavBarBorderColor
+import app.gyrolet.mpvrx.ui.celestial.celestialNavBarContainerColor
 import app.gyrolet.mpvrx.ui.icons.Icon
 import app.gyrolet.mpvrx.ui.icons.Icons
 import app.gyrolet.mpvrx.ui.player.controls.components.rememberTvInitialFocusRequester
@@ -666,13 +668,13 @@ private fun ExpressivePillNavigationBar(
   Surface(
     modifier = modifier,
     shape = CircleShape,
-    color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    color = celestialNavBarContainerColor(),
     tonalElevation = 6.dp,
     shadowElevation = 8.dp,
     border =
       BorderStroke(
         width = 1.dp,
-        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f),
+        color = celestialNavBarBorderColor(),
       ),
   ) {
     Box(

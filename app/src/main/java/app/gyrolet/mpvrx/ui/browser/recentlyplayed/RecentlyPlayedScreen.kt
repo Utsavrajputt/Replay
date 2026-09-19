@@ -20,6 +20,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import app.gyrolet.mpvrx.ui.browser.fab.FabScrollHelper
+import app.gyrolet.mpvrx.ui.celestial.CelestialBackground
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
+import app.gyrolet.mpvrx.ui.celestial.celestialFabColors
 import app.gyrolet.mpvrx.ui.components.themedSegmentedButtonColors
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -305,14 +308,17 @@ object RecentlyPlayedScreen : Screen {
               },
               state = rememberTooltipState(),
             ) {
+              val celestialFab = celestialFabColors()
               ToggleFloatingActionButton(
                 modifier =
                   Modifier
                     .animateFloatingActionButton(
                       visible = isFabShouldBeVisible,
                       alignment = Alignment.BottomEnd,
-                    ),
+                    ).celestialBorder(),
                 checked = isFabExpanded.value && !quickPlayFabDirect,
+                containerColor = celestialFab.containerColor,
+                containerCornerRadius = celestialFab.containerCornerRadius,
                 onCheckedChange = {
                   if (quickPlayFabDirect) {
                     coroutineScope.launch {
@@ -419,6 +425,7 @@ object RecentlyPlayedScreen : Screen {
             .fillMaxSize()
             .padding(padding),
       ) {
+      CelestialBackground()
       Column(
         modifier = Modifier.fillMaxSize(),
       ) {

@@ -122,6 +122,9 @@ import app.gyrolet.mpvrx.ui.browser.states.EmptyState
 import app.gyrolet.mpvrx.ui.browser.states.LoadingState
 import app.gyrolet.mpvrx.ui.browser.states.PermissionDeniedState
 import app.gyrolet.mpvrx.ui.browser.videolist.VideoListScreen
+import app.gyrolet.mpvrx.ui.celestial.CelestialBackground
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
+import app.gyrolet.mpvrx.ui.celestial.celestialFabColors
 import app.gyrolet.mpvrx.ui.components.InlineSearchBar
 import app.gyrolet.mpvrx.ui.icons.Icon
 import app.gyrolet.mpvrx.ui.icons.Icons
@@ -701,13 +704,17 @@ object FolderListScreen : Screen {
                 },
                 state = rememberTooltipState(),
               ) {
+                val celestialFab = celestialFabColors()
                 ToggleFloatingActionButton(
                   modifier =
-                    Modifier.animateFloatingActionButton(
-                      visible = isFabShouldBeVisible,
-                      alignment = Alignment.BottomEnd,
-                    ),
+                    Modifier
+                      .animateFloatingActionButton(
+                        visible = isFabShouldBeVisible,
+                        alignment = Alignment.BottomEnd,
+                      ).celestialBorder(),
                   checked = isFabExpanded.value && !quickPlayFabDirect,
+                  containerColor = celestialFab.containerColor,
+                  containerCornerRadius = celestialFab.containerCornerRadius,
                   onCheckedChange = {
                     if (quickPlayFabDirect) {
                       coroutineScope.launch {
@@ -801,6 +808,7 @@ object FolderListScreen : Screen {
         },
       ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
+          CelestialBackground()
           if (isPermissionSetupCompleted && permissionState.status == PermissionStatus.Granted) {
               if (effectiveIsSearching) {
                 // Show search results
