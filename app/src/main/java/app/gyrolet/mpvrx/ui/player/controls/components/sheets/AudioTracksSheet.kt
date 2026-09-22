@@ -171,10 +171,10 @@ fun AudioTracksSheet(
 
             PlayerSheetSectionHeader(stringResource(R.string.pref_audio_effects))
             Row(
-              modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)
+              modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
                 .toggleable(value = volumeNormalization, enabled = audioEffectsEnabled, role = Role.Switch,
                   onValueChange = audioPreferences.volumeNormalization::set)
-                .padding(horizontal = 20.dp, vertical = 8.dp),
+                .padding(horizontal = 20.dp, vertical = 4.dp),
               horizontalArrangement = Arrangement.spacedBy(16.dp),
               verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -183,10 +183,10 @@ fun AudioTracksSheet(
               Switch(checked = volumeNormalization, onCheckedChange = null, enabled = audioEffectsEnabled)
             }
             Row(
-              modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)
+              modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
                 .toggleable(value = drcEnabled, enabled = audioEffectsEnabled, role = Role.Switch,
                   onValueChange = audioPreferences.drcEnabled::set)
-                .padding(horizontal = 20.dp, vertical = 8.dp),
+                .padding(horizontal = 20.dp, vertical = 4.dp),
               horizontalArrangement = Arrangement.spacedBy(16.dp),
               verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -220,24 +220,24 @@ fun AudioTrackRow(
     modifier =
       modifier
         .fillMaxWidth()
-        .heightIn(min = 56.dp)
-        .padding(horizontal = 8.dp, vertical = 2.dp)
+        .heightIn(min = 48.dp)
+        .padding(horizontal = 6.dp, vertical = 1.dp)
         .background(containerColor, MaterialTheme.shapes.medium)
         .tvFocusHighlight(MaterialTheme.shapes.medium, enabled = enabled)
         .selectable(selected = isSelected, enabled = enabled, role = Role.RadioButton) {
           onClick()
           if (!isSelected) haptics.selection(true)
         }
-        .padding(horizontal = 12.dp, vertical = 10.dp),
+        .padding(horizontal = 12.dp, vertical = 6.dp),
     verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.spacedBy(12.dp),
+    horizontalArrangement = Arrangement.spacedBy(10.dp),
   ) {
     RadioButton(
       selected = isSelected,
       onClick = null,
       enabled = enabled,
     )
-    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
       Text(
         title,
         style = MaterialTheme.typography.bodyLarge,

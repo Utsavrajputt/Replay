@@ -603,8 +603,8 @@ fun PlaylistTrackListItem(
       modifier
         .fillMaxWidth()
         .padding(
-          horizontal = MaterialTheme.spacing.medium,
-          vertical = MaterialTheme.spacing.extraSmall,
+          horizontal = MaterialTheme.spacing.small,
+          vertical = 2.dp,
         ).clip(RoundedCornerShape(12.dp))
         .then(borderModifier)
         .clickable(onClick = onClick),
@@ -620,9 +620,9 @@ fun PlaylistTrackListItem(
       modifier =
         Modifier
           .fillMaxWidth()
-          .padding(MaterialTheme.spacing.smaller),
+          .padding(horizontal = MaterialTheme.spacing.smaller, vertical = 6.dp),
       verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+      horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
     ) {
       // Thumbnail with simple background, episode number, and progress
       Box(

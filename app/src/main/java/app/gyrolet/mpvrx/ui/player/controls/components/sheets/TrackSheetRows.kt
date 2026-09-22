@@ -43,8 +43,8 @@ fun AddTrackRow(
       modifier
         .fillMaxWidth()
         .clickable(onClick = onClick)
-        .heightIn(min = 56.dp)
-        .padding(horizontal = 20.dp, vertical = 8.dp),
+        .heightIn(min = 48.dp)
+        .padding(horizontal = 20.dp, vertical = 4.dp),
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.spacedBy(12.dp),
   ) {

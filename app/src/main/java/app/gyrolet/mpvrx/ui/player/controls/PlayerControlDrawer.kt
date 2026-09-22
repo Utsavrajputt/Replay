@@ -296,7 +296,7 @@ private fun PlayerControlPanelContent(
     modifier =
       Modifier
         .fillMaxWidth()
-        .padding(start = 14.dp, end = 14.dp, bottom = 20.dp),
+        .padding(start = 12.dp, end = 12.dp, bottom = 14.dp),
   ) {
     // Floor to whole pixels: Dp rounding at some densities made 3 tiles + gaps
     // exceed the row width, wrapping the grid to 2 columns (issue #590).
@@ -358,7 +358,7 @@ private fun PlayerControlTile(
     modifier =
       modifier
         .tvFocusHighlight(RoundedCornerShape(18.dp), focusedScale = 1.02f)
-        .height(104.dp),
+        .height(82.dp),
     shape = RoundedCornerShape(18.dp),
     color = containerColor,
     contentColor = contentColor,
@@ -368,14 +368,14 @@ private fun PlayerControlTile(
       modifier =
         Modifier
           .fillMaxSize()
-          .padding(horizontal = 6.dp, vertical = 8.dp),
+          .padding(horizontal = 6.dp, vertical = 6.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Center,
     ) {
       Box(
         modifier =
           Modifier
-            .size(56.dp)
+            .size(44.dp)
             .graphicsLayer {
               scaleX = PanelIconScale
               scaleY = PanelIconScale
@@ -384,7 +384,7 @@ private fun PlayerControlTile(
       ) {
         renderButton(button)
       }
-      Spacer(Modifier.height(4.dp))
+      Spacer(Modifier.height(3.dp))
       Text(
         text = getPlayerButtonLabel(button),
         maxLines = 2,
@@ -401,7 +401,7 @@ private fun PlayerControlTile(
 private val EdgeTouchWidth = 48.dp
 private val EdgePullThreshold = 64.dp
 private val EdgePullMaximum = 92.dp
-private val PanelTileSpacing = 8.dp
-private const val PanelIconScale = 1.24f
+private val PanelTileSpacing = 6.dp
+private const val PanelIconScale = 1.1f
 private const val EdgeTouchHeightFraction = 0.34f
 private const val PanelColumnCount = 3

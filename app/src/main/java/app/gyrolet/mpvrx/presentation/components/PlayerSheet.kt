@@ -353,7 +353,7 @@ fun PlayerSheetSectionHeader(
 ) {
   Text(
     text = title,
-    modifier = modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp).semantics { heading() },
+    modifier = modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp).semantics { heading() },
     style = MaterialTheme.typography.labelLarge,
     fontWeight = FontWeight.SemiBold,
     color = MaterialTheme.colorScheme.onSurfaceVariant,

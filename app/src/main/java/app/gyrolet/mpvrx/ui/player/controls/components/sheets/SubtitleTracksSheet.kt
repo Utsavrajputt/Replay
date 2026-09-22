@@ -516,8 +516,8 @@ fun SubtitlesSheet(
                 modifier =
                   Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 56.dp)
-                    .padding(horizontal = 8.dp, vertical = 2.dp)
+                    .heightIn(min = 48.dp)
+                    .padding(horizontal = 6.dp, vertical = 1.dp)
                     .background(
                       MaterialTheme.colorScheme.primaryContainer.copy(alpha = if (subtitlesOff) 0.35f else 0f),
                       MaterialTheme.shapes.medium,
@@ -528,9 +528,9 @@ fun SubtitlesSheet(
                       onDisableSubtitles()
                       if (!subtitlesOff) haptics.selection(false)
                     }
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
               ) {
                 if (isTelevision) {
                   RadioButton(selected = subtitlesOff, onClick = null)
@@ -585,17 +585,17 @@ fun SubtitleTrackRow(
     modifier =
       modifier
         .fillMaxWidth()
-        .heightIn(min = 56.dp)
-        .padding(horizontal = 8.dp, vertical = 2.dp)
+        .heightIn(min = 48.dp)
+        .padding(horizontal = 6.dp, vertical = 1.dp)
         .background(containerColor, MaterialTheme.shapes.medium)
         .tvFocusHighlight(MaterialTheme.shapes.medium)
         .toggleable(value = isSelected, role = Role.Checkbox) { selected ->
           onToggle()
           haptics.selection(selected)
         }
-        .padding(horizontal = 12.dp, vertical = 10.dp),
+        .padding(horizontal = 12.dp, vertical = 6.dp),
     verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.spacedBy(12.dp),
+    horizontalArrangement = Arrangement.spacedBy(10.dp),
   ) {
     if (isTelevision) {
       RadioButton(selected = isSelected, onClick = null)
