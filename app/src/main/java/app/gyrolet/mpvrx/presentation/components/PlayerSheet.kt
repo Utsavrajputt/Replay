@@ -237,7 +237,7 @@ fun PlayerSheet(
               .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
           ).imePadding(),
       shape = MaterialTheme.shapes.extraLarge.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize),
-      color = surfaceColor ?: MaterialTheme.colorScheme.surface,
+      color = surfaceColor ?: MaterialTheme.colorScheme.surface.copy(alpha = PlayerSheetSurfaceAlpha),
       tonalElevation = tonalElevation,
       content = {
         BackHandler(
@@ -246,7 +246,7 @@ fun PlayerSheet(
         )
         CompositionLocalProvider(LocalMotionPolicy provides MotionPolicy(reduceMotion = reducedMotion)) {
           Column(
-            modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(bottom = 12.dp),
+            modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
           ) {
             PlayerSheetDragHandle()
@@ -321,9 +321,9 @@ fun PlayerSheet(
 
 @Composable
 fun PlayerSheetDragHandle() {
-  Box(Modifier.fillMaxWidth().padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
+  Box(Modifier.fillMaxWidth().padding(vertical = 6.dp), contentAlignment = Alignment.Center) {
     Box(
-      Modifier.size(width = 32.dp, height = 4.dp)
+      Modifier.size(width = 28.dp, height = 3.dp)
         .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f), RoundedCornerShape(2.dp)),
     )
   }
@@ -336,7 +336,7 @@ fun PlayerSheetHeader(
   actions: @Composable RowScope.() -> Unit = {},
 ) {
   Box(
-    modifier = modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp),
+    modifier = modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp),
   ) {
     Row(
       modifier = Modifier.align(Alignment.CenterEnd),
@@ -353,8 +353,8 @@ fun PlayerSheetSectionHeader(
 ) {
   Text(
     text = title,
-    modifier = modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp).semantics { heading() },
-    style = MaterialTheme.typography.labelLarge,
+    modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp).semantics { heading() },
+    style = MaterialTheme.typography.labelMedium,
     fontWeight = FontWeight.SemiBold,
     color = MaterialTheme.colorScheme.onSurfaceVariant,
   )
@@ -373,11 +373,14 @@ fun PlayerSheetAction(
     tooltip = { PlainTooltip { Text(label) } },
     state = rememberTooltipState(),
   ) {
-    IconButton(onClick = onClick, enabled = enabled, modifier = Modifier.size(48.dp)) {
-      Icon(icon, contentDescription = label, modifier = Modifier.size(24.dp))
+    IconButton(onClick = onClick, enabled = enabled, modifier = Modifier.size(40.dp)) {
+      Icon(icon, contentDescription = label, modifier = Modifier.size(20.dp))
     }
   }
 }
+
+/** Default surface opacity for all player sheets, giving a simple semi-transparent look. */
+const val PlayerSheetSurfaceAlpha = 0.88f
 
 private fun <T> AnchoredDraggableState<T>.preUpPostDownNestedScrollConnection() =
   object : NestedScrollConnection {

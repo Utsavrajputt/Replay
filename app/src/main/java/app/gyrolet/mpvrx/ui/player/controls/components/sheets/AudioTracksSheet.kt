@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -145,8 +146,8 @@ fun AudioTracksSheet(
           Column(modifier = Modifier.fillMaxWidth()) {
             PlayerSheetSectionHeader(stringResource(R.string.pref_audio_channels))
             FlowRow(
-              modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-              horizontalArrangement = Arrangement.spacedBy(8.dp),
+              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+              horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
               AudioChannels.entries.forEach {
                 FilterChip(
@@ -171,28 +172,30 @@ fun AudioTracksSheet(
 
             PlayerSheetSectionHeader(stringResource(R.string.pref_audio_effects))
             Row(
-              modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+              modifier = Modifier.fillMaxWidth().heightIn(min = 40.dp)
                 .toggleable(value = volumeNormalization, enabled = audioEffectsEnabled, role = Role.Switch,
                   onValueChange = audioPreferences.volumeNormalization::set)
-                .padding(horizontal = 20.dp, vertical = 4.dp),
-              horizontalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(horizontal = 16.dp, vertical = 2.dp),
+              horizontalArrangement = Arrangement.spacedBy(12.dp),
               verticalAlignment = Alignment.CenterVertically,
             ) {
               Text(stringResource(R.string.pref_audio_volume_normalization_title), modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyLarge)
-              Switch(checked = volumeNormalization, onCheckedChange = null, enabled = audioEffectsEnabled)
+                style = MaterialTheme.typography.bodyMedium)
+              Switch(checked = volumeNormalization, onCheckedChange = null, enabled = audioEffectsEnabled,
+                modifier = Modifier.scale(0.82f))
             }
             Row(
-              modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+              modifier = Modifier.fillMaxWidth().heightIn(min = 40.dp)
                 .toggleable(value = drcEnabled, enabled = audioEffectsEnabled, role = Role.Switch,
                   onValueChange = audioPreferences.drcEnabled::set)
-                .padding(horizontal = 20.dp, vertical = 4.dp),
-              horizontalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(horizontal = 16.dp, vertical = 2.dp),
+              horizontalArrangement = Arrangement.spacedBy(12.dp),
               verticalAlignment = Alignment.CenterVertically,
             ) {
               Text(stringResource(R.string.pref_audio_drc_title), modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyLarge)
-              Switch(checked = drcEnabled, onCheckedChange = null, enabled = audioEffectsEnabled)
+                style = MaterialTheme.typography.bodyMedium)
+              Switch(checked = drcEnabled, onCheckedChange = null, enabled = audioEffectsEnabled,
+                modifier = Modifier.scale(0.82f))
             }
           }
         }
@@ -220,33 +223,34 @@ fun AudioTrackRow(
     modifier =
       modifier
         .fillMaxWidth()
-        .heightIn(min = 48.dp)
-        .padding(horizontal = 6.dp, vertical = 1.dp)
+        .heightIn(min = 40.dp)
+        .padding(horizontal = 4.dp, vertical = 0.5.dp)
         .background(containerColor, MaterialTheme.shapes.medium)
         .tvFocusHighlight(MaterialTheme.shapes.medium, enabled = enabled)
         .selectable(selected = isSelected, enabled = enabled, role = Role.RadioButton) {
           onClick()
           if (!isSelected) haptics.selection(true)
         }
-        .padding(horizontal = 12.dp, vertical = 6.dp),
+        .padding(horizontal = 10.dp, vertical = 4.dp),
     verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.spacedBy(10.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
   ) {
     RadioButton(
       selected = isSelected,
       onClick = null,
       enabled = enabled,
+      modifier = Modifier.scale(0.78f),
     )
-    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
       Text(
         title,
-        style = MaterialTheme.typography.bodyLarge,
+        style = MaterialTheme.typography.bodyMedium,
         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
       )
       details?.let { value ->
         Text(
           text = value,
-          style = MaterialTheme.typography.bodySmall,
+          style = MaterialTheme.typography.labelSmall,
           color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }

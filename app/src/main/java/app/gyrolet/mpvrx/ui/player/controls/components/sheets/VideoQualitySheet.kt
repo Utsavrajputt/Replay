@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -57,8 +58,8 @@ fun VideoQualitySheet(
             modifier =
               Modifier
                 .fillMaxWidth()
-                .heightIn(min = 56.dp)
-                .padding(horizontal = 8.dp, vertical = 2.dp),
+                .heightIn(min = 44.dp)
+                .padding(horizontal = 6.dp, vertical = 1.dp),
             verticalAlignment = Alignment.CenterVertically,
           ) {
             Row(
@@ -71,24 +72,25 @@ fun VideoQualitySheet(
                     onSelect(track)
                     if (!track.isSelected) haptics.selection(true)
                     onDismissRequest()
-                  }.padding(horizontal = 12.dp, vertical = 10.dp),
+                  }.padding(horizontal = 10.dp, vertical = 6.dp),
               verticalAlignment = Alignment.CenterVertically,
             ) {
               RadioButton(
                 selected = track.isSelected,
                 onClick = null,
+                modifier = Modifier.scale(0.78f),
               )
-              Spacer(Modifier.width(12.dp))
-              Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+              Spacer(Modifier.width(8.dp))
+              Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
                 Text(
                   text = qualityLabel(track),
-                  style = MaterialTheme.typography.bodyLarge,
+                  style = MaterialTheme.typography.bodyMedium,
                   fontWeight = if (track.isSelected) FontWeight.SemiBold else FontWeight.Normal,
                 )
                 qualityDetails(track)?.let { details ->
                   Text(
                     text = details,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                   )
                 }

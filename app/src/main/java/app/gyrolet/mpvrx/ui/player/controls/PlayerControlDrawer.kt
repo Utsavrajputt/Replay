@@ -60,6 +60,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.gyrolet.mpvrx.R
 import app.gyrolet.mpvrx.preferences.PlayerButton
 import app.gyrolet.mpvrx.preferences.getPlayerButtonLabel
@@ -236,7 +237,7 @@ private fun PlayerControlPanel(
     modifier = Modifier.fillMaxSize(),
     header = { PlayerControlPanelHeader(onDismissRequest) },
     shape = RoundedCornerShape(24.dp),
-    containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.94f),
+    containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.85f),
     tonalElevation = 2.dp,
     shadowElevation = 10.dp,
     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)),
@@ -264,22 +265,23 @@ private fun PlayerControlPanelHeader(onDismissRequest: () -> Unit) {
       Modifier
         .fillMaxWidth()
         .padding(
-          start = MaterialTheme.spacing.medium,
+          start = MaterialTheme.spacing.small,
           end = MaterialTheme.spacing.extraSmall,
-          bottom = MaterialTheme.spacing.small,
+          bottom = MaterialTheme.spacing.extraSmall,
         ),
     verticalAlignment = Alignment.CenterVertically,
   ) {
     Text(
       text = stringResource(R.string.pref_player_controls_drawer_title),
-      style = MaterialTheme.typography.titleLarge,
+      style = MaterialTheme.typography.titleMedium,
       fontWeight = FontWeight.SemiBold,
       modifier = Modifier.weight(1f),
     )
-    IconButton(onClick = onDismissRequest) {
+    IconButton(onClick = onDismissRequest, modifier = Modifier.size(36.dp)) {
       Icon(
         imageVector = Icons.RoundedFilled.Close,
         contentDescription = stringResource(R.string.generic_cancel),
+        modifier = Modifier.size(20.dp),
       )
     }
   }
@@ -296,7 +298,7 @@ private fun PlayerControlPanelContent(
     modifier =
       Modifier
         .fillMaxWidth()
-        .padding(start = 12.dp, end = 12.dp, bottom = 14.dp),
+        .padding(start = 10.dp, end = 10.dp, bottom = 12.dp),
   ) {
     // Floor to whole pixels: Dp rounding at some densities made 3 tiles + gaps
     // exceed the row width, wrapping the grid to 2 columns (issue #590).
@@ -357,9 +359,9 @@ private fun PlayerControlTile(
   Surface(
     modifier =
       modifier
-        .tvFocusHighlight(RoundedCornerShape(18.dp), focusedScale = 1.02f)
-        .height(82.dp),
-    shape = RoundedCornerShape(18.dp),
+        .tvFocusHighlight(RoundedCornerShape(14.dp), focusedScale = 1.02f)
+        .height(64.dp),
+    shape = RoundedCornerShape(14.dp),
     color = containerColor,
     contentColor = contentColor,
     tonalElevation = if (active) 2.dp else 0.dp,
@@ -368,14 +370,14 @@ private fun PlayerControlTile(
       modifier =
         Modifier
           .fillMaxSize()
-          .padding(horizontal = 6.dp, vertical = 6.dp),
+          .padding(horizontal = 4.dp, vertical = 4.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Center,
     ) {
       Box(
         modifier =
           Modifier
-            .size(44.dp)
+            .size(34.dp)
             .graphicsLayer {
               scaleX = PanelIconScale
               scaleY = PanelIconScale
@@ -384,13 +386,13 @@ private fun PlayerControlTile(
       ) {
         renderButton(button)
       }
-      Spacer(Modifier.height(3.dp))
+      Spacer(Modifier.height(2.dp))
       Text(
         text = getPlayerButtonLabel(button),
         maxLines = 2,
         overflow = TextOverflow.Ellipsis,
         textAlign = TextAlign.Center,
-        style = MaterialTheme.typography.labelSmall,
+        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
         fontWeight = if (active) FontWeight.SemiBold else FontWeight.Medium,
         modifier = Modifier.fillMaxWidth(),
       )
@@ -401,7 +403,7 @@ private fun PlayerControlTile(
 private val EdgeTouchWidth = 48.dp
 private val EdgePullThreshold = 64.dp
 private val EdgePullMaximum = 92.dp
-private val PanelTileSpacing = 6.dp
-private const val PanelIconScale = 1.1f
+private val PanelTileSpacing = 4.dp
+private const val PanelIconScale = 0.95f
 private const val EdgeTouchHeightFraction = 0.34f
 private const val PanelColumnCount = 3

@@ -97,8 +97,8 @@ fun MoreSheet(
         Modifier
           .fillMaxWidth()
           .verticalScroll(rememberScrollState())
-          .padding(horizontal = 20.dp, vertical = 8.dp),
-      verticalArrangement = Arrangement.spacedBy(16.dp),
+          .padding(horizontal = 16.dp, vertical = 6.dp),
+      verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
       Row(
         modifier = Modifier.fillMaxWidth(),
@@ -107,7 +107,7 @@ fun MoreSheet(
       ) {
         Text(
           text = stringResource(R.string.player_sheets_more_title),
-          style = MaterialTheme.typography.titleLarge,
+          style = MaterialTheme.typography.titleMedium,
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
           var isSleepTimerDialogShown by remember { mutableStateOf(false) }

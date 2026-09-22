@@ -43,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -516,8 +517,8 @@ fun SubtitlesSheet(
                 modifier =
                   Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 48.dp)
-                    .padding(horizontal = 6.dp, vertical = 1.dp)
+                    .heightIn(min = 40.dp)
+                    .padding(horizontal = 4.dp, vertical = 0.5.dp)
                     .background(
                       MaterialTheme.colorScheme.primaryContainer.copy(alpha = if (subtitlesOff) 0.35f else 0f),
                       MaterialTheme.shapes.medium,
@@ -528,18 +529,18 @@ fun SubtitlesSheet(
                       onDisableSubtitles()
                       if (!subtitlesOff) haptics.selection(false)
                     }
-                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                    .padding(horizontal = 10.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
               ) {
                 if (isTelevision) {
-                  RadioButton(selected = subtitlesOff, onClick = null)
+                  RadioButton(selected = subtitlesOff, onClick = null, modifier = Modifier.scale(0.78f))
                 } else {
-                  Checkbox(checked = subtitlesOff, onCheckedChange = null)
+                  Checkbox(checked = subtitlesOff, onCheckedChange = null, modifier = Modifier.scale(0.78f))
                 }
                 Text(
                   stringResource(R.string.player_sheets_off),
-                  style = MaterialTheme.typography.bodyLarge,
+                  style = MaterialTheme.typography.bodyMedium,
                   fontWeight = if (subtitlesOff) FontWeight.SemiBold else FontWeight.Normal,
                   modifier = Modifier.weight(1f),
                 )
@@ -585,33 +586,33 @@ fun SubtitleTrackRow(
     modifier =
       modifier
         .fillMaxWidth()
-        .heightIn(min = 48.dp)
-        .padding(horizontal = 6.dp, vertical = 1.dp)
+        .heightIn(min = 40.dp)
+        .padding(horizontal = 4.dp, vertical = 0.5.dp)
         .background(containerColor, MaterialTheme.shapes.medium)
         .tvFocusHighlight(MaterialTheme.shapes.medium)
         .toggleable(value = isSelected, role = Role.Checkbox) { selected ->
           onToggle()
           haptics.selection(selected)
         }
-        .padding(horizontal = 12.dp, vertical = 6.dp),
+        .padding(horizontal = 10.dp, vertical = 4.dp),
     verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.spacedBy(10.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
   ) {
     if (isTelevision) {
-      RadioButton(selected = isSelected, onClick = null)
+      RadioButton(selected = isSelected, onClick = null, modifier = Modifier.scale(0.78f))
     } else {
-      Checkbox(checked = isSelected, onCheckedChange = null)
+      Checkbox(checked = isSelected, onCheckedChange = null, modifier = Modifier.scale(0.78f))
     }
     Text(
       text = title,
       modifier = Modifier.weight(1f),
-      style = MaterialTheme.typography.bodyLarge,
+      style = MaterialTheme.typography.bodyMedium,
       fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
     )
 
     if (isCurrentlyTranslating) {
       androidx.compose.material3.CircularProgressIndicator(
-        modifier = Modifier.size(MaterialTheme.spacing.large),
+        modifier = Modifier.size(MaterialTheme.spacing.medium),
         strokeWidth = MaterialTheme.spacing.smaller,
       )
     }

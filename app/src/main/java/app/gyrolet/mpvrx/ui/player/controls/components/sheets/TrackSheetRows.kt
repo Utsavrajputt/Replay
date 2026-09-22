@@ -43,19 +43,19 @@ fun AddTrackRow(
       modifier
         .fillMaxWidth()
         .clickable(onClick = onClick)
-        .heightIn(min = 48.dp)
-        .padding(horizontal = 20.dp, vertical = 4.dp),
+        .heightIn(min = 40.dp)
+        .padding(horizontal = 16.dp, vertical = 2.dp),
     verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.spacedBy(12.dp),
+    horizontalArrangement = Arrangement.spacedBy(10.dp),
   ) {
     Icon(
       Icons.RoundedFilled.Add,
       contentDescription = null,
-      modifier = Modifier.size(24.dp),
+      modifier = Modifier.size(20.dp),
     )
     Text(
       text = title,
-      style = MaterialTheme.typography.bodyLarge,
+      style = MaterialTheme.typography.bodyMedium,
       modifier = Modifier.weight(1f),
     )
     Row(

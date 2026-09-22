@@ -335,8 +335,8 @@ fun PlaylistSheet(
       Column(
         modifier =
           modifier.padding(
-            vertical = MaterialTheme.spacing.smaller,
-            horizontal = if (!isListMode) MaterialTheme.spacing.medium else 0.dp,
+            vertical = MaterialTheme.spacing.extraSmall,
+            horizontal = if (!isListMode) MaterialTheme.spacing.small else 0.dp,
           ),
       ) {
         // Header showing current playlist info with toggle button
@@ -346,8 +346,8 @@ fun PlaylistSheet(
             Modifier
               .fillMaxWidth()
               .padding(
-                horizontal = if (isListMode) MaterialTheme.spacing.medium else 0.dp,
-                vertical = MaterialTheme.spacing.small,
+                horizontal = if (isListMode) MaterialTheme.spacing.small else 0.dp,
+                vertical = MaterialTheme.spacing.extraSmall,
               ),
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.SpaceBetween,
@@ -604,8 +604,8 @@ fun PlaylistTrackListItem(
         .fillMaxWidth()
         .padding(
           horizontal = MaterialTheme.spacing.small,
-          vertical = 2.dp,
-        ).clip(RoundedCornerShape(12.dp))
+          vertical = 1.dp,
+        ).clip(RoundedCornerShape(10.dp))
         .then(borderModifier)
         .clickable(onClick = onClick),
     color =
@@ -614,15 +614,15 @@ fun PlaylistTrackListItem(
       } else {
         Color.Transparent
       },
-    shape = RoundedCornerShape(12.dp),
+    shape = RoundedCornerShape(10.dp),
   ) {
     Row(
       modifier =
         Modifier
           .fillMaxWidth()
-          .padding(horizontal = MaterialTheme.spacing.smaller, vertical = 6.dp),
+          .padding(horizontal = MaterialTheme.spacing.extraSmall, vertical = 4.dp),
       verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
+      horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
     ) {
       // Thumbnail with simple background, episode number, and progress
       Box(
@@ -630,11 +630,11 @@ fun PlaylistTrackListItem(
           Modifier
             .then(
               if (isAudioItem) {
-                Modifier.size(56.dp)
+                Modifier.size(44.dp)
               } else {
-                Modifier.width(100.dp).height(56.dp)
+                Modifier.width(80.dp).height(44.dp)
               },
-            ).clip(RoundedCornerShape(8.dp))
+            ).clip(RoundedCornerShape(6.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerHigh),
         contentAlignment = Alignment.Center,
       ) {
@@ -642,7 +642,7 @@ fun PlaylistTrackListItem(
           imageVector = if (isAudioItem) Icons.RoundedFilled.Audiotrack else Icons.RoundedFilled.Videocam,
           contentDescription = null,
           tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-          modifier = Modifier.size(24.dp),
+          modifier = Modifier.size(18.dp),
         )
         if (!skipThumbnail) {
           PlaylistThumbnail(
@@ -661,18 +661,18 @@ fun PlaylistTrackListItem(
           modifier =
             Modifier
               .align(Alignment.TopStart)
-              .padding(6.dp)
+              .padding(4.dp)
               .background(
                 color = Color.Black.copy(alpha = 0.7f),
-                shape = RoundedCornerShape(6.dp),
-              ).padding(horizontal = 8.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(5.dp),
+              ).padding(horizontal = 5.dp, vertical = 2.dp),
         ) {
           Text(
             text = "${item.index + 1}",
             style =
-              MaterialTheme.typography.labelMedium.copy(
+              MaterialTheme.typography.labelSmall.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 12.sp,
+                fontSize = 10.sp,
               ),
             color = Color.White,
           )
@@ -682,13 +682,14 @@ fun PlaylistTrackListItem(
       // Title and info
       Column(
         modifier = Modifier.weight(1f),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
       ) {
         Text(
           text = item.title.stripExtension(),
           style =
-            MaterialTheme.typography.bodyMedium.copy(
-              fontWeight = if (item.isPlaying) FontWeight.Bold else FontWeight.Normal,
+            MaterialTheme.typography.bodySmall.copy(
+              fontWeight = if (item.isPlaying) FontWeight.Bold else FontWeight.Medium,
+              fontSize = 13.sp,
               color =
                 if (item.isPlaying) {
                   accentColor
@@ -705,7 +706,7 @@ fun PlaylistTrackListItem(
         if (item.artist.isNotBlank()) {
           Text(
             text = item.artist,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -714,7 +715,7 @@ fun PlaylistTrackListItem(
 
         // Duration and resolution chips - always show with loading state if empty
         Row(
-          horizontalArrangement = Arrangement.spacedBy(6.dp),
+          horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
           // Duration chip
           if (item.duration.isNotEmpty()) {
@@ -731,16 +732,16 @@ fun PlaylistTrackListItem(
             ) {
               Text(
                 text = item.duration,
-                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp),
                 style =
                   MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 10.sp,
+                    fontSize = 9.sp,
                   ),
                 color = if (item.isPlaying) accentColor else MaterialTheme.colorScheme.onSurfaceVariant,
               )
             }
           } else {
-            LoadingChip(width = 40.dp)
+            LoadingChip(width = 36.dp, height = 16.dp)
           }
 
           // Resolution chip
@@ -758,16 +759,16 @@ fun PlaylistTrackListItem(
             ) {
               Text(
                 text = item.resolution,
-                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp),
                 style =
                   MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 10.sp,
+                    fontSize = 9.sp,
                   ),
                 color = if (item.isPlaying) accentColor else MaterialTheme.colorScheme.onSurfaceVariant,
               )
             }
           } else if (!item.isAudio) {
-            LoadingChip(width = 60.dp)
+            LoadingChip(width = 54.dp, height = 16.dp)
           }
         }
       }
@@ -779,16 +780,16 @@ fun PlaylistTrackListItem(
           val isPlaybackActive = paused != true
           Surface(
             color = accentColor.copy(alpha = 0.15f),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(14.dp),
           ) {
             Box(
-              modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+              modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
               contentAlignment = Alignment.Center,
             ) {
               MiniAudioVisualizer(
                 isPlaying = isPlaybackActive,
                 color = accentColor,
-                modifier = Modifier.size(width = 16.dp, height = 14.dp),
+                modifier = Modifier.size(width = 14.dp, height = 12.dp),
               )
             }
           }

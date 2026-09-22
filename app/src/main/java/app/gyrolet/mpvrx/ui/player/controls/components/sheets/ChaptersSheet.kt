@@ -108,25 +108,25 @@ fun ChapterTrack(
     modifier =
       modifier
         .fillMaxWidth()
-        .heightIn(min = 56.dp)
-        .padding(horizontal = 8.dp, vertical = 2.dp)
+        .heightIn(min = 44.dp)
+        .padding(horizontal = 6.dp, vertical = 1.dp)
         .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = if (selected) 0.35f else 0f), MaterialTheme.shapes.medium)
         .clip(MaterialTheme.shapes.medium)
         .clickable(onClick = onClick)
-        .padding(vertical = 10.dp, horizontal = 12.dp),
-    horizontalArrangement = Arrangement.spacedBy(12.dp),
+        .padding(vertical = 6.dp, horizontal = 10.dp),
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
     verticalAlignment = Alignment.CenterVertically,
   ) {
-    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
       Text(
         stringResource(R.string.player_sheets_track_title_wo_lang, index + 1, chapter.name),
-        style = MaterialTheme.typography.bodyLarge,
+        style = MaterialTheme.typography.bodyMedium,
         fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
         color = MaterialTheme.colorScheme.onSurface,
         maxLines = 2,
         overflow = TextOverflow.Ellipsis,
       )
-      Text(Utils.prettyTime(chapter.start.toInt()), style = MaterialTheme.typography.labelMedium,
+      Text(Utils.prettyTime(chapter.start.toInt()), style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
     trailingContent()
