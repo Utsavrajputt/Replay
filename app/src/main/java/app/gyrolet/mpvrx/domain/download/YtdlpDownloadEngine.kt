@@ -415,8 +415,10 @@ class YtdlpDownloadEngine(
         ?.let { quickJs ->
           add("--js-runtimes")
           add("quickjs:${quickJs.absolutePath}")
-          add("--remote-components")
-          add("ejs:github")
+          if (preferences.ejsRemoteComponents.get()) {
+            add("--remote-components")
+            add("ejs:github")
+          }
         }
       add("--")
       add(url)

@@ -48,4 +48,7 @@ class YtdlPreferences(
   val sponsorBlockMark = preferenceStore.getString("ytdl_sponsorblock_mark", "")
   val sponsorBlockRemove = preferenceStore.getString("ytdl_sponsorblock_remove", "")
   val customRawOptions = preferenceStore.getString("ytdl_custom_raw_options", "")
+  // Lets yt-dlp fetch its EJS challenge-solver scripts (needed for current YouTube extraction,
+  // including age-restricted videos). Only takes effect when a JS runtime is available.
+  val ejsRemoteComponents = preferenceStore.getBoolean("ytdl_ejs_remote_components", true)
 }

@@ -63,6 +63,7 @@ object YtdlpSettingsScreen : Screen {
     val playlistMode by ytdlPreferences.playlistMode.collectAsState()
     val writeSubs by ytdlPreferences.writeSubs.collectAsState()
     val writeAutoSubs by ytdlPreferences.writeAutoSubs.collectAsState()
+    val ejsRemoteComponents by ytdlPreferences.ejsRemoteComponents.collectAsState()
     val installationInfo by YtdlpManager.installationInfo.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -224,6 +225,21 @@ object YtdlpSettingsScreen : Screen {
                 summary = {
                   Text(stringResource(R.string.ui_fetch_auto_caption_tracks_e_g_youtube_speech_to_text_when_regula))
                 },
+              )
+            }
+          }
+
+          PreferenceSectionHeader(title = stringResource(R.string.ytdlp_youtube_section))
+
+          PreferenceCard {
+            Column(modifier = Modifier.padding(vertical = 4.dp)) {
+              SwitchPreference(
+                modifier = Modifier.settingsSearchTarget(R.string.ytdlp_ejs_solver),
+                value = ejsRemoteComponents,
+                enabled = playbackOptionsEnabled,
+                onValueChange = { ytdlPreferences.ejsRemoteComponents.set(it) },
+                title = { Text(stringResource(R.string.ytdlp_ejs_solver)) },
+                summary = { Text(stringResource(R.string.ytdlp_ejs_solver_summary)) },
               )
             }
           }

@@ -92,6 +92,7 @@ data class YtdlpOptionSettings(
   val referer: String = "",
   val cookiesFile: String = "",
   val javascriptRuntime: String = "",
+  val ejsRemoteComponents: Boolean = true,
   val proxy: String = "",
   val extractorArgs: String = "",
   val geoBypass: Boolean = false,
@@ -121,6 +122,7 @@ data class YtdlpOptionSettings(
         userAgent = ytdlPreferences.customUserAgent.get(),
         referer = ytdlPreferences.referer.get(),
         cookiesFile = ytdlPreferences.cookiesFile.get(),
+        ejsRemoteComponents = ytdlPreferences.ejsRemoteComponents.get(),
         proxy = ytdlPreferences.proxy.get(),
         extractorArgs = ytdlPreferences.extractorArgs.get(),
         geoBypass = ytdlPreferences.geoBypass.get(),
@@ -171,6 +173,9 @@ object YtdlpOptionsBuilder {
     settings.referer.ifNotBlank { add("referer", it) }
     settings.cookiesFile.ifNotBlank { add("cookies", it) }
     settings.javascriptRuntime.ifNotBlank { add("js-runtimes", it) }
+    if (settings.ejsRemoteComponents && settings.javascriptRuntime.isNotBlank()) {
+      add("remote-components", "ejs:github")
+    }
     settings.proxy.ifNotBlank { add("proxy", it) }
     settings.extractorArgs.ifNotBlank { add("extractor-args", it) }
     settings.formatSort.ifNotBlank { add("format-sort", it) }

@@ -1280,6 +1280,9 @@
   <string name="ytdlp_subtitles_language">Subtitles &amp; Language</string>
   <string name="ytdlp_advanced_networking">Advanced Networking</string>
   <string name="ytdlp_playlist_behavior">Playlist Behavior</string>
+  <string name="ytdlp_youtube_section">YouTube</string>
+  <string name="ytdlp_ejs_solver">YouTube challenge solver (EJS)</string>
+  <string name="ytdlp_ejs_solver_summary">Let yt-dlp download its signature solver scripts using the built-in JavaScript runtime. Needed for age-restricted and other recent YouTube videos.</string>
   <string name="ui_file_size">File Size</string>
   <string name="ui_duration">Duration</string>
   <string name="ui_bitrate">Bitrate</string>

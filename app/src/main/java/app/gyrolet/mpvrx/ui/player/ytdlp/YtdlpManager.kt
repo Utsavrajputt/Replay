@@ -249,6 +249,10 @@ object YtdlpManager {
                 ?.let { quickJs ->
                   add("--js-runtimes")
                   add("quickjs:${quickJs.absolutePath}")
+                  if (preferences.ejsRemoteComponents.get()) {
+                    add("--remote-components")
+                    add("ejs:github")
+                  }
                 }
               add("--")
               add(canonicalSource)
