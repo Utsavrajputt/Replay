@@ -2,7 +2,7 @@ name: Preview Build
 
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '*/900000 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: mpvrx-preview-pages
+  group: replay-preview-pages
   cancel-in-progress: true
 
 jobs:
@@ -41,7 +41,7 @@ jobs:
         shell: bash
         env:
           EVENT_NAME: ${{ github.event_name }}
-          PREVIEW_MANIFEST_URL: https://riteshp2001.github.io/mpvRx/latest.json
+          PREVIEW_MANIFEST_URL: https://utsavrajputt.github.io/Replay/latest.json
         run: |
           set -euo pipefail
 
@@ -230,7 +230,7 @@ jobs:
           for abi in $APK_ABIS; do
             base="app-${APK_DIR}-${abi}-preview"
             sign_apk "$out_dir" "$base" "${APK_DIR} ${abi} preview"
-            cp "$out_dir/$base.apk" "downloads/mpvRx-preview-r${COMMIT_COUNT}-${ASSET_NAME:-$abi}.apk"
+            cp "$out_dir/$base.apk" "downloads/Replay-preview-r${COMMIT_COUNT}-${ASSET_NAME:-$abi}.apk"
           done
 
       - name: Upload preview APKs
@@ -274,7 +274,7 @@ jobs:
 
       - name: Stage GitHub Pages preview site
         env:
-          SITE_BASE_URL: https://riteshp2001.github.io/mpvRx
+          SITE_BASE_URL: https://utsavrajputt.github.io/Replay
         shell: bash
         run: |
           set -euo pipefail
@@ -317,7 +317,7 @@ jobs:
           assets = []
 
           for public_name in public_names:
-              name = f"mpvRx-preview-r{commit_count}-{public_name}.apk"
+              name = f"Replay-preview-r{commit_count}-{public_name}.apk"
               apk = downloads_dir / name
               if not apk.is_file():
                   raise SystemExit(f"Missing signed APK for {public_name}: {apk}")
@@ -333,7 +333,7 @@ jobs:
 
           manifest = {
               "tag_name": f"preview-r{commit_count}",
-              "name": f"mpvRx Preview r{commit_count}",
+              "name": f"Replay Preview r{commit_count}",
               "body": (
                   f"Commit: {commit_title}\n\n"
                   f"{publication_mode.title()} preview from workflow run #{run_number}. "
@@ -369,7 +369,7 @@ jobs:
       - name: Upload preview manifest as Actions artifact
         uses: actions/upload-artifact@v7
         with:
-          name: mpvRx-preview-r${{ needs.check.outputs.commit_count }}-manifest
+          name: Replay-preview-r${{ needs.check.outputs.commit_count }}-manifest
           path: site/latest.json
           if-no-files-found: error
           retention-days: 14
