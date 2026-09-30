@@ -70,6 +70,8 @@ import app.gyrolet.mpvrx.ui.browser.selection.rememberSelectionManager
 import app.gyrolet.mpvrx.ui.browser.sheets.PlaylistActionSheet
 import app.gyrolet.mpvrx.ui.browser.states.EmptyState
 import app.gyrolet.mpvrx.ui.components.InlineSearchBar
+import app.gyrolet.mpvrx.ui.celestial.CelestialBackground
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.ui.icons.Icon
 import app.gyrolet.mpvrx.ui.icons.Icons
 import app.gyrolet.mpvrx.ui.utils.LocalBackStack
@@ -287,72 +289,78 @@ object PlaylistScreen : Screen {
                   .stringResource(app.gyrolet.mpvrx.R.string.ui_create_playlist),
               )
             },
-            modifier = Modifier.padding(bottom = (navigationBarHeight - 16.dp).coerceAtLeast(0.dp)),
+            modifier =
+              Modifier
+                .padding(bottom = (navigationBarHeight - 16.dp).coerceAtLeast(0.dp))
+                .celestialBorder(shape = RoundedCornerShape(16.dp)),
           )
         }
       },
     ) { paddingValues ->
-      if (isSearching && filteredPlaylists.isEmpty() && searchQuery.isNotBlank()) {
-        // Show "no results" for search
-        Box(
-          modifier =
-            Modifier
-              .fillMaxSize()
-              .padding(paddingValues),
-          contentAlignment = Alignment.Center,
-        ) {
-          EmptyState(
-            icon = Icons.RoundedFilled.Search,
-            title = stringResource(R.string.ui_no_playlists_found),
-            message = "Try a different search term",
-          )
-        }
-      } else if (playlistsWithCount.isEmpty() && isLoading) {
-        Box(Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
-          CircularProgressIndicator()
-        }
-      } else if (playlistsWithCount.isEmpty() && hasCompletedInitialLoad) {
-        Box(
-          modifier =
-            Modifier
-              .fillMaxSize()
-              .padding(paddingValues),
-          contentAlignment = Alignment.Center,
-        ) {
-          Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+      Box(modifier = Modifier.fillMaxSize()) {
+        CelestialBackground()
+        if (isSearching && filteredPlaylists.isEmpty() && searchQuery.isNotBlank()) {
+          // Show "no results" for search
+          Box(
+            modifier =
+              Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center,
           ) {
             EmptyState(
-              icon = Icons.RoundedFilled.PlaylistAdd,
-              title = stringResource(R.string.ui_no_playlists_yet),
-              message = stringResource(R.string.playlist_empty_description),
+              icon = Icons.RoundedFilled.Search,
+              title = stringResource(R.string.ui_no_playlists_found),
+              message = "Try a different search term",
             )
           }
-        }
-      } else {
-        PlaylistListContent(
-          playlistsWithCount = filteredPlaylists,
-          listState = listState,
-          gridState = gridState,
-          isRefreshing = isRefreshing,
-          onRefresh = { viewModel.refresh(scanLocalFiles = true).join() },
-          selectionManager = selectionManager,
-          onPlaylistClick = { playlistWithCount ->
-            if (selectionManager.isInSelectionMode) {
-              selectionManager.toggleFromUser(playlistWithCount)
-            } else {
-              backStack.navigateTo(PlaylistDetailScreen(playlistWithCount.playlist.id))
+        } else if (playlistsWithCount.isEmpty() && isLoading) {
+          Box(Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+          }
+        } else if (playlistsWithCount.isEmpty() && hasCompletedInitialLoad) {
+          Box(
+            modifier =
+              Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center,
+          ) {
+            Column(
+              horizontalAlignment = Alignment.CenterHorizontally,
+              verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+              EmptyState(
+                icon = Icons.RoundedFilled.PlaylistAdd,
+                title = stringResource(R.string.ui_no_playlists_yet),
+                message = stringResource(R.string.playlist_empty_description),
+              )
             }
-          },
-          onPlaylistLongClick = { playlistWithCount ->
-            selectionManager.handleLongClick(playlistWithCount)
-          },
-          modifier = Modifier.padding(paddingValues).onSizeChanged {
-            contentWidthDp = with(density) { it.width.toDp().value.toInt() }
-          },
-          isInSelectionMode = selectionManager.isInSelectionMode,
-        )
+          }
+        } else {
+          PlaylistListContent(
+            playlistsWithCount = filteredPlaylists,
+            listState = listState,
+            gridState = gridState,
+            isRefreshing = isRefreshing,
+            onRefresh = { viewModel.refresh(scanLocalFiles = true).join() },
+            selectionManager = selectionManager,
+            onPlaylistClick = { playlistWithCount ->
+              if (selectionManager.isInSelectionMode) {
+                selectionManager.toggleFromUser(playlistWithCount)
+              } else {
+                backStack.navigateTo(PlaylistDetailScreen(playlistWithCount.playlist.id))
+              }
+            },
+            onPlaylistLongClick = { playlistWithCount ->
+              selectionManager.handleLongClick(playlistWithCount)
+            },
+            modifier = Modifier.padding(paddingValues).onSizeChanged {
+              contentWidthDp = with(density) { it.width.toDp().value.toInt() }
+            },
+            isInSelectionMode = selectionManager.isInSelectionMode,
+          )
+        }
       }
     }
 

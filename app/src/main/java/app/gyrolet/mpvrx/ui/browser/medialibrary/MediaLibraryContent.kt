@@ -104,6 +104,9 @@ import app.gyrolet.mpvrx.ui.browser.selection.rememberSelectionManager
 import app.gyrolet.mpvrx.ui.browser.states.EmptyState
 import app.gyrolet.mpvrx.ui.browser.videolist.VideoListContent
 import app.gyrolet.mpvrx.ui.browser.videolist.VideoWithPlaybackInfo
+import app.gyrolet.mpvrx.ui.celestial.CelestialBackground
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
+import app.gyrolet.mpvrx.ui.celestial.celestialFabColors
 import app.gyrolet.mpvrx.ui.icons.Icon
 import app.gyrolet.mpvrx.ui.icons.Icons
 import app.gyrolet.mpvrx.ui.player.controls.components.tvFocusHighlight
@@ -520,13 +523,16 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
             },
             state = rememberTooltipState(),
           ) {
+            val celestialFab = celestialFabColors()
             ToggleFloatingActionButton(
               modifier =
                 Modifier.animateFloatingActionButton(
                   visible = isFabShouldBeVisible,
                   alignment = Alignment.BottomEnd,
-                ),
+                ).celestialBorder(),
               checked = isFabExpanded.value && !quickPlayFabDirect,
+              containerColor = celestialFab.containerColor,
+              containerCornerRadius = celestialFab.containerCornerRadius,
                 onCheckedChange = {
                   if (quickPlayFabDirect) {
                     coroutineScope.launch {
@@ -612,6 +618,7 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
     val videosWereDeletedOrMoved = false
 
     Box(modifier = Modifier.fillMaxSize()) {
+      CelestialBackground()
       Column(
         modifier =
           Modifier

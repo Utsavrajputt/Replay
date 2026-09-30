@@ -107,6 +107,7 @@ import app.gyrolet.mpvrx.ui.browser.selection.SelectionManager
 import app.gyrolet.mpvrx.ui.browser.selection.rememberSelectionManager
 import app.gyrolet.mpvrx.ui.browser.states.EmptyState
 import app.gyrolet.mpvrx.ui.components.InlineSearchBar
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.ui.icons.Icon
 import app.gyrolet.mpvrx.ui.icons.Icons
 import app.gyrolet.mpvrx.ui.player.controls.components.tvFocusHighlight
@@ -438,6 +439,8 @@ data class VideoListScreen(
             state = rememberTooltipState(),
           ) {
             FloatingActionButton(
+              containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+              shape = CircleShape,
               modifier =
                 Modifier
                   .windowInsetsPadding(WindowInsets.systemBars)
@@ -445,7 +448,7 @@ data class VideoListScreen(
                   .animateFloatingActionButton(
                     visible = isFabShouldBeVisible,
                     alignment = Alignment.BottomEnd,
-                  ),
+                  ).celestialBorder(),
               onClick = {
                 coroutineScope.launch {
                   val folderPath =
