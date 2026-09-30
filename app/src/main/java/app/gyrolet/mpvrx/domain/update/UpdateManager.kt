@@ -148,7 +148,7 @@ class UpdateManager(
     val deviceArch = getDeviceArchitecture()
     val compatibleAssets =
       assets.filter { asset ->
-        asset.name.startsWith("mpvRx-", ignoreCase = true) &&
+        asset.name.startsWith("Replay-", ignoreCase = true) &&
           asset.name.endsWith(".apk", ignoreCase = true) &&
           asset.name.matchesApkVariant(BuildConfig.UPDATE_APK_VARIANT)
       }
@@ -277,8 +277,8 @@ class UpdateManager(
   }
 
   private companion object {
-    const val STABLE_RELEASE_URL = "https://api.github.com/repos/Riteshp2001/mpvRx/releases/latest"
-    const val PREVIEW_RELEASE_URL = "https://riteshp2001.github.io/mpvRx/latest.json"
+    const val STABLE_RELEASE_URL = "https://api.github.com/repos/Utsavrajputt/Replay/releases/latest"
+    const val PREVIEW_RELEASE_URL = "https://utsavrajputt.github.io/Replay/latest.json"
     const val LEGACY_IGNORED_VERSION_KEY = "ignored_version"
     val PREVIEW_TAG_REGEX = Regex("""(?:preview-)?r(\d+)""", RegexOption.IGNORE_CASE)
     val SUPPORTED_ARCHITECTURES = setOf("arm64-v8a", "armeabi-v7a", "x86", "x86_64")

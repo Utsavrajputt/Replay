@@ -42,7 +42,7 @@ android {
   ndkVersion = "27.3.13750724"
 
   defaultConfig {
-    applicationId = "app.gyrolet.mpvrx"
+    applicationId = "app.invictus.replay"
     minSdk = 26
     targetSdk = 36
     // Stable occupies the top of its version band. Preview uses the next band's commit-count
