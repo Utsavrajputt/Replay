@@ -108,6 +108,8 @@ import app.gyrolet.mpvrx.ui.browser.components.BrowserTopBar
 import app.gyrolet.mpvrx.ui.browser.dialogs.AddConnectionSheet
 import app.gyrolet.mpvrx.ui.browser.dialogs.EditConnectionSheet
 import app.gyrolet.mpvrx.ui.components.InlineSearchBar
+import app.gyrolet.mpvrx.ui.celestial.CelestialBackground
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.ui.icons.AppIcon
 import app.gyrolet.mpvrx.ui.icons.Icon
 import app.gyrolet.mpvrx.ui.icons.Icons
@@ -441,7 +443,7 @@ object NetworkStreamingScreen : Screen {
                   stringResource(R.string.ui_add_connection),
                 )
               },
-              modifier = Modifier.padding(bottom = navigationBarHeight),
+              modifier = Modifier.padding(bottom = navigationBarHeight).celestialBorder(shape = RoundedCornerShape(16.dp)),
             )
           }
           NetworkTab.MEDIA.ordinal -> {
@@ -449,7 +451,7 @@ object NetworkStreamingScreen : Screen {
               onClick = { showAddMediaDialog = true },
               icon = { Icon(Icons.RoundedFilled.Add, contentDescription = null) },
               text = { Text("Add Media") },
-              modifier = Modifier.padding(bottom = navigationBarHeight),
+              modifier = Modifier.padding(bottom = navigationBarHeight).celestialBorder(shape = RoundedCornerShape(16.dp)),
             )
           }
         }
@@ -461,6 +463,7 @@ object NetworkStreamingScreen : Screen {
             .fillMaxSize()
             .padding(padding),
       ) {
+        CelestialBackground()
         NavigationPager(
           state = pagerState,
           modifier =

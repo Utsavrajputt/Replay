@@ -106,6 +106,9 @@ import app.gyrolet.mpvrx.ui.browser.playlist.PlaylistDetailScreen
 import app.gyrolet.mpvrx.ui.browser.selection.rememberSelectionManager
 import app.gyrolet.mpvrx.ui.browser.sheets.PlayLinkSheet
 import app.gyrolet.mpvrx.ui.browser.states.EmptyState
+import app.gyrolet.mpvrx.ui.celestial.CelestialBackground
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
+import app.gyrolet.mpvrx.ui.celestial.celestialFabColors
 import app.gyrolet.mpvrx.ui.icons.Icon
 import app.gyrolet.mpvrx.ui.icons.Icons
 import app.gyrolet.mpvrx.ui.utils.LocalBackStack
@@ -319,14 +322,17 @@ object RecentlyPlayedScreen : Screen {
               },
               state = rememberTooltipState(),
             ) {
+              val celestialFab = celestialFabColors()
               ToggleFloatingActionButton(
                 modifier =
                   Modifier
                     .animateFloatingActionButton(
                       visible = isFabShouldBeVisible,
                       alignment = Alignment.BottomEnd,
-                    ),
+                    ).celestialBorder(),
                 checked = isFabExpanded.value && !quickPlayFabDirect,
+                containerColor = celestialFab.containerColor,
+                containerCornerRadius = celestialFab.containerCornerRadius,
                 onCheckedChange = {
                   if (quickPlayFabDirect) {
                     coroutineScope.launch {
@@ -433,6 +439,7 @@ object RecentlyPlayedScreen : Screen {
             .fillMaxSize()
             .padding(padding),
       ) {
+      CelestialBackground()
       Column(
         modifier = Modifier.fillMaxSize(),
       ) {

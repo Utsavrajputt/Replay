@@ -106,6 +106,7 @@ import app.gyrolet.mpvrx.ui.browser.music.MusicTab
 import app.gyrolet.mpvrx.ui.browser.networkstreaming.NetworkStreamingScreen
 import app.gyrolet.mpvrx.ui.browser.playlist.PlaylistScreen
 import app.gyrolet.mpvrx.ui.browser.recentlyplayed.RecentlyPlayedScreen
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.ui.icons.Icon
 import app.gyrolet.mpvrx.ui.icons.Icons
 import app.gyrolet.mpvrx.ui.player.controls.components.rememberTvInitialFocusRequester
@@ -758,7 +759,7 @@ internal fun ExpressivePillNavigationBar(
   val indicatorWidth = androidx.compose.ui.unit.lerp(tabWidths[pageFloor], tabWidths[pageCeil], pageFraction)
 
   LiquidGlassSurface(
-    modifier = modifier,
+    modifier = modifier.celestialBorder(CircleShape),
     shape = CircleShape,
     style = LiquidGlassStyle.Navigation,
     glassColor = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.32f),
