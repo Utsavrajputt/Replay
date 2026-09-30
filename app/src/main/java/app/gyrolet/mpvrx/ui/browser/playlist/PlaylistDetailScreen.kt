@@ -100,6 +100,7 @@ import app.gyrolet.mpvrx.ui.browser.components.fastScrollGlyph
 import app.gyrolet.mpvrx.ui.browser.filesystem.FileSystemBrowserScreen
 import app.gyrolet.mpvrx.ui.browser.selection.rememberSelectionManager
 import app.gyrolet.mpvrx.ui.components.InlineSearchBar
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.ui.icons.Icon
 import app.gyrolet.mpvrx.ui.icons.Icons
 import app.gyrolet.mpvrx.ui.player.PlaybackIdentity
@@ -609,7 +610,7 @@ data class PlaylistDetailScreen(
                     (navigationBarHeight - 16.dp).coerceAtLeast(0.dp),
                     miniPlayerClearance,
                   ),
-              ),
+              ).celestialBorder(shape = RoundedCornerShape(16.dp)),
             onClick = { backStack.navigateTo(PlaylistAddVideosScreen(playlistId, isAudio = isAudioPlaylist)) },
             icon = { Icon(Icons.RoundedFilled.Add, contentDescription = null) },
               text = { Text(stringResource(if (isAudioPlaylist) R.string.playlist_add_songs else R.string.playlist_add_videos)) },
