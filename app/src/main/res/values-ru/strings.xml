@@ -1575,9 +1575,9 @@
   <string name="ui_github">GitHub</string>
   <string name="ui_device_info">Информация об устройстве</string>
   <string name="ui_buy_me_a_coffee">Угостить кофе</string>
-  <string name="ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit">Нравится Replay? Поддержите оригинального разработчика, благодаря которому это стало возможным. Любой вклад важен!</string>
+  <string name="ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit">Нравится Replay? Ваша поддержка помогает покрыть расходы на публикацию Replay в Play Store. Любой вклад имеет значение!</string>
   <string name="ui_upi_id">Идентификатор UPI</string>
-  <string name="ui_panditritesh2001_okhdfcbank">panditritesh2001@okhdfcbank</string>
+  <string name="ui_panditritesh2001_okhdfcbank">utsavrajput@yesfam</string>
   <string name="ui_send_love">Поддержать</string>
   <string name="ui_auto_check_for_updates">Автоматически проверять обновления</string>
   <string name="ui_check_on_startup">Проверять при запуске</string>

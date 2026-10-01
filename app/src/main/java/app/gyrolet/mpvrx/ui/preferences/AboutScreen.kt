@@ -17,12 +17,6 @@ import android.os.Build
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -58,6 +53,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import app.gyrolet.mpvrx.ui.celestial.CelestialHeaderBackground
 import app.gyrolet.mpvrx.ui.components.IconSwitch
 import app.gyrolet.mpvrx.ui.components.themedSegmentedButtonColors
 import androidx.compose.material3.TopAppBar
@@ -69,11 +65,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -96,7 +89,6 @@ import app.gyrolet.mpvrx.ui.utils.popSafely
 import app.gyrolet.mpvrx.utils.clipboard.SafeClipboard
 import app.gyrolet.mpvrx.ui.update.UpdateViewModel
 import java.util.Locale
-import kotlin.math.sin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.Serializable
 
@@ -176,23 +168,6 @@ object AboutScreen : Screen {
       },
     ) { paddingValues ->
       val cs = MaterialTheme.colorScheme
-      val cornerRadius = 28.dp
-
-      // Header gets a static background image tinted per-theme, plus a light twinkle-star overlay.
-      val headerScrimColor =
-        androidx.compose.ui.graphics.lerp(Color.Black, cs.primary, 0.35f).copy(alpha = 0.45f)
-      val sparkleTransition = rememberInfiniteTransition()
-      val sparkleTwinkle by sparkleTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec =
-          infiniteRepeatable(
-            animation = tween(durationMillis = 2400),
-            repeatMode = RepeatMode.Reverse,
-          ),
-      )
-      val sparklePositions =
-        remember { listOf(0.55f to 0.18f, 0.78f to 0.42f, 0.92f to 0.22f, 0.68f to 0.62f) }
 
       Column(
         modifier =
@@ -201,42 +176,16 @@ object AboutScreen : Screen {
             .then(settingsHighlight)
             .verticalScroll(settingsScrollState),
       ) {
-        PreferenceCard {
-          Box(
-            modifier = Modifier.clip(RoundedCornerShape(cornerRadius)),
-          ) {
-            Image(
-              painter = painterResource(id = R.drawable.about_header_bg),
-              contentDescription = null,
-              modifier = Modifier.matchParentSize(),
-              contentScale = ContentScale.Crop,
-            )
-            Box(
-              modifier =
-                Modifier
-                  .matchParentSize()
-                  .background(headerScrimColor),
-            )
-            Box(
-              modifier =
-                Modifier
-                  .matchParentSize()
-                  .drawWithCache {
-                    onDrawBehind {
-                      sparklePositions.forEachIndexed { index, (fx, fy) ->
-                        val phase = (sparkleTwinkle + index * 0.27f) % 1f
-                        val twinkleAlpha = 0.25f + 0.55f * sin(phase * Math.PI).toFloat()
-                        drawCircle(
-                          color = Color.White.copy(alpha = twinkleAlpha.coerceIn(0f, 1f)),
-                          radius = 1.6.dp.toPx(),
-                          center = Offset(size.width * fx, size.height * fy),
-                        )
-                      }
-                    }
-                  },
-            )
+        Card(
+          modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+          shape = MaterialTheme.shapes.extraLargeIncreased,
+          colors = CardDefaults.cardColors(containerColor = cs.surfaceContainerLow),
+          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        ) {
+          Box {
+            CelestialHeaderBackground(Modifier.matchParentSize())
 
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)) {
               Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                   modifier = Modifier.size(80.dp),
@@ -254,13 +203,13 @@ object AboutScreen : Screen {
                         ),
                   )
                   Box(
-                    modifier = Modifier.size(64.dp),
+                    modifier = Modifier.requiredSize(88.dp),
                   ) {
                     AndroidView(
                       modifier = Modifier.matchParentSize(),
                       factory = { ctx ->
                         ImageView(ctx).apply {
-                          setImageResource(R.mipmap.ic_launcher)
+                          setImageResource(R.mipmap.ic_launcher_foreground)
                         }
                       },
                     )
@@ -509,7 +458,7 @@ object AboutScreen : Screen {
                       SafeClipboard.copyPlainText(
                         context = context,
                         label = "mpvrx_upi_id",
-                        text = "panditritesh2001@okhdfcbank",
+                        text = "utsavrajput@yesfam",
                         showToast = false,
                       )
                       Toast
@@ -559,7 +508,7 @@ object AboutScreen : Screen {
                   val upiIntent =
                     Intent(
                       Intent.ACTION_VIEW,
-                      "upi://pay?pa=panditritesh2001@okhdfcbank&pn=Ritesh%20Pandit&cu=INR".toUri(),
+                      "upi://pay?pa=utsavrajput@yesfam&pn=Utsav%20Rajput&cu=INR".toUri(),
                     )
                   context.startActivity(upiIntent)
                 } catch (_: Exception) {

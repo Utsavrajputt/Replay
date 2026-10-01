@@ -1561,9 +1561,9 @@ Bitte starten Sie die App neu, damit alle Änderungen wirksam werden.</string>
   <string name="ui_github">GitHub</string>
   <string name="ui_device_info">Geräteinformationen</string>
   <string name="ui_buy_me_a_coffee">Spendiere mir einen Kaffee</string>
-  <string name="ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit">Gefällt Ihnen Replay? Unterstützen Sie den ursprünglichen Entwickler, der es möglich gemacht hat. Jeder Beitrag zählt!</string>
+  <string name="ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit">Gefällt Ihnen Replay? Ihre Unterstützung hilft, die Kosten für die Veröffentlichung von Replay im Play Store zu decken. Jeder Beitrag zählt!</string>
   <string name="ui_upi_id">UPI-ID</string>
-  <string name="ui_panditritesh2001_okhdfcbank">panditritesh2001@okhdfcbank</string>
+  <string name="ui_panditritesh2001_okhdfcbank">utsavrajput@yesfam</string>
   <string name="ui_send_love">Unterstützung senden</string>
   <string name="ui_auto_check_for_updates">Automatisch nach Updates suchen</string>
   <string name="ui_check_on_startup">Beim Start prüfen</string>

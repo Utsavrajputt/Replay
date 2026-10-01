@@ -1554,9 +1554,9 @@
   <string name="ui_github">GitHub</string>
   <string name="ui_device_info">端末情報</string>
   <string name="ui_buy_me_a_coffee">コーヒーをおごる</string>
-  <string name="ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit">Replayを楽しんでいますか？これを実現した開発者の支援をご検討ください。どんな貢献も助けになります！</string>
+  <string name="ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit">Replayを楽しんでいますか？あなたの支援は、ReplayをPlayストアで公開するための費用に役立ちます。どんな貢献も助けになります！</string>
   <string name="ui_upi_id">UPI ID</string>
-  <string name="ui_panditritesh2001_okhdfcbank">panditritesh2001@okhdfcbank</string>
+  <string name="ui_panditritesh2001_okhdfcbank">utsavrajput@yesfam</string>
   <string name="ui_send_love">応援を送る</string>
   <string name="ui_auto_check_for_updates">アップデートを自動確認</string>
   <string name="ui_check_on_startup">起動時に確認</string>
