@@ -5,19 +5,24 @@
 <h1 align="center">Replay</h1>
 
 <p align="center">
+  <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.gyrolet.mpvrx%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FUtsavrajputt%2FReplay%22%2C%22author%22%3A%22Utsavrajputt%22%2C%22name%22%3A%22Replay%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22filterReleaseTitlesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22filterReleaseNotesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22verifyLatestTag%5C%22%3Afalse%2C%5C%22sortMethodChoice%5C%22%3A%5C%22date%5C%22%2C%5C%22useLatestAssetDateAsReleaseDate%5C%22%3Afalse%2C%5C%22releaseTitleAsVersion%5C%22%3Afalse%2C%5C%22trackOnly%5C%22%3Afalse%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%22%5C%22%2C%5C%22versionDetection%5C%22%3Atrue%2C%5C%22releaseDateAsVersion%5C%22%3Afalse%2C%5C%22useVersionCodeAsOSVersion%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22invertAPKFilter%5C%22%3Afalse%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%2C%5C%22minimumUpdateAgeDays%5C%22%3A%5C%22%5C%22%2C%5C%22appName%5C%22%3A%5C%22%5C%22%2C%5C%22appAuthor%5C%22%3A%5C%22%5C%22%2C%5C%22shizukuPretendToBeGooglePlay%5C%22%3Afalse%2C%5C%22allowInsecure%5C%22%3Afalse%2C%5C%22exemptFromBackgroundUpdates%5C%22%3Afalse%2C%5C%22skipUpdateNotifications%5C%22%3Afalse%2C%5C%22about%5C%22%3A%5C%22%5C%22%2C%5C%22refreshBeforeDownload%5C%22%3Afalse%2C%5C%22includeZips%5C%22%3Afalse%2C%5C%22zippedApkFilterRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22includeTarballs%5C%22%3Afalse%2C%5C%22tarballedApkFilterRegEx%5C%22%3A%5C%22%5C%22%7D%22%2C%22overrideSource%22%3Anull%7D">
+    <img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="80" />
+  </a>
+</p>
+
+<p align="center">
   <b>Feature-rich, Efficient Powerful Android video player based on libmpv.</b>
   <br>
   <i>No ads. No trackers. No noise. Just a serious video player with a calmer surface and a sharper edge.</i>
+  <br>
+  <sub>A fork of <a href="https://github.com/Riteshp2001/mpvRx">mpvRx</a> with a Celestial visual layer.</sub>
 </p>
-
-> [!IMPORTANT]
-> **Well Development is now Resumed**
 
 <p align="center">
   <img src="https://img.shields.io/badge/Platform-Android-brightgreen.svg" />
   <img src="https://img.shields.io/badge/License-AGPL_v3-blue.svg" />
-  <img src="https://img.shields.io/github/v/release/utsavrajputt/Replay.svg?logo=github&label=Release&cacheSeconds=3600" />
-  <img src="https://img.shields.io/github/downloads/utsavrajputt/Replay/total?logo=github&cacheSeconds=3600" />
+  <img src="https://img.shields.io/github/v/release/Utsavrajputt/Replay.svg?logo=github&label=Release&cacheSeconds=3600" />
+  <img src="https://img.shields.io/github/downloads/Utsavrajputt/Replay/total?logo=github&cacheSeconds=3600" />
 </p>
 
 ---
@@ -37,6 +42,7 @@
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/chapter-navigation.jpg" width="49%" alt="Replay chapter navigation">
 </div>
 
+
 <div align="center">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/pip.png" width="32%" alt="Replay picture-in-picture mode">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/music-player.jpg" width="32%" alt="Replay music player">
@@ -48,6 +54,21 @@
 ## Features
 
 Replay pushes the mpv-android experience further with deep customization, thermal-aware performance, and unique quality-of-life features. Here's what sets it apart:
+
+<details open>
+<summary><b>🌌 Celestial Effects (Replay exclusive)</b></summary>
+
+| Feature | Description |
+|---|---|
+| **Celestial Toggle** | One switch in Settings > Appearance turns every Celestial effect on or off |
+| **Aurora by Default** | Fresh installs start on the Aurora theme; an already saved theme is never touched |
+| **Aurora Ribbons** | Soft drifting ribbons behind Home, Files, Media Library, Recently Played, Music, Playlists, and Network |
+| **Glow Borders** | Floating buttons and the bottom navigation bar get a theme-colored glowing border |
+| **Tinted Top Bar** | Title and action icons follow the Celestial theme colors, with wallpaper support kept |
+| **Animated About Header** | Code-drawn glowing sweep with a halo that breathes, a light that travels along the line, and twinkling dots; it stays a still image when effects are off |
+| **Theme-Aware** | Every effect is tinted from the active theme colors, so it works with light, dark, AMOLED, and custom themes |
+
+</details>
 
 <details close>
 <summary><b>🎨 Theme & Visual System</b></summary>
@@ -222,6 +243,11 @@ Replay pushes the mpv-android experience further with deep customization, therma
 | **Lyrics** | View local or embedded lyrics, fetch online lyrics from LRCLIB, and switch between available sources |
 | **Four Audio Visualizers** | Choose Blob, Galaxy, Cuboid, or Particle visualizations, with an optional audio-reactive wavy seekbar |
 | **Audio Playlists & Favorites** | Create local audio playlists, keep favorite tracks together, and start normal or shuffled playback |
+| **Audiobook Library** | Open the book icon in Music to import a file, selected files, or one book folder including disc subfolders; M4B is recognized |
+| **Book Metadata** | Covers, author, narrator, series and edition details from embedded tags or optional metadata.json/OPF sidecars, with editable book details |
+| **Audiobook Listening** | Book progress/resume through the normal audio player, shared playlist/speed controls, a whole-book seekbar with chapter markers, artwork, visualizers, configured seek gestures, pause rewind and sleep timers |
+| **Playback Bookmarks** | In video and audio player layouts, tap the bookmark icon to open chapters/bookmarks; long-press it to add a named point. Custom points persist and appear on the existing seekbar, with rename and delete actions |
+| **Audiobook Text** | Display supplied embedded lyrics or readable local LRC text in the existing lyrics view, without automatic online song matching |
 
 </details>
 
@@ -311,7 +337,7 @@ Replay pushes the mpv-android experience further with deep customization, therma
 | **Stats Page 6** | Live system monitor: FPS, dropped frames, codecs, network sparkline, battery |
 | **Video Compressor** | Built-in FFmpeg-based compression with presets |
 | **12 Video Filter Presets** | Vivid, Cinematic, Dramatic, Ghibli Style, Neon Pop, Deep Black, and more |
-| **Custom Skip Segments** | Intro/outro/recap/credits/preview detection from IntroDB, TIDB, AniSkip, Anime Skip |
+| **Custom Skip Segments** | Intro/outro/recap/credits/preview detection from IntroDB, TIDB v3, AniSkip v2, Anime Skip, and SkipDB (requires an IMDb ID). Hybrid uses one validated provider result; duration-aware caches keep release versions separate. |
 | **A-B Loop** | In-player looping with visual markers on seekbar |
 | **Frame Navigation** | Frame-by-frame forward/backward with frame number display |
 | **Sleep Timer** | Built-in with quick presets (15/30/45/60 min) |
@@ -321,47 +347,37 @@ Replay pushes the mpv-android experience further with deep customization, therma
 | **Safe Area / Window Offset** | Prevents camera notch overlap |
 | **Display Cutout Mode** | Full-bleed on notch devices |
 | **Remember Brightness** | Persists brightness level set during playback |
-| **M3U Playlist Support** | Parse and play local M3U playlists |
+| **Automatic Local Playlists** | Discover M3U/M3U8 IPTV playlists in readable internal storage, SD cards, and granted local folders; refresh changed sources without duplicate entries |
+| **Playlist Covers** | Show the first entry's IPTV logo or cached media thumbnail in list and grid layouts, with an icon fallback when artwork is unavailable |
 | **yt-dlp Integration** | High-performance streaming support for YouTube, Twitch, Bilibili, and more via a native Python bridge (SDK 29+ bypass) |
 | **yt-dlp Quality Controls** | Independent codec, resolution, FPS, HDR, container, and audio-bitrate preferences |
 | **Dynamic Refresh Rate** | Matches supported display refresh rates to the current video's frame rate for smoother motion |
 | **Secure Folder** | PIN-protected access with optional biometrics, media move/restore actions, and a hideable entry point |
 | **Screenshot Templates** | Filename placeholders for source name, playback position, and millisecond-accurate timestamps |
 
+Local playlist discovery runs when the Playlists page is first loaded and after media-index or storage-mount changes. Pull to refresh to rescan manually, or use **Playlist options > Add local playlist folder** to grant access to a folder. Android's restrictions on protected directories such as `Android/data` and `Android/obb` still apply; discovery cannot bypass them. HLS segment manifests are not imported as channel lists. Removing a discovered playlist does not delete its source file, and that source stays hidden until explicitly imported again. Remote video thumbnails respect the existing network-thumbnail setting.
+
 </details>
 
 ---
 
-## 🔋 Battery Optimization guide for Mpv
+## 🔋 Battery tips
 
-First Pro Tip Keep Mpv Conf empty if you are newbie
-
-- **Use `gpu` not `gpu-next`** — gpu-next is a Vulkan-based renderer that keeps the GPU awake for no reason when playing normal video. The classic `gpu` backend is lighter and uses the OpenGL driver stack, which on most Android devices has better power characteristics.
-- **Disable Vulkan entirely.** Vulkan is great for Video Playback but also Heavy.
-- **Use the `fast` mpv profile.** It's literally built into Replay use that Mpv Profiles and Set it to Default  or in _mpv.conf_ `profile=fast`
-- **Don't use shaders.** That Anime4K preset you using that's what's eating your battery. Shaders run on the GPU every single frame. If you're watching 24fps content and you have a shader pipeline running, congratulations — you're doing 24 unnecessary GPU compute passes per second for a Minute amount of visible benefit on a phone screen .
-- **Don't use AI-generated configs.** That means you, the person who copied a Reddit config with 200 lines of `scale=ewa_lanczossharp` and `dscale=mitchell` and `cscale=sinc` and a dozen `glsl-shaders` entries. Most  of You have no idea what any of those do. You just made your phone render video like it's preparing for a 4K cinema projection. On a 6-inch screen. Grow some Brains Its your android Phone not some Fuckin.. 4k Television
-
-**My POV:** mpv's default config with `profile=fast` and the `gpu` backend plays video with negligible battery impact — often **less** than OEM players because mpv doesn't have a billion proprietary DRM modules, analytics SDKs, and ad frameworks burning CPU in the background. The next time your battery drops more than 20-25% watching a 2-hour movie, don't blame mpv. Blame the 14 shaders you blindly copy-pasted.
-
-_Just a Pro tip if your battery consumption stays within 200 mAh and belwo 0.9W ( See Page 6 of Replay - video player More Settings -> Page6) useage than ur Mpv Conf are Proper for Video watching thats what i have experimented and telling rest all i don't know About in detail technicality's if anyone wanna tell me In depth guide then keep it to yourself i dont wanna listen_
+- Keep `mpv.conf` empty unless you know what each line does.
+- Prefer the `gpu` backend over `gpu-next`, and turn Vulkan off if battery matters more than the extra features.
+- Use the built-in `fast` profile (Mpv Profiles > Default, or `profile=fast` in `mpv.conf`).
+- Shaders such as Anime4K run on the GPU every frame, so leave them off for normal playback.
+- Watch the live stats page in the player (More Settings > Page 6) to check power draw while you tune.
 
 ---
 
 <div align="center">
-  <a href="https://github.com/utsavrajputt/Replay/releases">
+  <a href="https://github.com/Utsavrajputt/Replay/releases">
     <img src="https://img.shields.io/badge/Download-Stable_Release-blue?style=for-the-badge&logo=github" alt="Stable Release">
   </a>
-  <!-- <a href="https://utsavrajputt.github.io/replay/">
-    <img src="https://img.shields.io/badge/Download-Preview_Build-orange?style=for-the-badge&logo=github" alt="Preview Build">
-  </a> -->
 </div>
 
-<!-- <div align="center">
-  <i>Note: Previews may be unstable and are intended for testing purposes only.</i>
-</div> -->
-
-For help, reproducible bug reports, or feature suggestions, start with the [support guide](SUPPORT.md) and [existing issues](https://github.com/utsavrajputt/Replay/issues).
+For help, reproducible bug reports, or feature suggestions, start with the [support guide](SUPPORT.md) and [existing issues](https://github.com/Utsavrajputt/Replay/issues).
 
 ---
 
@@ -399,6 +415,24 @@ For help, reproducible bug reports, or feature suggestions, start with the [supp
 
 ---
 
+## Support
+
+If you enjoy Replay, you can help cover the cost of publishing it on the Play Store. Every contribution makes a difference.
+
+<div align="center">
+
+### UPI
+
+`utsavrajput@yesfam`
+
+<a href="upi://pay?pa=utsavrajput@yesfam&pn=Utsav%20Rajput&cu=INR">
+  <img src="fastlane/metadata/android/en-US/images/upiqr-code.svg" width="250" height="250" alt="UPI QR Code">
+</a>
+
+Scan with any UPI app (Google Pay, PhonePe, Paytm, BHIM)
+
+</div>
+
 ---
 
 ## Release Notes For Maintainers
@@ -407,6 +441,21 @@ To cut a signed GitHub release through Actions, configure these repository secre
 
 | Secret Name | Description |
 |---|---|
+| `SIGNING_KEYSTORE` | Base64-encoded keystore file (`.jks` or `.keystore`) |
+| `SIGNING_KEY_ALIAS` | Key alias inside the keystore |
+| `SIGNING_STORE_PASSWORD` | Password for the keystore |
+| `KEY_PASSWORD` | Password for the signing key |
+
+Bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section at the top of `CHANGELOG.md`, then tag and push:
+
+```bash
+git tag -a v2.7.2 -m "Release version 2.7.2"
+git push origin v2.7.2
+```
+
+Release APKs are published as `Replay-<variant>-<tag>.apk`, and the in-app updater only picks assets with the `Replay-` prefix. The preview workflow runs every 30 minutes and publishes preview builds to GitHub Pages.
+
+---|---|
 | `SIGNING_KEYSTORE` | Base64-encoded keystore file (`.jks` or `.keystore`) |
 | `SIGNING_KEY_ALIAS` | Key alias inside the keystore |
 | `SIGNING_STORE_PASSWORD` | Password for the keystore |
@@ -432,7 +481,7 @@ git push origin v1.3.1-preview.1
 
 ### Built with open source
 
-Thank you to the player projects, music apps, libraries, and individual contributors whose work makes projects like Replay possible.
+Replay is a fork of [mpvRx](https://github.com/Riteshp2001/mpvRx) by Riteshp2001. Thank you to the player projects, music apps, libraries, and individual contributors whose work makes projects like Replay possible.
 
 | Explore the credits | Includes |
 |---|---|
@@ -442,23 +491,13 @@ Thank you to the player projects, music apps, libraries, and individual contribu
 
 > Special thanks to [SunnyVishnu3](https://github.com/SunnyVishnu3) for the `yt-dlp` native integration and SDK 29+ bypass logic.
 
-[Full acknowledgments & citation information](CITATION.md) · [All contributors](https://github.com/utsavrajputt/Replay/graphs/contributors)
-
-### Contributors
-
-Thank you to everyone who helps build and improve Replay.
-
-<div align="center">
-  <a href="https://github.com/utsavrajputt/Replay/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=utsavrajputt/Replay" alt="Replay contributors" width="800" />
-  </a>
-</div>
+[Full acknowledgments & citation information](CITATION.md) · [mpvRx contributors](https://github.com/Riteshp2001/mpvRx/graphs/contributors)
 
 ---
 
 ## Community
 
-[Get help](SUPPORT.md) · [Report a bug](https://github.com/utsavrajputt/Replay/issues/new?template=bug_report.md) · [Suggest a feature](https://github.com/utsavrajputt/Replay/issues/new?template=feature_request.md) · [Code of conduct](CODE_OF_CONDUCT.md)
+[Get help](SUPPORT.md) · [Report a bug](https://github.com/Utsavrajputt/Replay/issues/new?template=bug_report.md) · [Suggest a feature](https://github.com/Utsavrajputt/Replay/issues/new?template=feature_request.md) · [Code of conduct](CODE_OF_CONDUCT.md)
 
 ---
 
@@ -467,13 +506,3 @@ Thank you to everyone who helps build and improve Replay.
 Distributed under **GNU Affero General Public License v3.0 (AGPL-3.0-or-later)**. See `LICENSE` for more information.
 
 ---
-
-## Star History
-
-<a href="https://www.star-history.com/#utsavrajputt/Replay&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=utsavrajputt/Replay&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=utsavrajputt/Replay&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=utsavrajputt/Replay&type=date&legend=top-left" />
- </picture>
-</a>
