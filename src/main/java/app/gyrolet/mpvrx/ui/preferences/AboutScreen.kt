@@ -1,0 +1,1322 @@
+/*
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ */
+
+package app.gyrolet.mpvrx.ui.preferences
+
+import android.app.ActivityManager
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.widget.ImageView
+import android.widget.Toast
+import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import app.gyrolet.mpvrx.ui.celestial.CelestialHeaderBackground
+import app.gyrolet.mpvrx.ui.components.IconSwitch
+import app.gyrolet.mpvrx.ui.components.themedSegmentedButtonColors
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
+import app.gyrolet.mpvrx.BuildConfig
+import app.gyrolet.mpvrx.R
+import app.gyrolet.mpvrx.domain.update.AppUpdateChannel
+import app.gyrolet.mpvrx.presentation.Screen
+import app.gyrolet.mpvrx.presentation.crash.CrashActivity.Companion.collectDeviceInfo
+import app.gyrolet.mpvrx.ui.icons.Icon
+import app.gyrolet.mpvrx.ui.icons.Icons
+import app.gyrolet.mpvrx.ui.utils.LocalBackStack
+import app.gyrolet.mpvrx.ui.utils.navigateTo
+import app.gyrolet.mpvrx.ui.utils.LocalShowSettingsBackArrow
+import app.gyrolet.mpvrx.ui.utils.popSafely
+import app.gyrolet.mpvrx.utils.clipboard.SafeClipboard
+import app.gyrolet.mpvrx.ui.update.UpdateViewModel
+import java.util.Locale
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.serialization.Serializable
+
+@Serializable
+object AboutScreen : Screen {
+  @Suppress("DEPRECATION")
+  @OptIn(ExperimentalMaterial3Api::class)
+  @Composable
+  override fun Content() {
+    val context = LocalContext.current
+    val backstack = LocalBackStack.current
+    val packageManager: PackageManager = context.packageManager
+    val packageInfo = packageManager.getPackageInfo(context.packageName, 0)
+    val versionName =
+      packageInfo.versionName
+        ?.let { value -> if (BuildConfig.IS_PREVIEW_BUILD) value else value.substringBefore('-') }
+        ?: BuildConfig.VERSION_NAME
+    val buildType = BuildConfig.BUILD_TYPE
+    val githubRepoUrl = stringResource(R.string.github_repo_url)
+    val settingsScrollState = rememberScrollState()
+    val settingsHighlight =
+      rememberSettingsSearchHighlight(AboutScreen, settingsScrollState, MaterialTheme.colorScheme.primary)
+
+    // Conditionally initialize update feature based on build config
+    val updateViewModel: UpdateViewModel? =
+      if (BuildConfig.ENABLE_UPDATE_FEATURE) {
+        viewModel(context as androidx.activity.ComponentActivity)
+      } else {
+        null
+      }
+    val updateState by (
+      updateViewModel?.updateState ?: MutableStateFlow(
+        UpdateViewModel.UpdateState.Idle,
+      )
+    ).collectAsState()
+
+    // Show toast when no update is available after manual check (only if update feature is enabled)
+    LaunchedEffect(updateState) {
+      if (BuildConfig.ENABLE_UPDATE_FEATURE &&
+        updateViewModel != null &&
+        updateState is UpdateViewModel.UpdateState.NoUpdate
+      ) {
+        Toast
+          .makeText(
+            context,
+            context.getString(app.gyrolet.mpvrx.R.string.ui_already_using_latest_version),
+            Toast.LENGTH_SHORT,
+          ).show()
+        updateViewModel.dismissNoUpdate()
+      }
+    }
+
+    Scaffold(
+      topBar = {
+        TopAppBar(
+          title = {
+            Text(
+              modifier = Modifier.settingsSearchTarget(R.string.pref_about_title),
+              text = stringResource(id = R.string.pref_about_title),
+              style = MaterialTheme.typography.headlineSmall,
+              fontWeight = FontWeight.ExtraBold,
+              color = MaterialTheme.colorScheme.primary,
+            )
+          },
+          navigationIcon = {
+            if (LocalShowSettingsBackArrow.current) {
+              IconButton(onClick = { backstack.popSafely() }) {
+                Icon(
+                  imageVector = Icons.RoundedFilled.ArrowBack,
+                  contentDescription = null,
+                  tint = MaterialTheme.colorScheme.secondary,
+                )
+              }
+            }
+          },
+        )
+      },
+    ) { paddingValues ->
+      val cs = MaterialTheme.colorScheme
+
+      Column(
+        modifier =
+          Modifier
+            .padding(paddingValues)
+            .then(settingsHighlight)
+            .verticalScroll(settingsScrollState),
+      ) {
+        Card(
+          modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+          shape = MaterialTheme.shapes.extraLargeIncreased,
+          colors = CardDefaults.cardColors(containerColor = cs.surfaceContainerLow),
+          elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        ) {
+          Box {
+            CelestialHeaderBackground(Modifier.matchParentSize())
+
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)) {
+              Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                  modifier = Modifier.size(80.dp),
+                  contentAlignment = Alignment.Center,
+                ) {
+                  Box(
+                    modifier =
+                      Modifier
+                        .size(80.dp)
+                        .background(
+                          Brush.radialGradient(
+                            colors = listOf(cs.primary.copy(alpha = 0.45f), Color.Transparent),
+                          ),
+                          CircleShape,
+                        ),
+                  )
+                  Box(
+                    modifier = Modifier.requiredSize(88.dp),
+                  ) {
+                    AndroidView(
+                      modifier = Modifier.matchParentSize(),
+                      factory = { ctx ->
+                        ImageView(ctx).apply {
+                          setImageResource(R.mipmap.ic_launcher_foreground)
+                        }
+                      },
+                    )
+                  }
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                  Text(
+                    text =
+                      androidx.compose.ui.res
+                        .stringResource(app.gyrolet.mpvrx.R.string.app_name),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                  )
+                  Spacer(Modifier.height(4.dp))
+                  Text(
+                    text = "v$versionName $buildType",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.7f),
+                  )
+                  Spacer(Modifier.height(8.dp))
+                  Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = cs.primary.copy(alpha = 0.16f),
+                  ) {
+                    Text(
+                      text =
+                        androidx.compose.ui.res
+                          .stringResource(app.gyrolet.mpvrx.R.string.ui_by_ritesh_pandit),
+                      modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                      style = MaterialTheme.typography.titleSmall,
+                      fontWeight = FontWeight.SemiBold,
+                      color = cs.onPrimaryContainer,
+                    )
+                  }
+                }
+              }
+
+              Spacer(modifier = Modifier.height(20.dp))
+
+              Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+              ) {
+                val btnContainer = cs.surfaceContainerHigh.copy(alpha = 0.6f)
+                val btnContent = cs.primary
+                val btnModifier =
+                  Modifier
+                    .weight(1f)
+                    .height(56.dp)
+                    .border(1.dp, cs.primary.copy(alpha = 0.35f), RoundedCornerShape(16.dp))
+                Button(
+                  onClick = { backstack.navigateTo(LibrariesScreen) },
+                  modifier = btnModifier,
+                  shape = RoundedCornerShape(16.dp),
+                  colors =
+                    ButtonDefaults.buttonColors(
+                      containerColor = btnContainer,
+                      contentColor = btnContent,
+                    ),
+                ) {
+                  Icon(
+                    painter = painterResource(id = R.drawable.ic_library_cube),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                  )
+                  Spacer(modifier = Modifier.width(8.dp))
+                  Text(
+                    text = stringResource(id = R.string.pref_about_oss_libraries),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                  )
+                }
+
+                Button(
+                  onClick = {
+                    context.startActivity(
+                      Intent(
+                        Intent.ACTION_VIEW,
+                        githubRepoUrl.toUri(),
+                      ),
+                    )
+                  },
+                  modifier = btnModifier,
+                  shape = RoundedCornerShape(16.dp),
+                  colors =
+                    ButtonDefaults.buttonColors(
+                      containerColor = btnContainer,
+                      contentColor = btnContent,
+                    ),
+                ) {
+                  Icon(
+                    painter = painterResource(id = R.drawable.ic_github),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                  )
+                  Spacer(modifier = Modifier.width(8.dp))
+                  Text(
+                    text =
+                      androidx.compose.ui.res
+                        .stringResource(app.gyrolet.mpvrx.R.string.ui_github),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                  )
+                }
+              }
+
+              Spacer(modifier = Modifier.height(20.dp))
+
+              val deviceInfoModifier =
+                Modifier
+                  .fillMaxWidth()
+                  .clickable {
+                    SafeClipboard.copyPlainText(context, "mpvrx_device_info", collectDeviceInfo())
+                  }.background(
+                    cs.surfaceContainerHigh.copy(alpha = 0.5f),
+                    RoundedCornerShape(16.dp),
+                  ).border(
+                    1.dp,
+                    cs.outline.copy(alpha = 0.3f),
+                    RoundedCornerShape(16.dp),
+                  ).padding(vertical = 12.dp, horizontal = 16.dp)
+              Column(modifier = deviceInfoModifier) {
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  modifier = Modifier.padding(bottom = 8.dp),
+                ) {
+                  Surface(
+                    shape = CircleShape,
+                    color = cs.primary,
+                  ) {
+                    Box(
+                      modifier = Modifier.size(28.dp),
+                      contentAlignment = Alignment.Center,
+                    ) {
+                      Icon(
+                        imageVector = Icons.RoundedFilled.Info,
+                        contentDescription =
+                          androidx.compose.ui.res.stringResource(
+                            app.gyrolet.mpvrx.R.string.ui_device_info,
+                          ),
+                        modifier = Modifier.size(16.dp),
+                        tint = Color.White,
+                      )
+                    }
+                  }
+                  Spacer(modifier = Modifier.width(8.dp))
+                  Text(
+                    text =
+                      androidx.compose.ui.res
+                        .stringResource(app.gyrolet.mpvrx.R.string.ui_device_info),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = cs.onPrimaryContainer,
+                  )
+                }
+                val deviceInfoLines =
+                  remember { collectDeviceInfo().lines().filter { it.isNotBlank() } }
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                  deviceInfoLines.forEach { line ->
+                    val parts = line.split(":", limit = 2)
+                    val label = parts.getOrNull(0)?.trim().orEmpty()
+                    val value = parts.getOrNull(1)?.trim().orEmpty()
+                    Row(
+                      modifier = Modifier.fillMaxWidth(),
+                      horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                      Text(
+                        text = label,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = cs.onSurfaceVariant,
+                      )
+                      Text(
+                        text = value,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                        color = cs.onSurface,
+                      )
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        // Support / Donation Section
+        PreferenceSectionHeader(title = stringResource(R.string.pref_section_support))
+        PreferenceCard {
+          Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+              Surface(
+                shape = CircleShape,
+                color = cs.primary.copy(alpha = 0.18f),
+              ) {
+                Box(
+                  modifier = Modifier.size(36.dp),
+                  contentAlignment = Alignment.Center,
+                ) {
+                  Icon(
+                    imageVector = Icons.RoundedFilled.Coffee,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = cs.primary,
+                  )
+                }
+              }
+              Spacer(Modifier.width(10.dp))
+              Text(
+                text =
+                  androidx.compose.ui.res
+                    .stringResource(app.gyrolet.mpvrx.R.string.ui_buy_me_a_coffee),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = cs.onSurface,
+              )
+            }
+            Spacer(Modifier.height(10.dp))
+            Text(
+              text =
+                androidx.compose.ui.res.stringResource(
+                  app.gyrolet.mpvrx.R.string.ui_if_you_enjoy_mpvrx_consider_supporting_its_development_every_bit,
+                ),
+              style = MaterialTheme.typography.bodyMedium,
+              color = cs.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(14.dp))
+            Surface(
+              shape = RoundedCornerShape(12.dp),
+              color = cs.surfaceContainerHigh.copy(alpha = 0.6f),
+              modifier =
+                Modifier
+                  .fillMaxWidth()
+                  .border(1.dp, cs.outline.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
+            ) {
+              Row(
+                modifier =
+                  Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                      SafeClipboard.copyPlainText(
+                        context = context,
+                        label = "mpvrx_upi_id",
+                        text = "utsavrajput@yesfam",
+                        showToast = false,
+                      )
+                      Toast
+                        .makeText(
+                          context,
+                          context.getString(app.gyrolet.mpvrx.R.string.ui_upi_id_copied),
+                          Toast.LENGTH_SHORT,
+                        ).show()
+                    }.padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+              ) {
+                Column(modifier = Modifier.weight(1f)) {
+                  Text(
+                    text =
+                      androidx.compose.ui.res
+                        .stringResource(app.gyrolet.mpvrx.R.string.ui_upi_id),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = cs.outline,
+                  )
+                  Spacer(Modifier.height(2.dp))
+                  Text(
+                    text =
+                      androidx.compose.ui.res.stringResource(
+                        app.gyrolet.mpvrx.R.string.ui_panditritesh2001_okhdfcbank,
+                      ),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Medium,
+                    color = cs.onSurface,
+                  )
+                }
+                Icon(
+                  imageVector = Icons.RoundedFilled.ContentCopy,
+                  contentDescription =
+                    androidx.compose.ui.res.stringResource(
+                      app.gyrolet.mpvrx.R.string.ui_copy_upi_id,
+                    ),
+                  modifier = Modifier.size(20.dp),
+                  tint = cs.primary,
+                )
+              }
+            }
+            Spacer(Modifier.height(12.dp))
+            Button(
+              onClick = {
+                try {
+                  val upiIntent =
+                    Intent(
+                      Intent.ACTION_VIEW,
+                      "upi://pay?pa=utsavrajput@yesfam&pn=Utsav%20Rajput&cu=INR".toUri(),
+                    )
+                  context.startActivity(upiIntent)
+                } catch (_: Exception) {
+                  Toast
+                    .makeText(
+                      context,
+                      context.getString(app.gyrolet.mpvrx.R.string.ui_no_upi_app_found),
+                      Toast.LENGTH_SHORT,
+                    ).show()
+                }
+              },
+              modifier = Modifier.fillMaxWidth().height(50.dp),
+              shape = RoundedCornerShape(12.dp),
+              colors =
+                ButtonDefaults.buttonColors(
+                  containerColor = cs.primary,
+                  contentColor = cs.onPrimary,
+                ),
+              elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+            ) {
+              Icon(Icons.RoundedFilled.Favorite, null, modifier = Modifier.size(18.dp))
+              Spacer(Modifier.width(8.dp))
+              Text(
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.ui_send_love),
+                fontWeight = FontWeight.SemiBold,
+              )
+            }
+          }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        // Updates Section (only show if update feature is enabled)
+        if (BuildConfig.ENABLE_UPDATE_FEATURE && updateViewModel != null) {
+          PreferenceSectionHeader(title = stringResource(R.string.pref_section_updates))
+          PreferenceCard {
+            val isAutoUpdateEnabled by updateViewModel.isAutoUpdateEnabled.collectAsState()
+            val updateChannel by updateViewModel.updateChannel.collectAsState()
+            Column {
+              Row(
+                modifier =
+                  Modifier
+                    .fillMaxWidth()
+                    .clickable { updateViewModel.toggleAutoUpdate(!isAutoUpdateEnabled) }
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+              ) {
+                Column(
+                  modifier = Modifier.weight(1f),
+                ) {
+                  Text(
+                    text =
+                      androidx.compose.ui.res.stringResource(
+                        app.gyrolet.mpvrx.R.string.ui_auto_check_for_updates,
+                      ),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = cs.onSurface,
+                  )
+                  Spacer(modifier = Modifier.height(2.dp))
+                  Text(
+                    text =
+                      androidx.compose.ui.res.stringResource(
+                        app.gyrolet.mpvrx.R.string.ui_check_on_startup,
+                      ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = cs.outline,
+                  )
+                }
+                IconSwitch(
+                  checked = isAutoUpdateEnabled,
+                  onCheckedChange = { updateViewModel.toggleAutoUpdate(it) },
+                )
+              }
+
+              PreferenceDivider()
+
+              Column(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+              ) {
+                Text(
+                  text = stringResource(R.string.ui_update_channel),
+                  style = MaterialTheme.typography.titleMedium,
+                  fontWeight = FontWeight.SemiBold,
+                  color = cs.onSurface,
+                )
+                Text(
+                  text = stringResource(R.string.ui_preview_builds_summary),
+                  style = MaterialTheme.typography.bodyMedium,
+                  color = cs.outline,
+                )
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                  AppUpdateChannel.entries.forEachIndexed { index, channel ->
+                    SegmentedButton(
+                      selected = updateChannel == channel,
+                      onClick = { updateViewModel.setUpdateChannel(channel) },
+                      shape = SegmentedButtonDefaults.itemShape(index, AppUpdateChannel.entries.size),
+                      colors = themedSegmentedButtonColors(),
+                      label = {
+                        Text(
+                          stringResource(
+                            when (channel) {
+                              AppUpdateChannel.STABLE -> R.string.ui_stable_releases
+                              AppUpdateChannel.PREVIEW -> R.string.ui_preview_builds
+                            },
+                          ),
+                        )
+                      },
+                    )
+                  }
+                }
+              }
+
+              PreferenceDivider()
+
+              Column(modifier = Modifier.padding(16.dp)) {
+                Button(
+                  onClick = { updateViewModel.checkForUpdate(manual = true) },
+                  modifier = Modifier.fillMaxWidth().height(50.dp),
+                  shape = RoundedCornerShape(12.dp),
+                  colors =
+                    ButtonDefaults.buttonColors(
+                      containerColor = cs.secondaryContainer,
+                      contentColor = cs.onSecondaryContainer,
+                    ),
+                  elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+                ) {
+                  Icon(Icons.RoundedFilled.Update, null, modifier = Modifier.size(18.dp))
+                  Spacer(Modifier.width(8.dp))
+                  Text(
+                    androidx.compose.ui.res.stringResource(
+                      app.gyrolet.mpvrx.R.string.ui_check_for_updates_now,
+                    ),
+                    fontWeight = FontWeight.SemiBold,
+                  )
+                }
+              }
+            }
+          }
+
+          Spacer(Modifier.height(8.dp))
+        }
+
+        // System Stats Section
+        PreferenceSectionHeader(title = stringResource(R.string.pref_section_system))
+
+        val systemStats = remember { collectSystemStats(context) }
+        PreferenceCard {
+          systemStats.forEachIndexed { index, (label, value) ->
+            SystemStatRow(label = label, value = value)
+            if (index < systemStats.lastIndex) PreferenceDivider()
+          }
+        }
+
+        Spacer(Modifier.height(12.dp))
+      }
+    }
+  }
+}
+
+@Composable
+private fun SystemStatRow(
+  label: String,
+  value: String,
+) {
+  Row(
+    modifier =
+      Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp, vertical = 12.dp),
+    horizontalArrangement = Arrangement.SpaceBetween,
+    verticalAlignment = Alignment.CenterVertically,
+  ) {
+    Text(
+      text = label,
+      style = MaterialTheme.typography.bodyMedium,
+      fontWeight = FontWeight.SemiBold,
+      color = MaterialTheme.colorScheme.onSurfaceVariant,
+      modifier = Modifier.weight(1f).padding(end = 8.dp),
+    )
+    Text(
+      text = value,
+      style = MaterialTheme.typography.bodyMedium,
+      fontWeight = FontWeight.Medium,
+      color = MaterialTheme.colorScheme.onSurface,
+      modifier = Modifier.weight(1.4f),
+    )
+  }
+}
+
+private fun collectSystemStats(context: Context): List<Pair<String, String>> {
+  val pm = context.packageManager
+  val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+
+  // RAM
+  val memInfo = ActivityManager.MemoryInfo()
+  am.getMemoryInfo(memInfo)
+  val totalRamMb = memInfo.totalMem / (1024 * 1024)
+  val ramStr = if (totalRamMb >= 1024) "${"%.1f".format(totalRamMb / 1024f)} GB" else "$totalRamMb MB"
+
+  // GLES version
+  val configInfo = am.deviceConfigurationInfo
+  val glesVersion =
+    if (configInfo.reqGlEsVersion != android.content.pm.ConfigurationInfo.GL_ES_VERSION_UNDEFINED) {
+      configInfo.glEsVersion
+    } else {
+      "Unknown"
+    }
+
+  // Vulkan
+  val vulkanStr =
+    when {
+      pm.hasSystemFeature(PackageManager.FEATURE_VULKAN_HARDWARE_LEVEL, 1) -> {
+        // Try to get Vulkan version from system features
+        val features = pm.systemAvailableFeatures
+        val vulkanVersionFeature =
+          features.firstOrNull {
+            it.name?.startsWith("android.hardware.vulkan.version") == true
+          }
+        if (vulkanVersionFeature != null && Build.VERSION.SDK_INT >= 26) {
+          val ver = vulkanVersionFeature.version
+          val major = (ver shr 22) and 0x3FF
+          val minor = (ver shr 12) and 0x3FF
+          "Vulkan $major.$minor (Level 1)"
+        } else {
+          "Vulkan 1.1+ (Level 1)"
+        }
+      }
+      pm.hasSystemFeature(PackageManager.FEATURE_VULKAN_HARDWARE_LEVEL, 0) -> "Vulkan 1.0 (Level 0)"
+      pm.hasSystemFeature("android.hardware.vulkan.compute") -> "Vulkan (compute)"
+      else -> "Not supported"
+    }
+
+  // CPU ABIs
+  val abis = Build.SUPPORTED_ABIS.take(2).joinToString(", ")
+
+  // CPU cores
+  val cores = Runtime.getRuntime().availableProcessors()
+
+  return listOf(
+    "Manufacturer" to Build.MANUFACTURER.replaceFirstChar { it.uppercase() },
+    "Device" to "${Build.MODEL} (${Build.DEVICE})",
+    "Android" to "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})",
+    "CPU ABI" to abis,
+    "CPU Cores" to "$cores cores",
+    "RAM" to ramStr,
+    "OpenGL ES" to glesVersion,
+    "mpv Renderer Build" to
+      if (BuildConfig.MPV_SUPPORTS_VULKAN) {
+        "OpenGL + Vulkan"
+      } else {
+        "OpenGL only (non-Vulkan)"
+      },
+    "Vulkan" to vulkanStr,
+    "GPU Renderer" to (Build.HARDWARE.ifBlank { "Unknown" }),
+    "Board" to Build.BOARD,
+    "Kernel" to System.getProperty("os.version", "Unknown"),
+  )
+}
+
+@Suppress("DEPRECATION")
+@Serializable
+object LibrariesScreen : Screen {
+  @OptIn(ExperimentalMaterial3Api::class)
+  @Composable
+  override fun Content() {
+    val context = LocalContext.current
+    val backstack = LocalBackStack.current
+    Scaffold(
+      topBar = {
+        TopAppBar(
+          title = {
+            Text(
+              text = stringResource(id = R.string.pref_about_oss_libraries),
+              style = MaterialTheme.typography.headlineSmall,
+              fontWeight = FontWeight.ExtraBold,
+              color = MaterialTheme.colorScheme.primary,
+            )
+          },
+          navigationIcon = {
+            IconButton(onClick = { backstack.popSafely() }) {
+              Icon(
+                imageVector = Icons.RoundedFilled.ArrowBack,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+              )
+            }
+          },
+        )
+      },
+    ) { paddingValues ->
+      LazyColumn(
+        modifier =
+          Modifier
+            .fillMaxSize()
+            .padding(paddingValues),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+      ) {
+        item(key = "libraries-introduction") {
+          Text(
+            text =
+              androidx.compose.ui.res.stringResource(
+                app.gyrolet.mpvrx.R.string.ui_core_open_source_dependencies_used_by_mpvrx,
+              ),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
+
+        items(
+          items = OPEN_SOURCE_LIBRARIES,
+          key = OpenSourceLibrary::artifact,
+        ) { library ->
+          Card(
+            modifier =
+              Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(18.dp))
+                .clickable {
+                  context.startActivity(
+                    Intent(Intent.ACTION_VIEW, library.url.toUri()),
+                  )
+                },
+            colors =
+              CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+              ),
+            shape = RoundedCornerShape(18.dp),
+          ) {
+            Column(
+              modifier = Modifier.padding(16.dp),
+              verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+              Text(
+                text = library.name,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+              )
+              Text(
+                text = library.artifact,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+              )
+              Text(
+                text = stringResource(library.descriptionRes),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+              )
+              Text(
+                text = library.license,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.secondary,
+              )
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+private data class OpenSourceLibrary(
+  val name: String,
+  val artifact: String,
+  @StringRes val descriptionRes: Int,
+  val license: String,
+  val url: String,
+)
+
+private val OPEN_SOURCE_LIBRARIES =
+  listOf(
+    OpenSourceLibrary(
+      name = "Jetpack Compose",
+      artifact = "androidx.compose",
+      descriptionRes = R.string.oss_jetpack_compose_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/compose",
+    ),
+    OpenSourceLibrary(
+      name = "AndroidX Activity",
+      artifact = "androidx.activity:activity-compose",
+      descriptionRes = R.string.oss_androidx_activity_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/activity",
+    ),
+    OpenSourceLibrary(
+      name = "Material 3",
+      artifact = "androidx.compose.material3:material3",
+      descriptionRes = R.string.oss_material_3_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/compose-material3",
+    ),
+    OpenSourceLibrary(
+      name = "CrashX",
+      artifact = "io.github.tutorialsandroid:crashx",
+      descriptionRes = R.string.oss_crashx_description,
+      license = "Apache-2.0",
+      url = "https://github.com/TutorialsAndroid/crashx",
+    ),
+    OpenSourceLibrary(
+      name = "Kmp-Vibrate",
+      artifact = "io.github.jmseb3:vibrate",
+      descriptionRes = R.string.oss_kmp_vibrate_description,
+      license = "Apache-2.0",
+      url = "https://github.com/jmseb3/Kmp-Vibrate",
+    ),
+    OpenSourceLibrary(
+      name = "Navigation 3",
+      artifact = "androidx.navigation3:navigation3-runtime",
+      descriptionRes = R.string.oss_navigation_3_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/navigation3",
+    ),
+    OpenSourceLibrary(
+      name = "Koin",
+      artifact = "io.insert-koin",
+      descriptionRes = R.string.oss_koin_description,
+      license = "Apache-2.0",
+      url = "https://insert-koin.io/",
+    ),
+    OpenSourceLibrary(
+      name = "Room",
+      artifact = "androidx.room",
+      descriptionRes = R.string.oss_room_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/room",
+    ),
+    OpenSourceLibrary(
+      name = "OkHttp",
+      artifact = "com.squareup.okhttp3:okhttp",
+      descriptionRes = R.string.oss_okhttp_description,
+      license = "Apache-2.0",
+      url = "https://square.github.io/okhttp/",
+    ),
+    OpenSourceLibrary(
+      name = "kotlinx.serialization",
+      artifact = "org.jetbrains.kotlinx:kotlinx-serialization-json",
+      descriptionRes = R.string.oss_kotlinx_serialization_description,
+      license = "Apache-2.0",
+      url = "https://github.com/Kotlin/kotlinx.serialization",
+    ),
+    OpenSourceLibrary(
+      name = "Accompanist Permissions",
+      artifact = "com.google.accompanist:accompanist-permissions",
+      descriptionRes = R.string.oss_accompanist_permissions_description,
+      license = "Apache-2.0",
+      url = "https://github.com/google/accompanist",
+    ),
+    OpenSourceLibrary(
+      name = "MediaInfo Android",
+      artifact = "com.github.marlboro-advance:mediainfoAndroid",
+      descriptionRes = R.string.oss_mediainfo_android_description,
+      license = "BSD-2-Clause",
+      url = "https://github.com/marlboro-advance/mediainfoAndroid",
+    ),
+    OpenSourceLibrary(
+      name = "SMBJ",
+      artifact = "com.hierynomus:smbj",
+      descriptionRes = R.string.oss_smbj_description,
+      license = "Apache-2.0",
+      url = "https://github.com/hierynomus/smbj",
+    ),
+    OpenSourceLibrary(
+      name = "Commons Net",
+      artifact = "commons-net:commons-net",
+      descriptionRes = R.string.oss_commons_net_description,
+      license = "Apache-2.0",
+      url = "https://commons.apache.org/proper/commons-net/",
+    ),
+    OpenSourceLibrary(
+      name = "Sardine Android",
+      artifact = "com.github.thegrizzlylabs:sardine-android",
+      descriptionRes = R.string.oss_sardine_android_description,
+      license = "Apache-2.0",
+      url = "https://github.com/thegrizzlylabs/sardine-android",
+    ),
+    OpenSourceLibrary(
+      name = "NanoHTTPD",
+      artifact = "org.nanohttpd:nanohttpd",
+      descriptionRes = R.string.oss_nanohttpd_description,
+      license = "BSD-3-Clause",
+      url = "https://github.com/NanoHttpd/nanohttpd",
+    ),
+    OpenSourceLibrary(
+      name = "FSAF",
+      artifact = "com.github.K1rakishou:Fuck-Storage-Access-Framework",
+      descriptionRes = R.string.oss_fsaf_description,
+      license = "Apache-2.0",
+      url = "https://github.com/K1rakishou/Fuck-Storage-Access-Framework",
+    ),
+    OpenSourceLibrary(
+      name = "TrueType Parser",
+      artifact = "io.github.yubyf:truetypeparser-light",
+      descriptionRes = R.string.oss_truetype_parser_description,
+      license = "Apache-2.0",
+      url = "https://github.com/yubyf/truetypeparser",
+    ),
+    OpenSourceLibrary(
+      name = "Compose Preference",
+      artifact = "me.zhanghai.compose.preference:preference",
+      descriptionRes = R.string.oss_compose_preference_description,
+      license = "Apache-2.0",
+      url = "https://github.com/zhanghai/ComposePreference",
+    ),
+    OpenSourceLibrary(
+      name = "LazyColumnScrollbar",
+      artifact = "com.github.nanihadesuka:LazyColumnScrollbar",
+      descriptionRes = R.string.oss_lazycolumnscrollbar_description,
+      license = "Apache-2.0",
+      url = "https://github.com/Nanihadesuka/LazyColumnScrollbar",
+    ),
+    OpenSourceLibrary(
+      name = "Reorderable",
+      artifact = "sh.calvin.reorderable:reorderable",
+      descriptionRes = R.string.oss_reorderable_description,
+      license = "Apache-2.0",
+      url = "https://github.com/Calvin-LL/Reorderable",
+    ),
+    OpenSourceLibrary(
+      name = "Seeker",
+      artifact = "com.github.abdallahmehiz:seeker",
+      descriptionRes = R.string.oss_seeker_description,
+      license = "Apache-2.0",
+      url = "https://github.com/abdallahmehiz/seeker",
+    ),
+    OpenSourceLibrary(
+      name = "Sora Editor",
+      artifact = "io.github.rosemoe:editor",
+      descriptionRes = R.string.oss_sora_editor_description,
+      license = "LGPL-2.1",
+      url = "https://github.com/Rosemoe/sora-editor",
+    ),
+    OpenSourceLibrary(
+      name = "Media3",
+      artifact = "androidx.media3",
+      descriptionRes = R.string.oss_media3_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/media3",
+    ),
+    OpenSourceLibrary(
+      name = "Jsoup",
+      artifact = "org.jsoup:jsoup",
+      descriptionRes = R.string.oss_jsoup_description,
+      license = "MIT",
+      url = "https://jsoup.org/",
+    ),
+    OpenSourceLibrary(
+      name = "AndroidX Core KTX",
+      artifact = "androidx.core:core-ktx",
+      descriptionRes = R.string.oss_androidx_core_ktx_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/core",
+    ),
+    OpenSourceLibrary(
+      name = "AndroidX Appcompat",
+      artifact = "androidx.appcompat:appcompat",
+      descriptionRes = R.string.oss_androidx_appcompat_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/appcompat",
+    ),
+    OpenSourceLibrary(
+      name = "AndroidX ConstraintLayout",
+      artifact = "androidx.constraintlayout:constraintlayout",
+      descriptionRes = R.string.oss_androidx_constraintlayout_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/constraintlayout",
+    ),
+    OpenSourceLibrary(
+      name = "AndroidX DocumentFile",
+      artifact = "androidx.documentfile:documentfile",
+      descriptionRes = R.string.oss_androidx_documentfile_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/documentfile",
+    ),
+    OpenSourceLibrary(
+      name = "AndroidX Media",
+      artifact = "androidx.media:media",
+      descriptionRes = R.string.oss_androidx_media_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/media",
+    ),
+    OpenSourceLibrary(
+      name = "AndroidX Palette",
+      artifact = "androidx.palette:palette-ktx",
+      descriptionRes = R.string.oss_androidx_palette_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/palette",
+    ),
+    OpenSourceLibrary(
+      name = "AndroidX Preference",
+      artifact = "androidx.preference:preference-ktx",
+      descriptionRes = R.string.oss_androidx_preference_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/preference",
+    ),
+    OpenSourceLibrary(
+      name = "AndroidX Profile Installer",
+      artifact = "androidx.profileinstaller:profileinstaller",
+      descriptionRes = R.string.oss_androidx_profile_installer_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/profileinstaller",
+    ),
+    OpenSourceLibrary(
+      name = "Google Material",
+      artifact = "com.google.android.material:material",
+      descriptionRes = R.string.oss_google_material_description,
+      license = "Apache-2.0",
+      url = "https://material.io/develop/android",
+    ),
+    OpenSourceLibrary(
+      name = "Google Cast",
+      artifact = "com.google.android.gms:play-services-cast-framework",
+      descriptionRes = R.string.oss_google_cast_description,
+      license = "Apache-2.0",
+      url = "https://developers.google.com/cast",
+    ),
+    OpenSourceLibrary(
+      name = "Material Symbols",
+      artifact = "com.composables:icons-material-symbols",
+      descriptionRes = R.string.oss_material_symbols_description,
+      license = "Apache-2.0",
+      url = "https://github.com/compose-icons/compose-icons",
+    ),
+    OpenSourceLibrary(
+      name = "Kotlinx Immutable Collections",
+      artifact = "org.jetbrains.kotlinx:kotlinx-collections-immutable",
+      descriptionRes = R.string.oss_kotlinx_immutable_collections_description,
+      license = "Apache-2.0",
+      url = "https://github.com/Kotlin/kotlinx.collections.immutable",
+    ),
+    OpenSourceLibrary(
+      name = "Curl Android",
+      artifact = "io.github.vvb2060.ndk:curl",
+      descriptionRes = R.string.oss_curl_android_description,
+      license = "curl",
+      url = "https://github.com/vvb2060/curl-android",
+    ),
+    OpenSourceLibrary(
+      name = "Desugar JDK Libs",
+      artifact = "com.android.tools:desugar_jdk_libs",
+      descriptionRes = R.string.oss_desugar_jdk_libs_description,
+      license = "Apache-2.0",
+      url = "https://github.com/google/desugar_jdk_libs",
+    ),
+    OpenSourceLibrary(
+      name = "AndroidX Biometric",
+      artifact = "androidx.biometric:biometric",
+      descriptionRes = R.string.oss_androidx_biometric_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/biometric",
+    ),
+    OpenSourceLibrary(
+      name = "JSch",
+      artifact = "com.github.mwiede:jsch",
+      descriptionRes = R.string.oss_jsch_description,
+      license = "BSD-3-Clause",
+      url = "https://github.com/mwiede/jsch",
+    ),
+    OpenSourceLibrary(
+      name = "libarchive-android",
+      artifact = "me.zhanghai.android.libarchive:library",
+      descriptionRes = R.string.oss_libarchive_android_description,
+      license = "Apache-2.0",
+      url = "https://github.com/zhanghai/libarchive-android",
+    ),
+    OpenSourceLibrary(
+      name = "libtorrent4j",
+      artifact = "org.libtorrent4j:libtorrent4j",
+      descriptionRes = R.string.oss_libtorrent4j_description,
+      license = "MIT",
+      url = "https://github.com/aldenml/libtorrent4j",
+    ),
+    OpenSourceLibrary(
+      name = "Multiplatform Markdown Renderer",
+      artifact = "com.mikepenz:multiplatform-markdown-renderer-m3",
+      descriptionRes = R.string.oss_markdown_renderer_description,
+      license = "Apache-2.0",
+      url = "https://github.com/mikepenz/multiplatform-markdown-renderer",
+    ),
+    OpenSourceLibrary(
+      name = "mpv",
+      artifact = "libmpv",
+      descriptionRes = R.string.oss_mpv_description,
+      license = "GPL-2.0-or-later / LGPL-2.1-or-later",
+      url = "https://github.com/mpv-player/mpv",
+    ),
+    OpenSourceLibrary(
+      name = "mpvlib Android",
+      artifact = "app.gyrolet.mpvlib: mpvlib / mpvlib-no-vulkan / mpvlib-fongmi",
+      descriptionRes = R.string.oss_mpvlib_android_description,
+      license = "MIT",
+      url = "https://github.com/Riteshp2001/mpvlibAndroid",
+    ),
+    OpenSourceLibrary(
+      name = "QuickJS-NG",
+      artifact = "app/src/main/cpp/third_party/quickjs",
+      descriptionRes = R.string.oss_quickjs_ng_description,
+      license = "MIT",
+      url = "https://github.com/quickjs-ng/quickjs",
+    ),
+    OpenSourceLibrary(
+      name = "Haze",
+      artifact = "dev.chrisbanes.haze:haze-blur",
+      descriptionRes = R.string.oss_haze_description,
+      license = "Apache-2.0",
+      url = "https://github.com/chrisbanes/haze",
+    ),
+    OpenSourceLibrary(
+      name = "Backdrop",
+      artifact = "io.github.kyant0:backdrop",
+      descriptionRes = R.string.oss_backdrop_description,
+      license = "Apache-2.0",
+      url = "https://github.com/Kyant0/AndroidLiquidGlass",
+    ),
+    OpenSourceLibrary(
+      name = "Telephoto",
+      artifact = "me.saket.telephoto:zoomable",
+      descriptionRes = R.string.oss_telephoto_description,
+      license = "Apache-2.0",
+      url = "https://github.com/saket/telephoto",
+    ),
+    OpenSourceLibrary(
+      name = "AndroidX Lifecycle",
+      artifact = "androidx.lifecycle:lifecycle-runtime-compose",
+      descriptionRes = R.string.oss_androidx_lifecycle_description,
+      license = "Apache-2.0",
+      url = "https://developer.android.com/jetpack/androidx/releases/lifecycle",
+    ),
+    OpenSourceLibrary(
+      name = "Kotlin Anitomy",
+      artifact = "com.github.TraceLTRC:kotlin-anitomy",
+      descriptionRes = R.string.oss_anitomy_description,
+      license = "MPL-2.0",
+      url = "https://github.com/TraceLTRC/kotlin-anitomy",
+    ),
+    OpenSourceLibrary(
+      name = "LeakCanary",
+      artifact = "com.squareup.leakcanary:leakcanary-android",
+      descriptionRes = R.string.oss_leakcanary_description,
+      license = "Apache-2.0",
+      url = "https://github.com/square/leakcanary",
+    ),
+    OpenSourceLibrary(
+      name = "Python",
+      artifact = "libpython / python313.zip",
+      descriptionRes = R.string.oss_python_description,
+      license = "PSF-2.0",
+      url = "https://www.python.org/",
+    ),
+    OpenSourceLibrary(
+      name = "yt-dlp",
+      artifact = "yt-dlp",
+      descriptionRes = R.string.oss_ytdlp_description,
+      license = "Unlicense",
+      url = "https://github.com/yt-dlp/yt-dlp",
+    ),
+    OpenSourceLibrary(
+      name = "GuessIt",
+      artifact = "guessit",
+      descriptionRes = R.string.oss_guessit_description,
+      license = "LGPL-3.0-or-later",
+      url = "https://github.com/guessit-io/guessit",
+    ),
+    OpenSourceLibrary(
+      name = "Rebulk",
+      artifact = "rebulk",
+      descriptionRes = R.string.oss_rebulk_description,
+      license = "MIT",
+      url = "https://github.com/Toilal/rebulk",
+    ),
+    OpenSourceLibrary(
+      name = "Babelfish",
+      artifact = "babelfish",
+      descriptionRes = R.string.oss_babelfish_description,
+      license = "BSD-3-Clause",
+      url = "https://github.com/Diaoul/babelfish",
+    ),
+    OpenSourceLibrary(
+      name = "python-dateutil",
+      artifact = "python-dateutil",
+      descriptionRes = R.string.oss_python_dateutil_description,
+      license = "Apache-2.0 / BSD-3-Clause",
+      url = "https://github.com/dateutil/dateutil",
+    ),
+    OpenSourceLibrary(
+      name = "six",
+      artifact = "six",
+      descriptionRes = R.string.oss_six_description,
+      license = "MIT",
+      url = "https://github.com/benjaminp/six",
+    ),
+    OpenSourceLibrary(
+      name = "Anime4K",
+      artifact = "Anime4K GLSL shaders",
+      descriptionRes = R.string.oss_anime4k_description,
+      license = "MIT",
+      url = "https://github.com/bloc97/Anime4K",
+    ),
+    OpenSourceLibrary(
+      name = "HDR Toys",
+      artifact = "hdr-toys GLSL shaders",
+      descriptionRes = R.string.oss_hdr_toys_description,
+      license = "MIT",
+      url = "https://github.com/natural-harmonia-gropius/hdr-toys",
+    ),
+  ).sortedBy { library -> library.name.lowercase(Locale.ROOT) }

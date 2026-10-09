@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="fastlane/metadata/android/en-US/images/icon.png" width="250" height="250" alt="mpvRx app icon" />
+  <img src="fastlane/metadata/android/en-US/images/icon.png" width="250" height="250" alt="Replay app icon" />
 </p>
 
-<h1 align="center">mpvRx</h1>
+<h1 align="center">Replay</h1>
 
 <p align="center">
-  <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.gyrolet.mpvrx%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FRiteshp2001%2FmpvRx%22%2C%22author%22%3A%22Riteshp2001%22%2C%22name%22%3A%22mpvRx%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22filterReleaseTitlesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22filterReleaseNotesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22verifyLatestTag%5C%22%3Afalse%2C%5C%22sortMethodChoice%5C%22%3A%5C%22date%5C%22%2C%5C%22useLatestAssetDateAsReleaseDate%5C%22%3Afalse%2C%5C%22releaseTitleAsVersion%5C%22%3Afalse%2C%5C%22trackOnly%5C%22%3Afalse%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%22%5C%22%2C%5C%22versionDetection%5C%22%3Atrue%2C%5C%22releaseDateAsVersion%5C%22%3Afalse%2C%5C%22useVersionCodeAsOSVersion%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22invertAPKFilter%5C%22%3Afalse%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%2C%5C%22minimumUpdateAgeDays%5C%22%3A%5C%22%5C%22%2C%5C%22appName%5C%22%3A%5C%22%5C%22%2C%5C%22appAuthor%5C%22%3A%5C%22%5C%22%2C%5C%22shizukuPretendToBeGooglePlay%5C%22%3Afalse%2C%5C%22allowInsecure%5C%22%3Afalse%2C%5C%22exemptFromBackgroundUpdates%5C%22%3Afalse%2C%5C%22skipUpdateNotifications%5C%22%3Afalse%2C%5C%22about%5C%22%3A%5C%22%5C%22%2C%5C%22refreshBeforeDownload%5C%22%3Afalse%2C%5C%22includeZips%5C%22%3Afalse%2C%5C%22zippedApkFilterRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22includeTarballs%5C%22%3Afalse%2C%5C%22tarballedApkFilterRegEx%5C%22%3A%5C%22%5C%22%7D%22%2C%22overrideSource%22%3Anull%7D">
+  <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.gyrolet.mpvrx%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FUtsavrajputt%2FReplay%22%2C%22author%22%3A%22Utsavrajputt%22%2C%22name%22%3A%22Replay%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22filterReleaseTitlesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22filterReleaseNotesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22verifyLatestTag%5C%22%3Afalse%2C%5C%22sortMethodChoice%5C%22%3A%5C%22date%5C%22%2C%5C%22useLatestAssetDateAsReleaseDate%5C%22%3Afalse%2C%5C%22releaseTitleAsVersion%5C%22%3Afalse%2C%5C%22trackOnly%5C%22%3Afalse%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%22%5C%22%2C%5C%22versionDetection%5C%22%3Atrue%2C%5C%22releaseDateAsVersion%5C%22%3Afalse%2C%5C%22useVersionCodeAsOSVersion%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22invertAPKFilter%5C%22%3Afalse%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%2C%5C%22minimumUpdateAgeDays%5C%22%3A%5C%22%5C%22%2C%5C%22appName%5C%22%3A%5C%22%5C%22%2C%5C%22appAuthor%5C%22%3A%5C%22%5C%22%2C%5C%22shizukuPretendToBeGooglePlay%5C%22%3Afalse%2C%5C%22allowInsecure%5C%22%3Afalse%2C%5C%22exemptFromBackgroundUpdates%5C%22%3Afalse%2C%5C%22skipUpdateNotifications%5C%22%3Afalse%2C%5C%22about%5C%22%3A%5C%22%5C%22%2C%5C%22refreshBeforeDownload%5C%22%3Afalse%2C%5C%22includeZips%5C%22%3Afalse%2C%5C%22zippedApkFilterRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22includeTarballs%5C%22%3Afalse%2C%5C%22tarballedApkFilterRegEx%5C%22%3A%5C%22%5C%22%7D%22%2C%22overrideSource%22%3Anull%7D">
     <img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="80" />
   </a>
 </p>
@@ -14,16 +14,15 @@
   <b>Feature-rich, Efficient Powerful Android video player based on libmpv.</b>
   <br>
   <i>No ads. No trackers. No noise. Just a serious video player with a calmer surface and a sharper edge.</i>
+  <br>
+  <sub>A fork of <a href="https://github.com/Riteshp2001/mpvRx">mpvRx</a> with a Celestial visual layer.</sub>
 </p>
-
-> [!IMPORTANT]
-> [Join us on Telegram](https://t.me/+yA0f2nknCAc1ODZl)
 
 <p align="center">
   <img src="https://img.shields.io/badge/Platform-Android-brightgreen.svg" />
   <img src="https://img.shields.io/badge/License-AGPL_v3-blue.svg" />
-  <img src="https://img.shields.io/github/v/release/Riteshp2001/mpvRx.svg?logo=github&label=Release&cacheSeconds=3600" />
-  <img src="https://img.shields.io/github/downloads/Riteshp2001/mpvRx/total?logo=github&cacheSeconds=3600" />
+  <img src="https://img.shields.io/github/v/release/Utsavrajputt/Replay.svg?logo=github&label=Release&cacheSeconds=3600" />
+  <img src="https://img.shields.io/github/downloads/Utsavrajputt/Replay/total?logo=github&cacheSeconds=3600" />
 </p>
 
 ---
@@ -31,30 +30,45 @@
 ## Showcase
 
 <div align="center">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/tanjiro-playback.jpg" width="100%" alt="Video playback in mpvRx">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/tanjiro-playback.jpg" width="100%" alt="Video playback in Replay">
 </div>
 
 <div align="center">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/player-controls.jpg" width="100%" alt="mpvRx player controls">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/player-controls.jpg" width="100%" alt="Replay player controls">
 </div>
 
 <div align="center">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/playlist-window.jpg" width="49%" alt="mpvRx visual playlist">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/chapter-navigation.jpg" width="49%" alt="mpvRx chapter navigation">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/playlist-window.jpg" width="49%" alt="Replay visual playlist">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/chapter-navigation.jpg" width="49%" alt="Replay chapter navigation">
 </div>
 
 
 <div align="center">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/pip.png" width="32%" alt="mpvRx picture-in-picture mode">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/music-player.jpg" width="32%" alt="mpvRx music player">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/about-screen.jpg" width="32%" alt="mpvRx About screen">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/pip.png" width="32%" alt="Replay picture-in-picture mode">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/music-player.jpg" width="32%" alt="Replay music player">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/about-screen.jpg" width="32%" alt="Replay About screen">
 </div>
 
 ---
 
 ## Features
 
-mpvRx pushes the mpv-android experience further with deep customization, thermal-aware performance, and unique quality-of-life features. Here's what sets it apart:
+Replay pushes the mpv-android experience further with deep customization, thermal-aware performance, and unique quality-of-life features. Here's what sets it apart:
+
+<details open>
+<summary><b>🌌 Celestial Effects (Replay exclusive)</b></summary>
+
+| Feature | Description |
+|---|---|
+| **Celestial Toggle** | One switch in Settings > Appearance turns every Celestial effect on or off |
+| **Aurora by Default** | Fresh installs start on the Aurora theme; an already saved theme is never touched |
+| **Aurora Ribbons** | Soft drifting ribbons behind Home, Files, Media Library, Recently Played, Music, Playlists, and Network |
+| **Glow Borders** | Floating buttons and the bottom navigation bar get a theme-colored glowing border |
+| **Tinted Top Bar** | Title and action icons follow the Celestial theme colors, with wallpaper support kept |
+| **Animated About Header** | Code-drawn glowing sweep with a halo that breathes, a light that travels along the line, and twinkling dots; it stays a still image when effects are off |
+| **Theme-Aware** | Every effect is tinted from the active theme colors, so it works with light, dark, AMOLED, and custom themes |
+
+</details>
 
 <details close>
 <summary><b>🎨 Theme & Visual System</b></summary>
@@ -347,36 +361,23 @@ Local playlist discovery runs when the Playlists page is first loaded and after 
 
 ---
 
-## 🔋 Battery Optimization guide for Mpv
+## 🔋 Battery tips
 
-First Pro Tip Keep Mpv Conf empty if you are newbie
-
-- **Use `gpu` not `gpu-next`** — gpu-next is a Vulkan-based renderer that keeps the GPU awake for no reason when playing normal video. The classic `gpu` backend is lighter and uses the OpenGL driver stack, which on most Android devices has better power characteristics.
-- **Disable Vulkan entirely.** Vulkan is great for Video Playback but also Heavy.
-- **Use the `fast` mpv profile.** It's literally built into mpvRx use that Mpv Profiles and Set it to Default  or in _mpv.conf_ `profile=fast`
-- **Don't use shaders.** That Anime4K preset you using that's what's eating your battery. Shaders run on the GPU every single frame. If you're watching 24fps content and you have a shader pipeline running, congratulations — you're doing 24 unnecessary GPU compute passes per second for a Minute amount of visible benefit on a phone screen .
-- **Don't use AI-generated configs.** That means you, the person who copied a Reddit config with 200 lines of `scale=ewa_lanczossharp` and `dscale=mitchell` and `cscale=sinc` and a dozen `glsl-shaders` entries. Most  of You have no idea what any of those do. You just made your phone render video like it's preparing for a 4K cinema projection. On a 6-inch screen. Grow some Brains Its your android Phone not some Fuckin.. 4k Television
-
-**My POV:** mpv's default config with `profile=fast` and the `gpu` backend plays video with negligible battery impact — often **less** than OEM players because mpv doesn't have a billion proprietary DRM modules, analytics SDKs, and ad frameworks burning CPU in the background. The next time your battery drops more than 20-25% watching a 2-hour movie, don't blame mpv. Blame the 14 shaders you blindly copy-pasted.
-
-_Just a Pro tip if your battery consumption stays within 200 mAh and belwo 0.9W ( See Page 6 of mpvRx - video player More Settings -> Page6) useage than ur Mpv Conf are Proper for Video watching thats what i have experimented and telling rest all i don't know About in detail technicality's if anyone wanna tell me In depth guide then keep it to yourself i dont wanna listen_
+- Keep `mpv.conf` empty unless you know what each line does.
+- Prefer the `gpu` backend over `gpu-next`, and turn Vulkan off if battery matters more than the extra features.
+- Use the built-in `fast` profile (Mpv Profiles > Default, or `profile=fast` in `mpv.conf`).
+- Shaders such as Anime4K run on the GPU every frame, so leave them off for normal playback.
+- Watch the live stats page in the player (More Settings > Page 6) to check power draw while you tune.
 
 ---
 
 <div align="center">
-  <a href="https://github.com/Riteshp2001/mpvRx/releases">
+  <a href="https://github.com/Utsavrajputt/Replay/releases">
     <img src="https://img.shields.io/badge/Download-Stable_Release-blue?style=for-the-badge&logo=github" alt="Stable Release">
   </a>
-  <!-- <a href="https://riteshp2001.github.io/mpvRx/">
-    <img src="https://img.shields.io/badge/Download-Preview_Build-orange?style=for-the-badge&logo=github" alt="Preview Build">
-  </a> -->
 </div>
 
-<!-- <div align="center">
-  <i>Note: Previews may be unstable and are intended for testing purposes only.</i>
-</div> -->
-
-For help, reproducible bug reports, or feature suggestions, start with the [support guide](SUPPORT.md) and [existing issues](https://github.com/Riteshp2001/mpvRx/issues).
+For help, reproducible bug reports, or feature suggestions, start with the [support guide](SUPPORT.md) and [existing issues](https://github.com/Utsavrajputt/Replay/issues).
 
 ---
 
@@ -416,21 +417,15 @@ For help, reproducible bug reports, or feature suggestions, start with the [supp
 
 ## Support
 
-If you find mpvRx useful and would like to support its development, consider buying me a coffee! Your support keeps the project alive and helps push new features.
+If you enjoy Replay, you can help cover the cost of publishing it on the Play Store. Every contribution makes a difference.
 
 <div align="center">
 
-### ☕ Buy Me a Coffee
-
-<a href="https://www.buymeacoffee.com/riteshp2001">
-  <img src="https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee">
-</a>
-
 ### UPI
 
-`panditritesh2001@okhdfcbank`
+`utsavrajput@yesfam`
 
-<a href="upi://pay?pa=panditritesh2001@okhdfcbank&pn=Ritesh%20Pandit&cu=INR">
+<a href="upi://pay?pa=utsavrajput@yesfam&pn=Utsav%20Rajput&cu=INR">
   <img src="fastlane/metadata/android/en-US/images/upiqr-code.svg" width="250" height="250" alt="UPI QR Code">
 </a>
 
@@ -446,6 +441,21 @@ To cut a signed GitHub release through Actions, configure these repository secre
 
 | Secret Name | Description |
 |---|---|
+| `SIGNING_KEYSTORE` | Base64-encoded keystore file (`.jks` or `.keystore`) |
+| `SIGNING_KEY_ALIAS` | Key alias inside the keystore |
+| `SIGNING_STORE_PASSWORD` | Password for the keystore |
+| `KEY_PASSWORD` | Password for the signing key |
+
+Bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section at the top of `CHANGELOG.md`, then tag and push:
+
+```bash
+git tag -a v2.7.2 -m "Release version 2.7.2"
+git push origin v2.7.2
+```
+
+Release APKs are published as `Replay-<variant>-<tag>.apk`, and the in-app updater only picks assets with the `Replay-` prefix. The preview workflow runs every 30 minutes and publishes preview builds to GitHub Pages.
+
+---|---|
 | `SIGNING_KEYSTORE` | Base64-encoded keystore file (`.jks` or `.keystore`) |
 | `SIGNING_KEY_ALIAS` | Key alias inside the keystore |
 | `SIGNING_STORE_PASSWORD` | Password for the keystore |
@@ -471,7 +481,7 @@ git push origin v1.3.1-preview.1
 
 ### Built with open source
 
-Thank you to the player projects, music apps, libraries, and individual contributors whose work makes projects like mpvRx possible.
+Replay is a fork of [mpvRx](https://github.com/Riteshp2001/mpvRx) by Riteshp2001. Thank you to the player projects, music apps, libraries, and individual contributors whose work makes projects like Replay possible.
 
 | Explore the credits | Includes |
 |---|---|
@@ -481,23 +491,13 @@ Thank you to the player projects, music apps, libraries, and individual contribu
 
 > Special thanks to [SunnyVishnu3](https://github.com/SunnyVishnu3) for the `yt-dlp` native integration and SDK 29+ bypass logic.
 
-[Full acknowledgments & citation information](CITATION.md) · [All contributors](https://github.com/Riteshp2001/mpvRx/graphs/contributors)
-
-### Contributors
-
-Thank you to everyone who helps build and improve mpvRx.
-
-<div align="center">
-  <a href="https://github.com/Riteshp2001/mpvRx/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=Riteshp2001/mpvRx" alt="mpvRx contributors" width="800" />
-  </a>
-</div>
+[Full acknowledgments & citation information](CITATION.md) · [mpvRx contributors](https://github.com/Riteshp2001/mpvRx/graphs/contributors)
 
 ---
 
 ## Community
 
-[Get help](SUPPORT.md) · [Report a bug](https://github.com/Riteshp2001/mpvRx/issues/new?template=bug_report.md) · [Suggest a feature](https://github.com/Riteshp2001/mpvRx/issues/new?template=feature_request.md) · [Code of conduct](CODE_OF_CONDUCT.md)
+[Get help](SUPPORT.md) · [Report a bug](https://github.com/Utsavrajputt/Replay/issues/new?template=bug_report.md) · [Suggest a feature](https://github.com/Utsavrajputt/Replay/issues/new?template=feature_request.md) · [Code of conduct](CODE_OF_CONDUCT.md)
 
 ---
 
@@ -506,13 +506,3 @@ Thank you to everyone who helps build and improve mpvRx.
 Distributed under **GNU Affero General Public License v3.0 (AGPL-3.0-or-later)**. See `LICENSE` for more information.
 
 ---
-
-## Star History
-
-<a href="https://www.star-history.com/#Riteshp2001/mpvRx&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Riteshp2001/mpvRx&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Riteshp2001/mpvRx&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Riteshp2001/mpvRx&type=date&legend=top-left" />
- </picture>
-</a>

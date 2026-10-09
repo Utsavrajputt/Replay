@@ -1,0 +1,609 @@
+/*
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ */
+
+package app.gyrolet.mpvrx.ui.browser.playlist
+
+import app.gyrolet.mpvrx.ui.utils.NavigationBackHandler as BackHandler
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import app.gyrolet.mpvrx.R
+import app.gyrolet.mpvrx.preferences.BrowserPreferences
+import app.gyrolet.mpvrx.preferences.MediaLayoutMode
+import app.gyrolet.mpvrx.preferences.preference.collectAsState
+import app.gyrolet.mpvrx.presentation.Screen
+import app.gyrolet.mpvrx.presentation.components.pullrefresh.PullRefreshBox
+import app.gyrolet.mpvrx.ui.browser.cards.PlaylistCard
+import app.gyrolet.mpvrx.ui.browser.components.BrowserTopBar
+import app.gyrolet.mpvrx.ui.browser.components.ExpressiveScrollBar
+import app.gyrolet.mpvrx.ui.browser.components.fastScrollGlyph
+import app.gyrolet.mpvrx.ui.browser.dialogs.DeleteConfirmationDialog
+import app.gyrolet.mpvrx.ui.browser.selection.rememberSelectionManager
+import app.gyrolet.mpvrx.ui.browser.sheets.PlaylistActionSheet
+import app.gyrolet.mpvrx.ui.browser.states.EmptyState
+import app.gyrolet.mpvrx.ui.components.InlineSearchBar
+import app.gyrolet.mpvrx.ui.celestial.CelestialBackground
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
+import app.gyrolet.mpvrx.ui.icons.Icon
+import app.gyrolet.mpvrx.ui.icons.Icons
+import app.gyrolet.mpvrx.ui.utils.LocalBackStack
+import app.gyrolet.mpvrx.ui.utils.navigateTo
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import org.koin.compose.koinInject
+
+@Serializable
+object PlaylistScreen : Screen {
+  @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, com.google.accompanist.permissions.ExperimentalPermissionsApi::class)
+  @Composable
+  override fun Content() {
+    val context = LocalContext.current
+    val browserPreferences = koinInject<BrowserPreferences>()
+    val backStack = LocalBackStack.current
+    val scope = rememberCoroutineScope()
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    var contentWidthDp by remember { mutableStateOf<Int?>(null) }
+
+    // ViewModel
+    val viewModel: PlaylistViewModel =
+      viewModel(
+        factory = PlaylistViewModel.factory(context.applicationContext as android.app.Application),
+      )
+
+    androidx.lifecycle.compose.LifecycleResumeEffect(viewModel) {
+      viewModel.refresh()
+      onPauseOrDispose { }
+    }
+
+    val playlistsWithCount by viewModel.playlistsWithCount.collectAsState()
+    val playlistSortType by browserPreferences.playlistSortType.collectAsState()
+    val playlistSortOrder by browserPreferences.playlistSortOrder.collectAsState()
+    val sortedPlaylists = remember(playlistsWithCount, playlistSortType, playlistSortOrder) {
+      sortPlaylists(playlistsWithCount, playlistSortType, playlistSortOrder)
+    }
+    val isLoading by viewModel.isLoading.collectAsState()
+    val hasCompletedInitialLoad by viewModel.hasCompletedInitialLoad.collectAsState()
+    app.gyrolet.mpvrx.utils.permission.PermissionUtils.handleStoragePermission {
+      viewModel.refresh(scanLocalFiles = true)
+    }
+
+    // Search state
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var isSearching by rememberSaveable { mutableStateOf(false) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
+
+    // Filter playlists based on search query
+    val filteredPlaylists =
+      if (isSearching && searchQuery.isNotBlank()) {
+        sortedPlaylists.filter { playlistWithCount ->
+          playlistWithCount.playlist.name.contains(searchQuery, ignoreCase = true) ||
+            playlistSourceLocation(playlistWithCount.playlist.m3uSourceUrl ?: playlistWithCount.playlist.xtreamServerUrl)
+              .contains(searchQuery, ignoreCase = true)
+        }
+      } else {
+        sortedPlaylists
+      }
+
+    // Request focus when search is activated
+    LaunchedEffect(isSearching) {
+      if (isSearching) {
+        focusRequester.requestFocus()
+        keyboardController?.show()
+      }
+    }
+
+    // Selection manager - use filtered list
+    val selectionManager =
+      rememberSelectionManager(
+        items = filteredPlaylists,
+        getId = { it.playlist.id },
+        onDeleteItems = { itemsToDelete, _ ->
+          // Delete all items sequentially (this is a suspend function, so it blocks until complete)
+          itemsToDelete.forEach { item ->
+            viewModel.deletePlaylist(item.playlist)
+          }
+          Pair(itemsToDelete.size, 0)
+        },
+        onOperationComplete = { viewModel.refresh() },
+      )
+
+    val listState = rememberLazyListState()
+    val gridState = rememberLazyGridState()
+    val isRefreshing = remember { mutableStateOf(false) }
+    var showRenameDialog by rememberSaveable { mutableStateOf(false) }
+    var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
+    var showSortDialog by rememberSaveable { mutableStateOf(false) }
+    // Playlist action sheet state
+    var showPlaylistActionSheet by remember { mutableStateOf(false) }
+    val hasProtectedSelection =
+      selectionManager.getSelectedItems().any { item -> viewModel.isProtectedPlaylist(item.playlist) }
+
+    // FAB visibility for scroll-based hiding
+    val isFabVisible = remember { mutableStateOf(true) }
+
+    // Predictive back: Intercept when in selection mode or searching
+    BackHandler(enabled = selectionManager.isInSelectionMode || isSearching) {
+      when {
+        isSearching -> {
+          isSearching = false
+          searchQuery = ""
+        }
+
+        selectionManager.isInSelectionMode -> selectionManager.clear()
+      }
+    }
+
+    // Synchronize NavigationBarState when selection mode changes
+    app.gyrolet.mpvrx.ui.browser.NavigationBarSelectionEffect(selectionManager.isInSelectionMode)
+
+    // Track scroll for FAB visibility
+    val mediaLayoutMode by browserPreferences.playlistView.layoutMode.collectAsState()
+    app.gyrolet.mpvrx.ui.browser.fab.FabScrollHelper.trackScrollForFabVisibility(
+      listState = listState,
+      gridState = if (mediaLayoutMode == MediaLayoutMode.GRID) gridState else null,
+      isFabVisible = isFabVisible,
+      expanded = false,
+      onExpandedChange = {},
+    )
+
+    app.gyrolet.mpvrx.ui.browser.dialogs.PlaylistSortDialog(
+      isOpen = showSortDialog,
+      onDismiss = { showSortDialog = false },
+      isLibrary = true,
+      availableWidthDp = contentWidthDp,
+    )
+
+    Scaffold(
+      containerColor = app.gyrolet.mpvrx.ui.theme.wallpaperAwareBackgroundColor(),
+      topBar = {
+        if (isSearching) {
+          // Search mode - show search bar
+          InlineSearchBar(
+            query = searchQuery,
+            onQueryChange = { searchQuery = it },
+            onSearch = { },
+            modifier =
+              Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            inputFieldModifier = Modifier.focusRequester(focusRequester),
+            placeholder = {
+              Text(
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.ui_search_playlists),
+              )
+            },
+            leadingIcon = {
+              Icon(
+                imageVector = Icons.RoundedFilled.Search,
+                contentDescription =
+                  androidx.compose.ui.res.stringResource(
+                    app.gyrolet.mpvrx.R.string.settings_search_title,
+                  ),
+              )
+            },
+            trailingIcon = {
+              IconButton(
+                onClick = {
+                  isSearching = false
+                  searchQuery = ""
+                },
+              ) {
+                Icon(
+                  imageVector = Icons.RoundedFilled.Close,
+                  contentDescription =
+                    androidx.compose.ui.res.stringResource(
+                      app.gyrolet.mpvrx.R.string.generic_cancel,
+                    ),
+                )
+              }
+            },
+            shape = RoundedCornerShape(28.dp),
+            tonalElevation = 6.dp,
+          )
+        } else {
+          BrowserTopBar(
+            title = stringResource(R.string.ui_playlists),
+            isInSelectionMode = selectionManager.isInSelectionMode,
+            selectedCount = selectionManager.selectedCount,
+            totalCount = playlistsWithCount.size,
+            onBackClick = null,
+            onCancelSelection = { selectionManager.clear() },
+            isSingleSelection = selectionManager.isSingleSelection,
+            onSortClick = { showSortDialog = true },
+            onSearchClick = { isSearching = true },
+            onSettingsClick = {
+              backStack.navigateTo(app.gyrolet.mpvrx.ui.preferences.PreferencesScreen)
+            },
+            onRenameClick =
+              if (selectionManager.isSingleSelection && !hasProtectedSelection) {
+                { showRenameDialog = true }
+              } else {
+                null
+              },
+            onDeleteClick = if (hasProtectedSelection) null else ({ showDeleteDialog = true }),
+            onSelectAll = { selectionManager.selectAll() },
+            onInvertSelection = { selectionManager.invertSelection() },
+            onDeselectAll = { selectionManager.clear() },
+          )
+        }
+      },
+      floatingActionButton = {
+        val navigationBarHeight = app.gyrolet.mpvrx.ui.browser.LocalNavigationBarHeight.current
+        if (!selectionManager.isInSelectionMode && isFabVisible.value) {
+          ExtendedFloatingActionButton(
+            onClick = { showPlaylistActionSheet = true },
+            icon = { Icon(Icons.RoundedFilled.Add, contentDescription = null) },
+            text = {
+              Text(
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.ui_create_playlist),
+              )
+            },
+            modifier =
+              Modifier
+                .padding(bottom = (navigationBarHeight - 16.dp).coerceAtLeast(0.dp))
+                .celestialBorder(shape = RoundedCornerShape(16.dp)),
+          )
+        }
+      },
+    ) { paddingValues ->
+      Box(modifier = Modifier.fillMaxSize()) {
+        CelestialBackground()
+        if (isSearching && filteredPlaylists.isEmpty() && searchQuery.isNotBlank()) {
+          // Show "no results" for search
+          Box(
+            modifier =
+              Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center,
+          ) {
+            EmptyState(
+              icon = Icons.RoundedFilled.Search,
+              title = stringResource(R.string.ui_no_playlists_found),
+              message = "Try a different search term",
+            )
+          }
+        } else if (playlistsWithCount.isEmpty() && isLoading) {
+          Box(Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+          }
+        } else if (playlistsWithCount.isEmpty() && hasCompletedInitialLoad) {
+          Box(
+            modifier =
+              Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center,
+          ) {
+            Column(
+              horizontalAlignment = Alignment.CenterHorizontally,
+              verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+              EmptyState(
+                icon = Icons.RoundedFilled.PlaylistAdd,
+                title = stringResource(R.string.ui_no_playlists_yet),
+                message = stringResource(R.string.playlist_empty_description),
+              )
+            }
+          }
+        } else {
+          PlaylistListContent(
+            playlistsWithCount = filteredPlaylists,
+            listState = listState,
+            gridState = gridState,
+            isRefreshing = isRefreshing,
+            onRefresh = { viewModel.refresh(scanLocalFiles = true).join() },
+            selectionManager = selectionManager,
+            onPlaylistClick = { playlistWithCount ->
+              if (selectionManager.isInSelectionMode) {
+                selectionManager.toggleFromUser(playlistWithCount)
+              } else {
+                backStack.navigateTo(PlaylistDetailScreen(playlistWithCount.playlist.id))
+              }
+            },
+            onPlaylistLongClick = { playlistWithCount ->
+              selectionManager.handleLongClick(playlistWithCount)
+            },
+            modifier = Modifier.padding(paddingValues).onSizeChanged {
+              contentWidthDp = with(density) { it.width.toDp().value.toInt() }
+            },
+            isInSelectionMode = selectionManager.isInSelectionMode,
+          )
+        }
+      }
+    }
+
+    // Create playlist and M3U playlist dialogs moved to MainScreen
+
+    // Playlist action sheets
+    PlaylistActionSheet(
+      isOpen = showPlaylistActionSheet,
+      onDismiss = { showPlaylistActionSheet = false },
+      onCreatePlaylist = viewModel::createPlaylist,
+      onCreateM3UPlaylistFromFile = viewModel::createM3UPlaylistFromFile,
+      onCreateZipPlaylist = viewModel::createZipPlaylist,
+      onCreateM3UPlaylist = viewModel::createM3UPlaylist,
+      onCreateXtreamPlaylist = viewModel::createXtreamPlaylist,
+      context = context,
+    )
+
+    if (showRenameDialog && selectionManager.isSingleSelection) {
+      val selectedPlaylist = selectionManager.getSelectedItems().firstOrNull()
+      if (selectedPlaylist != null) {
+        var playlistName by remember { mutableStateOf(selectedPlaylist.playlist.name) }
+        androidx.compose.material3.AlertDialog(
+          onDismissRequest = { showRenameDialog = false },
+          title = {
+            Text(
+              androidx.compose.ui.res
+                .stringResource(app.gyrolet.mpvrx.R.string.ui_rename_playlist),
+            )
+          },
+          text = {
+            androidx.compose.material3.OutlinedTextField(
+              value = playlistName,
+              onValueChange = { playlistName = it },
+              label = {
+                Text(
+                  androidx.compose.ui.res
+                    .stringResource(app.gyrolet.mpvrx.R.string.ui_playlist_name),
+                )
+              },
+              singleLine = true,
+              modifier = Modifier.fillMaxWidth(),
+            )
+          },
+          confirmButton = {
+            androidx.compose.material3.TextButton(
+              onClick = {
+                if (playlistName.isNotBlank()) {
+                  scope.launch {
+                    viewModel.updatePlaylist(selectedPlaylist.playlist.copy(name = playlistName.trim()))
+                    showRenameDialog = false
+                    selectionManager.clear()
+                  }
+                }
+              },
+              enabled = playlistName.isNotBlank(),
+            ) {
+              Text(
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.rename),
+              )
+            }
+          },
+          dismissButton = {
+            androidx.compose.material3.TextButton(
+              onClick = { showRenameDialog = false },
+            ) {
+              Text(
+                androidx.compose.ui.res
+                  .stringResource(app.gyrolet.mpvrx.R.string.generic_cancel),
+              )
+            }
+          },
+        )
+      }
+    }
+
+    if (showDeleteDialog) {
+      DeleteConfirmationDialog(
+        isOpen = true,
+        onDismiss = { showDeleteDialog = false },
+        onConfirm = {
+          selectionManager.deleteSelected()
+          showDeleteDialog = false
+        },
+        itemCount = selectionManager.selectedCount,
+        itemType = "playlist",
+        itemNames = selectionManager.getSelectedItems().map { it.playlist.name },
+      )
+    }
+  }
+
+  @Composable
+  private fun PlaylistListContent(
+    playlistsWithCount: List<PlaylistWithCount>,
+    listState: LazyListState,
+    gridState: androidx.compose.foundation.lazy.grid.LazyGridState,
+    isRefreshing: androidx.compose.runtime.MutableState<Boolean>,
+    onRefresh: suspend () -> Unit,
+    selectionManager: app.gyrolet.mpvrx.ui.browser.selection.SelectionManager<PlaylistWithCount, Int>,
+    onPlaylistClick: (PlaylistWithCount) -> Unit,
+    onPlaylistLongClick: (PlaylistWithCount) -> Unit,
+    modifier: Modifier = Modifier,
+    isInSelectionMode: Boolean = false,
+  ) {
+    val browserPreferences = koinInject<app.gyrolet.mpvrx.preferences.BrowserPreferences>()
+    val viewPreferences = browserPreferences.playlistView
+    val mediaLayoutMode by viewPreferences.layoutMode.collectAsState()
+    val manualGridColumnsEnabled by viewPreferences.manualGridColumnsEnabled.collectAsState()
+    val folderGridColumnsPortrait by viewPreferences.gridColumnsPortrait.collectAsState()
+    val folderGridColumnsLandscape by viewPreferences.gridColumnsLandscape.collectAsState()
+
+    val isGridMode = mediaLayoutMode == MediaLayoutMode.GRID
+
+    // Only show scrollbar if list has more than 20 items
+    val hasEnoughItems = playlistsWithCount.size > 20
+
+    // Animate scrollbar alpha
+    val scrollbarAlpha by androidx.compose.animation.core.animateFloatAsState(
+      targetValue = if (hasEnoughItems) 1f else 0f,
+      animationSpec =
+        androidx.compose.animation.core.spring(
+          dampingRatio = app.gyrolet.mpvrx.ui.theme.AppMotion.Effect.Alpha.dampingRatio,
+          stiffness = app.gyrolet.mpvrx.ui.theme.AppMotion.Effect.Alpha.stiffness,
+        ),
+      label = "scrollbarAlpha",
+    )
+
+    PullRefreshBox(
+      isRefreshing = isRefreshing,
+      onRefresh = onRefresh,
+      listState = listState,
+      modifier = modifier.fillMaxSize(),
+    ) {
+      if (isGridMode) {
+        // Grid layout
+        val navigationBarHeight = app.gyrolet.mpvrx.ui.browser.LocalNavigationBarHeight.current
+        BoxWithConstraints(
+          modifier =
+            Modifier
+              .fillMaxSize(),
+        ) {
+          val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+          val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+          val folderGridColumnsPref = if (isLandscape) folderGridColumnsLandscape else folderGridColumnsPortrait
+          val maximumColumns = playlistGridColumnLimit(maxWidth.value.toInt(), true)
+          val folderGridColumns =
+            if (manualGridColumnsEnabled && folderGridColumnsPref > 0) {
+              folderGridColumnsPref.coerceIn(1, maximumColumns)
+            } else {
+              maximumColumns
+            }
+
+          LazyVerticalGrid(
+            columns = GridCells.Fixed(folderGridColumns),
+            state = gridState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding =
+              PaddingValues(
+                start = 8.dp,
+                end = 8.dp,
+                bottom = if (isInSelectionMode) 88.dp else navigationBarHeight,
+              ),
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+          ) {
+            items(
+              count = playlistsWithCount.size,
+              key = { playlistsWithCount[it].playlist.id },
+            ) { index ->
+              val playlistWithCount = playlistsWithCount[index]
+              PlaylistCard(
+                playlist = playlistWithCount.playlist,
+                itemCount = playlistWithCount.itemCount,
+                sources = playlistWithCount.sources,
+                isSelected = selectionManager.isSelected(playlistWithCount),
+                onClick = { onPlaylistClick(playlistWithCount) },
+                onLongClick = { onPlaylistLongClick(playlistWithCount) },
+                onThumbClick = { onPlaylistClick(playlistWithCount) },
+                isGridMode = true,
+              )
+            }
+          }
+          if (hasEnoughItems && scrollbarAlpha > 0.01f) {
+            ExpressiveScrollBar(
+              gridState = gridState,
+              dragLabelProvider = { index: Int ->
+                fastScrollGlyph(playlistsWithCount.getOrNull(index)?.playlist?.name)
+              },
+              modifier =
+                Modifier
+                  .align(Alignment.CenterEnd)
+                  .padding(end = 2.dp, top = 6.dp, bottom = navigationBarHeight + 6.dp)
+                  .graphicsLayer { alpha = scrollbarAlpha },
+            )
+          }
+        }
+      } else {
+        // List layout
+        val navigationBarHeight = app.gyrolet.mpvrx.ui.browser.LocalNavigationBarHeight.current
+        Box(
+          modifier =
+            Modifier
+              .fillMaxSize(),
+        ) {
+          LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding =
+              PaddingValues(
+                start = 8.dp,
+                end = 8.dp,
+                bottom = if (isInSelectionMode) 88.dp else navigationBarHeight,
+              ),
+            verticalArrangement = Arrangement.spacedBy(0.dp),
+          ) {
+            items(playlistsWithCount, key = { it.playlist.id }) { playlistWithCount ->
+              PlaylistCard(
+                playlist = playlistWithCount.playlist,
+                itemCount = playlistWithCount.itemCount,
+                sources = playlistWithCount.sources,
+                isSelected = selectionManager.isSelected(playlistWithCount),
+                onClick = { onPlaylistClick(playlistWithCount) },
+                onLongClick = { onPlaylistLongClick(playlistWithCount) },
+                onThumbClick = { onPlaylistClick(playlistWithCount) },
+                isGridMode = false,
+              )
+            }
+          }
+          if (hasEnoughItems && scrollbarAlpha > 0.01f) {
+            ExpressiveScrollBar(
+              listState = listState,
+              dragLabelProvider = { index: Int ->
+                fastScrollGlyph(playlistsWithCount.getOrNull(index)?.playlist?.name)
+              },
+              modifier =
+                Modifier
+                  .align(Alignment.CenterEnd)
+                  .padding(end = 2.dp, top = 6.dp, bottom = navigationBarHeight + 6.dp)
+                  .graphicsLayer { alpha = scrollbarAlpha },
+            )
+          }
+        }
+      }
+    }
+  }
+}

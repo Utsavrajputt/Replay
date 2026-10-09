@@ -1,0 +1,742 @@
+package app.gyrolet.mpvrx.ui.icons
+
+import androidx.annotation.DrawableRes
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathFillType
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.group
+import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.unit.dp
+import com.composables.icons.materialsymbols.MaterialSymbols
+import com.composables.icons.materialsymbols.roundedfilled.*
+import com.composables.icons.materialsymbols.roundedfilled.R as MaterialSymbolsR
+
+@Suppress("MemberVisibilityCanBePrivate")
+object Icons {
+  private object Shared {
+    val AccessTime by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Schedule) }
+    val AccountBalance by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Account_balance) }
+    val AccountTree by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Account_tree) }
+    val Add by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Add) }
+    val AddCircle by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Add_circle) }
+    val AddToQueue by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Add_to_queue) }
+    val AlignVerticalCenter by lazy(LazyThreadSafetyMode.NONE) {
+      AppIcon(MaterialSymbols.RoundedFilled.Align_vertical_center)
+    }
+    val Article by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Article) }
+    val ArrowBack by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.West) }
+    val ArrowBackClassic by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Arrow_back) }
+    val ArrowBackIos by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Arrow_back_ios) }
+    val ArrowBackIosNew by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Arrow_back_ios_new) }
+    val ArrowDropDown by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Arrow_drop_down) }
+    val ArrowForward by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.East) }
+    val ArrowLeftAlt by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Arrow_left_alt) }
+    val AspectRatio by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Aspect_ratio) }
+    val Audiobookshelf by lazy(LazyThreadSafetyMode.NONE) {
+      AppIcon(app.gyrolet.mpvrx.R.drawable.ic_audiobookshelf_header)
+    }
+    val Audiotrack by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Music_note) }
+    val AutoAwesome by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Auto_awesome) }
+    val AutoFixHigh by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Auto_fix_high) }
+    val Aperture by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Shutter_speed) }
+    val AvTimer by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Av_timer) }
+    val Block by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Block) }
+    val BlurOff by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Blur_off) }
+    val BlurOn by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Blur_on) }
+    val Bookmarks by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Bookmarks) }
+    val Bookmark by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Bookmark) }
+    val BorderColor by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Border_color) }
+    val BorderStyle by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Border_style) }
+    val BrandFamily by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Brand_family) }
+    val Brightness6 by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Brightness_6) }
+    val BrightnessHigh by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Brightness_high) }
+    val BrightnessLow by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Brightness_empty) }
+    val BrightnessMedium by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Brightness_medium) }
+    val BringYourOwnIp by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Bring_your_own_ip) }
+    val BugReport by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Bug_report) }
+    val CalendarToday by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Calendar_today) }
+    val Camera by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Camera) }
+    val CameraAlt by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Photo_camera) }
+    val Cancel by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Cancel) }
+    val CatchingPokemon by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Pets) }
+    val Cast by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Cast) }
+    val Check by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Check) }
+    val CheckCircle by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Check_circle) }
+    val Checklist by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Checklist) }
+    val ChevronLeft by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Chevron_left) }
+    val ChevronRight by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Chevron_right) }
+    val Clear by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Close) }
+    val Close by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Close) }
+    val CloudDone by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Cloud_done) }
+    val CloudDownload by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Cloud_download) }
+    val CloudOff by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Cloud_off) }
+    val Code by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Code) }
+    val Coffee by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Coffee) }
+    val ContentCut by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Content_cut) }
+    val ContentCopy by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Content_copy) }
+    val ContentPaste by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Content_paste) }
+    val CreateNewFolder by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Create_new_folder) }
+    val CurrencyRupee by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Currency_rupee) }
+    val Delete by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Delete) }
+    val DeveloperBoard by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Developer_board) }
+    val Download by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Download) }
+    val DragHandle by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Drag_handle) }
+    val DriveFileMove by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Drive_file_move) }
+    val DriveFileMoveOutline by lazy(LazyThreadSafetyMode.NONE) {
+      AppIcon(MaterialSymbols.RoundedFilled.Drive_file_move_outline)
+    }
+    val DriveFileRenameOutline by lazy(LazyThreadSafetyMode.NONE) {
+      AppIcon(MaterialSymbols.RoundedFilled.Drive_file_rename_outline)
+    }
+    val DriveFolderUpload by lazy(
+      LazyThreadSafetyMode.NONE,
+    ) { AppIcon(MaterialSymbols.RoundedFilled.Drive_folder_upload) }
+    val Edit by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Edit) }
+    val EditOff by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Edit_off) }
+    val Equalizer by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Equalizer) }
+    val ErrorOutline by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Error) }
+    val ExitToApp by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Exit_to_app) }
+    val Explore by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Explore) }
+    val Key by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Key) }
+    val ExpandLess by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Expand_less) }
+    val ExpandMore by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Expand_more) }
+    val FastForward by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Fast_forward) }
+    val FastRewind by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Fast_rewind) }
+    val FeaturedPlayList by lazy(
+      LazyThreadSafetyMode.NONE,
+    ) { AppIcon(MaterialSymbols.RoundedFilled.Featured_play_list) }
+    val FileDownload by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.File_download) }
+    val FileOpen by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.File_open) }
+    val FileUpload by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.File_upload) }
+    val FitScreen by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Fit_screen) }
+    val Flip by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Flip) }
+    val Fingerprint by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Fingerprint) }
+    val Folder by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Folder) }
+    val FolderOff by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Folder_off) }
+    val FolderOpen by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Folder_open) }
+    val FolderZip by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Folder_zip) }
+    val FormatAlignCenter by lazy(
+      LazyThreadSafetyMode.NONE,
+    ) { AppIcon(MaterialSymbols.RoundedFilled.Format_align_center) }
+    val FormatAlignJustify by lazy(LazyThreadSafetyMode.NONE) {
+      AppIcon(MaterialSymbols.RoundedFilled.Format_align_justify)
+    }
+    val FormatAlignLeft by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Format_align_left) }
+    val FormatAlignRight by lazy(
+      LazyThreadSafetyMode.NONE,
+    ) { AppIcon(MaterialSymbols.RoundedFilled.Format_align_right) }
+    val FormatBold by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Format_bold) }
+    val FormatClear by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Format_clear) }
+    val FormatColorFill by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Format_color_fill) }
+    val FormatColorReset by lazy(
+      LazyThreadSafetyMode.NONE,
+    ) { AppIcon(MaterialSymbols.RoundedFilled.Format_color_reset) }
+    val FormatColorText by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Format_color_text) }
+    val FormatItalic by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Format_italic) }
+    val FormatSize by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Format_size) }
+    val FrameInspect by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Frame_inspect) }
+    val Gesture by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Gesture) }
+    val Gradient by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Gradient) }
+    val Grain by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Grain) }
+    val GridView by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Grid_view) }
+    val Headset by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Headphones) }
+    val HdrOff by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Hdr_off) }
+    val HdrOn by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Hdr_on) }
+    val History by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.History_2) }
+    val NewReleases by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.New_releases) }
+    val Home by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Home) }
+    val Info by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Info) }
+    val Image by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Image) }
+    val InsertDriveFile by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Description) }
+    val Jellyfin by lazy(LazyThreadSafetyMode.NONE) {
+      AppIcon(app.gyrolet.mpvrx.R.drawable.ic_jellyfin)
+    }
+    val KeyboardArrowDown by lazy(
+      LazyThreadSafetyMode.NONE,
+    ) { AppIcon(MaterialSymbols.RoundedFilled.Keyboard_arrow_down) }
+    val KeyboardArrowLeft by lazy(
+      LazyThreadSafetyMode.NONE,
+    ) { AppIcon(MaterialSymbols.RoundedFilled.Keyboard_arrow_left) }
+    val KeyboardArrowRight by lazy(LazyThreadSafetyMode.NONE) {
+      AppIcon(MaterialSymbols.RoundedFilled.Keyboard_arrow_right)
+    }
+    val KeyboardArrowUp by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Keyboard_arrow_up) }
+    val Language by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Language) }
+    val Link by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Link) }
+    val Translate by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Translate) }
+    val LinkOff by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Link_off) }
+    val Lock by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Lock) }
+    val LockOpen by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Lock_open) }
+    val ListAlt by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.List_alt) }
+    val Lyrics by lazy(LazyThreadSafetyMode.NONE) { AppIcon(LyricsVector) }
+    val Memory by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Memory) }
+    val Mic by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Mic) }
+    val Person by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Person) }
+    val MonetizationOn by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Monetization_on) }
+    val MoreTime by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.More_time) }
+    val MoreVert by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.More_vert) }
+    val MenuBook by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Menu_book) }
+    val Movie by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Movie) }
+    val Mystery by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Mystery) }
+    val Notifications by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Notifications) }
+    val NotInterested by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Block) }
+    val Opacity by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Opacity) }
+    val Palette by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Palette) }
+    val Pause by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Pause) }
+    val PictureInPictureAlt by lazy(LazyThreadSafetyMode.NONE) {
+      AppIcon(MaterialSymbols.RoundedFilled.Picture_in_picture_alt)
+    }
+    val PlayArrow by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Play_arrow) }
+    val PlayCircle by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Play_circle) }
+    val PlaylistAddCheck by lazy(
+      LazyThreadSafetyMode.NONE,
+    ) { AppIcon(MaterialSymbols.RoundedFilled.Playlist_add_check) }
+    val PlaylistAddCircle by lazy(
+      LazyThreadSafetyMode.NONE,
+    ) { AppIcon(MaterialSymbols.RoundedFilled.Playlist_add_circle) }
+    val SmartDisplay by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Smart_display) }
+    val Videocam by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Videocam) }
+    val Visibility by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Visibility) }
+    val VisibilityOff by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Visibility_off) }
+    val Backspace by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Backspace) }
+    val SelectAll by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Select_all) }
+    val HelpOutline by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Help) }
+    val PlaylistAdd by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Playlist_add) }
+    val PlaylistPlay get() = PlayArrow
+    val Subscriptions by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Subscriptions) }
+    val PushPin by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Push_pin) }
+    val QueueMusic by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Queue_music) }
+    val Refresh by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Refresh) }
+    val Remove by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Remove) }
+    val RemoveCircle by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Do_not_disturb_on) }
+    val Repeat by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Repeat) }
+    val RepeatOn by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Repeat_on) }
+    val RepeatOne by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Repeat_one) }
+    val Replay by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Replay) }
+    val ResetIso by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Reset_iso) }
+    val Restore by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Undo) }
+    val RoundedCorner by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Rounded_corner) }
+    val ScreenRotation by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Screen_rotation) }
+    val Screenshot by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Screenshot) }
+    val SdCard by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Sd_card) }
+    val Search by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Search) }
+    val Settings by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Settings) }
+    val Security by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Security) }
+    val Seerr by lazy(LazyThreadSafetyMode.NONE) {
+      AppIcon(app.gyrolet.mpvrx.R.drawable.ic_seerr_logo)
+    }
+    val Shadow by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Shadow) }
+    val Share by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Share) }
+    val Shuffle by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Shuffle) }
+    val ShuffleOn by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Shuffle_on) }
+    val SortByAlpha by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Sort_by_alpha) }
+    val Star by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Star) }
+    val Favorite by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Favorite) }
+    val FavoriteBorder by lazy(LazyThreadSafetyMode.NONE) { AppIcon(FavoriteBorderVector) }
+    val Tv by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Tv) }
+    val Theaters by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Theaters) }
+    val FilterList by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Filter_list) }
+    val Whatshot by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Whatshot) }
+    val Hd by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Hd) }
+    val SignalWifiStatusbarConnectedNoInternet4 by lazy(LazyThreadSafetyMode.NONE) {
+      AppIcon(MaterialSymbols.RoundedFilled.Signal_wifi_statusbar_not_connected)
+    }
+    val SkipNext by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Skip_next) }
+    val SkipPrevious by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Skip_previous) }
+    val Slideshow by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Slideshow) }
+    val Speed by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Speed) }
+    val Subtitles by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Subtitles) }
+    val SwapVert by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Swap_vert) }
+    val SystemUpdate by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.System_update) }
+    val Thermostat by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Thermostat) }
+    val Timer by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Timer) }
+    val Terminal by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Terminal) }
+    val Title by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Title) }
+    val Tune by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Tune) }
+    val Update by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Update) }
+    val Usb by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Usb) }
+    val VideoLibrary by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Video_library) }
+    val ViewAgenda by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.View_agenda) }
+    val ViewArray by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.View_array) }
+    val ViewComfy by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.View_comfy) }
+    val ViewList by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.View_list) }
+    val ViewModule by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.View_module) }
+    val Vignette by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Vignette) }
+    val ViewQuilt by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.View_quilt) }
+    val VolumeDownAlt by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Volume_down_alt) }
+    val VolumeDown by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Volume_down) }
+    val VolumeMute by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Volume_mute) }
+    val VolumeOff by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Volume_off) }
+    val VolumeUp by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Volume_up) }
+    val RingVolume by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Ring_volume) }
+    val Warning by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Warning) }
+    val West by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.West) }
+    val WbSunny by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Wb_sunny) }
+    val ZoomIn by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Zoom_in) }
+    val ZoomOutMap by lazy(LazyThreadSafetyMode.NONE) { AppIcon(MaterialSymbols.RoundedFilled.Zoom_out_map) }
+    val PostProcessing by lazy(LazyThreadSafetyMode.NONE) { AppIcon(PostProcessingVector) }
+  }
+
+  object RoundedFilled {
+    val AccessTime get() = Shared.AccessTime
+    val AccountBalance get() = Shared.AccountBalance
+    val AccountTree get() = Shared.AccountTree
+    val Add get() = Shared.Add
+    val AddCircle get() = Shared.AddCircle
+    val AddToQueue get() = Shared.AddToQueue
+    val AlignVerticalCenter get() = Shared.AlignVerticalCenter
+    val Article get() = Shared.Article
+    val ArrowBack get() = Shared.ArrowBack
+    val ArrowBackClassic get() = Shared.ArrowBackClassic
+    val ArrowBackIos get() = Shared.ArrowBackIos
+    val ArrowBackIosNew get() = Shared.ArrowBackIosNew
+    val ArrowDropDown get() = Shared.ArrowDropDown
+    val ArrowForward get() = Shared.ArrowForward
+    val ArrowLeftAlt get() = Shared.ArrowLeftAlt
+    val AspectRatio get() = Shared.AspectRatio
+    val Audiobookshelf get() = Shared.Audiobookshelf
+    val Audiotrack get() = Shared.Audiotrack
+    val AutoAwesome get() = Shared.AutoAwesome
+    val AutoFixHigh get() = Shared.AutoFixHigh
+    val Aperture get() = Shared.Aperture
+    val AvTimer get() = Shared.AvTimer
+    val Block get() = Shared.Block
+    val BlurOff get() = Shared.BlurOff
+    val BlurOn get() = Shared.BlurOn
+    val Bookmarks get() = Shared.Bookmarks
+    val Bookmark get() = Shared.Bookmark
+    val BorderColor get() = Shared.BorderColor
+    val BorderStyle get() = Shared.BorderStyle
+    val BrandFamily get() = Shared.BrandFamily
+    val Brightness6 get() = Shared.Brightness6
+    val BrightnessHigh get() = Shared.BrightnessHigh
+    val BrightnessLow get() = Shared.BrightnessLow
+    val BrightnessMedium get() = Shared.BrightnessMedium
+    val BringYourOwnIp get() = Shared.BringYourOwnIp
+    val BugReport get() = Shared.BugReport
+    val CalendarToday get() = Shared.CalendarToday
+    val Camera get() = Shared.Camera
+    val CameraAlt get() = Shared.CameraAlt
+    val Cancel get() = Shared.Cancel
+    val CatchingPokemon get() = Shared.CatchingPokemon
+    val Cast get() = Shared.Cast
+    val Check get() = Shared.Check
+    val CheckCircle get() = Shared.CheckCircle
+    val Checklist get() = Shared.Checklist
+    val ChevronLeft get() = Shared.ChevronLeft
+    val ChevronRight get() = Shared.ChevronRight
+    val Clear get() = Shared.Clear
+    val Close get() = Shared.Close
+    val CloudDone get() = Shared.CloudDone
+    val CloudDownload get() = Shared.CloudDownload
+    val CloudOff get() = Shared.CloudOff
+    val Code get() = Shared.Code
+    val Coffee get() = Shared.Coffee
+    val ContentCut get() = Shared.ContentCut
+    val ContentCopy get() = Shared.ContentCopy
+    val ContentPaste get() = Shared.ContentPaste
+    val CreateNewFolder get() = Shared.CreateNewFolder
+    val CurrencyRupee get() = Shared.CurrencyRupee
+    val Delete get() = Shared.Delete
+    val DeveloperBoard get() = Shared.DeveloperBoard
+    val Download get() = Shared.Download
+    val DragHandle get() = Shared.DragHandle
+    val DriveFileMove get() = Shared.DriveFileMove
+    val DriveFileMoveOutline get() = Shared.DriveFileMoveOutline
+    val DriveFileRenameOutline get() = Shared.DriveFileRenameOutline
+    val DriveFolderUpload get() = Shared.DriveFolderUpload
+    val Edit get() = Shared.Edit
+    val EditOff get() = Shared.EditOff
+    val Equalizer get() = Shared.Equalizer
+    val ErrorOutline get() = Shared.ErrorOutline
+    val ExitToApp get() = Shared.ExitToApp
+    val Explore get() = Shared.Explore
+    val Key get() = Shared.Key
+    val ExpandLess get() = Shared.ExpandLess
+    val ExpandMore get() = Shared.ExpandMore
+    val FastForward get() = Shared.FastForward
+    val FastRewind get() = Shared.FastRewind
+    val FeaturedPlayList get() = Shared.FeaturedPlayList
+    val FileDownload get() = Shared.FileDownload
+    val FileOpen get() = Shared.FileOpen
+    val FileUpload get() = Shared.FileUpload
+    val FitScreen get() = Shared.FitScreen
+    val Flip get() = Shared.Flip
+    val Fingerprint get() = Shared.Fingerprint
+    val Folder get() = Shared.Folder
+    val FolderOff get() = Shared.FolderOff
+    val FolderOpen get() = Shared.FolderOpen
+    val FolderZip get() = Shared.FolderZip
+    val FormatAlignCenter get() = Shared.FormatAlignCenter
+    val FormatAlignJustify get() = Shared.FormatAlignJustify
+    val FormatAlignLeft get() = Shared.FormatAlignLeft
+    val FormatAlignRight get() = Shared.FormatAlignRight
+    val FormatBold get() = Shared.FormatBold
+    val FormatClear get() = Shared.FormatClear
+    val FormatColorFill get() = Shared.FormatColorFill
+    val FormatColorReset get() = Shared.FormatColorReset
+    val FormatColorText get() = Shared.FormatColorText
+    val FormatItalic get() = Shared.FormatItalic
+    val FormatSize get() = Shared.FormatSize
+    val FrameInspect get() = Shared.FrameInspect
+    val Gesture get() = Shared.Gesture
+    val Gradient get() = Shared.Gradient
+    val Grain get() = Shared.Grain
+    val GridView get() = Shared.GridView
+    val Headset get() = Shared.Headset
+    val HdrOff get() = Shared.HdrOff
+    val HdrOn get() = Shared.HdrOn
+    val History get() = Shared.History
+    val NewReleases get() = Shared.NewReleases
+    val Home get() = Shared.Home
+    val Image get() = Shared.Image
+    val Info get() = Shared.Info
+    val InsertDriveFile get() = Shared.InsertDriveFile
+    val Jellyfin get() = Shared.Jellyfin
+    val KeyboardArrowDown get() = Shared.KeyboardArrowDown
+    val KeyboardArrowLeft get() = Shared.KeyboardArrowLeft
+    val KeyboardArrowRight get() = Shared.KeyboardArrowRight
+    val KeyboardArrowUp get() = Shared.KeyboardArrowUp
+    val Language get() = Shared.Language
+    val Link get() = Shared.Link
+    val Translate get() = Shared.Translate
+    val LinkOff get() = Shared.LinkOff
+    val Lock get() = Shared.Lock
+    val LockOpen get() = Shared.LockOpen
+    val ListAlt get() = Shared.ListAlt
+    val Lyrics get() = Shared.Lyrics
+    val Memory get() = Shared.Memory
+    val Mic get() = Shared.Mic
+    val Person get() = Shared.Person
+    val MonetizationOn get() = Shared.MonetizationOn
+    val MoreTime get() = Shared.MoreTime
+    val MoreVert get() = Shared.MoreVert
+    val MenuBook get() = Shared.MenuBook
+    val Movie get() = Shared.Movie
+    val Mystery get() = Shared.Mystery
+    val Notifications get() = Shared.Notifications
+    val NotInterested get() = Shared.NotInterested
+    val Opacity get() = Shared.Opacity
+    val Palette get() = Shared.Palette
+    val Pause get() = Shared.Pause
+    val PictureInPictureAlt get() = Shared.PictureInPictureAlt
+    val PlayArrow get() = Shared.PlayArrow
+    val PlayCircle get() = Shared.PlayCircle
+    val PlaylistAddCheck get() = Shared.PlaylistAddCheck
+    val PlaylistAddCircle get() = Shared.PlaylistAddCircle
+    val SmartDisplay get() = Shared.SmartDisplay
+    val Videocam get() = Shared.Videocam
+    val Visibility get() = Shared.Visibility
+    val VisibilityOff get() = Shared.VisibilityOff
+    val Backspace get() = Shared.Backspace
+    val SelectAll get() = Shared.SelectAll
+    val HelpOutline get() = Shared.HelpOutline
+    val PlaylistAdd get() = Shared.PlaylistAdd
+    val PlaylistPlay get() = Shared.PlaylistPlay
+    val Subscriptions get() = Shared.Subscriptions
+    val PushPin get() = Shared.PushPin
+    val QueueMusic get() = Shared.QueueMusic
+    val Refresh get() = Shared.Refresh
+    val Remove get() = Shared.Remove
+    val RemoveCircle get() = Shared.RemoveCircle
+    val Repeat get() = Shared.Repeat
+    val RepeatOn get() = Shared.RepeatOn
+    val RepeatOne get() = Shared.RepeatOne
+    val Replay get() = Shared.Replay
+    val ResetIso get() = Shared.ResetIso
+    val Restore get() = Shared.Restore
+    val RoundedCorner get() = Shared.RoundedCorner
+    val ScreenRotation get() = Shared.ScreenRotation
+    val Screenshot get() = Shared.Screenshot
+    val SdCard get() = Shared.SdCard
+    val Search get() = Shared.Search
+    val Settings get() = Shared.Settings
+    val Security get() = Shared.Security
+    val Seerr get() = Shared.Seerr
+    val Shadow get() = Shared.Shadow
+    val Share get() = Shared.Share
+    val Shuffle get() = Shared.Shuffle
+    val ShuffleOn get() = Shared.ShuffleOn
+    val SortByAlpha get() = Shared.SortByAlpha
+    val Star get() = Shared.Star
+    val Favorite get() = Shared.Favorite
+    val FavoriteBorder get() = Shared.FavoriteBorder
+    val Tv get() = Shared.Tv
+    val Theaters get() = Shared.Theaters
+    val FilterList get() = Shared.FilterList
+    val Whatshot get() = Shared.Whatshot
+    val Hd get() = Shared.Hd
+    val SignalWifiStatusbarConnectedNoInternet4 get() = Shared.SignalWifiStatusbarConnectedNoInternet4
+    val SkipNext get() = Shared.SkipNext
+    val SkipPrevious get() = Shared.SkipPrevious
+    val Slideshow get() = Shared.Slideshow
+    val Speed get() = Shared.Speed
+    val Subtitles get() = Shared.Subtitles
+    val SwapVert get() = Shared.SwapVert
+    val SystemUpdate get() = Shared.SystemUpdate
+    val Thermostat get() = Shared.Thermostat
+    val Timer get() = Shared.Timer
+    val Terminal get() = Shared.Terminal
+    val Title get() = Shared.Title
+    val Tune get() = Shared.Tune
+    val Update get() = Shared.Update
+    val Usb get() = Shared.Usb
+    val VideoLibrary get() = Shared.VideoLibrary
+    val ViewAgenda get() = Shared.ViewAgenda
+    val ViewArray get() = Shared.ViewArray
+    val ViewComfy get() = Shared.ViewComfy
+    val ViewList get() = Shared.ViewList
+    val ViewModule get() = Shared.ViewModule
+    val Vignette get() = Shared.Vignette
+    val ViewQuilt get() = Shared.ViewQuilt
+    val VolumeDownAlt get() = Shared.VolumeDownAlt
+    val VolumeDown get() = Shared.VolumeDown
+    val VolumeMute get() = Shared.VolumeMute
+    val VolumeOff get() = Shared.VolumeOff
+    val VolumeUp get() = Shared.VolumeUp
+    val RingVolume get() = Shared.RingVolume
+    val Warning get() = Shared.Warning
+    val West get() = Shared.West
+    val WbSunny get() = Shared.WbSunny
+    val ZoomIn get() = Shared.ZoomIn
+    val ZoomOutMap get() = Shared.ZoomOutMap
+    val PostProcessing get() = Shared.PostProcessing
+  }
+
+  object Alternatives {
+    val AdvancedSettings get() = Shared.Code
+  }
+
+  /** Material Symbols for Android platform APIs that require drawable resource IDs. */
+  object Platform {
+    @DrawableRes val FastRewind = MaterialSymbolsR.drawable.materialsymbols_ic_fast_rewind_rounded_filled
+
+    @DrawableRes val FastForward = MaterialSymbolsR.drawable.materialsymbols_ic_fast_forward_rounded_filled
+
+    @DrawableRes val Replay10 = MaterialSymbolsR.drawable.materialsymbols_ic_replay_10_rounded_filled
+
+    @DrawableRes val Forward10 = MaterialSymbolsR.drawable.materialsymbols_ic_forward_10_rounded_filled
+
+    @DrawableRes val Previous = MaterialSymbolsR.drawable.materialsymbols_ic_skip_previous_rounded_filled
+
+    @DrawableRes val Play = MaterialSymbolsR.drawable.materialsymbols_ic_play_arrow_rounded_filled
+
+    @DrawableRes val Pause = MaterialSymbolsR.drawable.materialsymbols_ic_pause_rounded_filled
+
+    @DrawableRes val Next = MaterialSymbolsR.drawable.materialsymbols_ic_skip_next_rounded_filled
+
+    @DrawableRes val FavoriteBorder = app.gyrolet.mpvrx.R.drawable.materialsymbols_ic_favorite_rounded
+
+    @DrawableRes val Favorite = MaterialSymbolsR.drawable.materialsymbols_ic_favorite_rounded_filled
+
+    @DrawableRes val Repeat = app.gyrolet.mpvrx.R.drawable.materialsymbols_ic_repeat_rounded
+
+    @DrawableRes val RepeatOn = MaterialSymbolsR.drawable.materialsymbols_ic_repeat_on_rounded_filled
+
+    @DrawableRes val RepeatOne = MaterialSymbolsR.drawable.materialsymbols_ic_repeat_one_rounded_filled
+
+    @DrawableRes val Stop = MaterialSymbolsR.drawable.materialsymbols_ic_stop_rounded_filled
+
+    @DrawableRes val Close = MaterialSymbolsR.drawable.materialsymbols_ic_close_rounded_filled
+  }
+}
+
+private val FavoriteBorderVector: ImageVector by lazy(LazyThreadSafetyMode.NONE) {
+  ImageVector.Builder(
+    name = "FavoriteBorder",
+    defaultWidth = 24.dp,
+    defaultHeight = 24.dp,
+    viewportWidth = 960f,
+    viewportHeight = 960f,
+  ).apply {
+    group(
+      translationY = 960f,
+    ) {
+      path(
+        fill = SolidColor(Color.Black),
+        fillAlpha = 1.0f,
+        stroke = null,
+        strokeAlpha = 1.0f,
+        strokeLineWidth = 1.0f,
+        pathFillType = PathFillType.NonZero,
+      ) {
+        moveTo(451.5f, -152f)
+        quadToRelative(-14.5f, -5f, -25.5f, -16f)
+        lineToRelative(-69f, -63f)
+        quadToRelative(-106f, -97f, -191.5f, -192.5f)
+        reflectiveQuadTo(80f, -634f)
+        quadToRelative(0f, -94f, 63f, -157f)
+        reflectiveQuadToRelative(157f, -63f)
+        quadToRelative(53f, 0f, 100f, 22.5f)
+        reflectiveQuadToRelative(80f, 61.5f)
+        quadToRelative(33f, -39f, 80f, -61.5f)
+        reflectiveQuadTo(660f, -854f)
+        quadToRelative(94f, 0f, 157f, 63f)
+        reflectiveQuadToRelative(63f, 157f)
+        quadToRelative(0f, 115f, -85f, 211f)
+        reflectiveQuadTo(602f, -230f)
+        lineToRelative(-68f, 62f)
+        quadToRelative(-11f, 11f, -25.5f, 16f)
+        reflectiveQuadToRelative(-28.5f, 5f)
+        quadToRelative(-14f, 0f, -28.5f, -5f)
+        close()
+        moveTo(442f, -690f)
+        quadToRelative(-29f, -41f, -62f, -62.5f)
+        reflectiveQuadTo(300f, -774f)
+        quadToRelative(-60f, 0f, -100f, 40f)
+        reflectiveQuadToRelative(-40f, 100f)
+        quadToRelative(0f, 52f, 37f, 110.5f)
+        reflectiveQuadTo(285.5f, -410f)
+        quadToRelative(51.5f, 55f, 106f, 103f)
+        reflectiveQuadToRelative(88.5f, 79f)
+        quadToRelative(34f, -31f, 88.5f, -79f)
+        reflectiveQuadToRelative(106f, -103f)
+        quadTo(726f, -465f, 763f, -523.5f)
+        reflectiveQuadTo(800f, -634f)
+        quadToRelative(0f, -60f, -40f, -100f)
+        reflectiveQuadToRelative(-100f, -40f)
+        quadToRelative(-47f, 0f, -80f, 21.5f)
+        reflectiveQuadTo(518f, -690f)
+        quadToRelative(-7f, 10f, -17f, 15f)
+        reflectiveQuadToRelative(-21f, 5f)
+        quadToRelative(-11f, 0f, -21f, -5f)
+        reflectiveQuadToRelative(-17f, -15f)
+        close()
+        moveToRelative(38f, 189f)
+        close()
+      }
+    }
+  }.build()
+}
+
+private val LyricsVector: ImageVector by lazy(LazyThreadSafetyMode.NONE) {
+  ImageVector.Builder(
+    name = "Lyrics",
+    defaultWidth = 24.dp,
+    defaultHeight = 24.dp,
+    viewportWidth = 24f,
+    viewportHeight = 24f,
+  ).apply {
+    path(
+      fill = SolidColor(Color.Black),
+      fillAlpha = 1.0f,
+      stroke = null,
+      strokeAlpha = 1.0f,
+      strokeLineWidth = 1.0f,
+      pathFillType = PathFillType.EvenOdd,
+    ) {
+      // Speech bubble message box (full standard 24x24 icon scale)
+      moveTo(5.5f, 3.0f)
+      horizontalLineTo(18.5f)
+      curveTo(20.43f, 3.0f, 22.0f, 4.57f, 22.0f, 6.5f)
+      verticalLineTo(14.5f)
+      curveTo(22.0f, 16.43f, 20.43f, 18.0f, 18.5f, 18.0f)
+      horizontalLineTo(8.0f)
+      lineTo(3.2f, 21.6f)
+      curveTo(2.6f, 22.05f, 2.0f, 21.6f, 2.0f, 20.8f)
+      verticalLineTo(6.5f)
+      curveTo(2.0f, 4.57f, 3.57f, 3.0f, 5.5f, 3.0f)
+      close()
+
+      // Left quotation mark (bulb top-right, tail curving down-left)
+      moveTo(9.0f, 6.5f)
+      curveTo(10.2f, 6.5f, 11.0f, 7.3f, 11.0f, 8.5f)
+      curveTo(11.0f, 11.0f, 9.2f, 13.5f, 6.6f, 14.8f)
+      curveTo(6.1f, 15.0f, 5.7f, 14.4f, 6.0f, 13.9f)
+      curveTo(7.4f, 12.3f, 8.0f, 11.0f, 7.7f, 9.7f)
+      curveTo(7.3f, 9.7f, 7.0f, 9.2f, 7.0f, 8.5f)
+      curveTo(7.0f, 7.3f, 7.8f, 6.5f, 9.0f, 6.5f)
+      close()
+
+      // Right quotation mark (bulb top-right, tail curving down-left)
+      moveTo(14.5f, 6.5f)
+      curveTo(15.7f, 6.5f, 16.5f, 7.3f, 16.5f, 8.5f)
+      curveTo(16.5f, 11.0f, 14.7f, 13.5f, 12.1f, 14.8f)
+      curveTo(11.6f, 15.0f, 11.2f, 14.4f, 11.5f, 13.9f)
+      curveTo(12.9f, 12.3f, 13.5f, 11.0f, 13.2f, 9.7f)
+      curveTo(12.8f, 9.7f, 12.5f, 9.2f, 12.5f, 8.5f)
+      curveTo(12.5f, 7.3f, 13.3f, 6.5f, 14.5f, 6.5f)
+      close()
+    }
+  }.build()
+}
+
+/**
+ * Post-Processing icon: a camera lens aperture ring with two 4-point sparkle stars,
+ * representing visual effects / shader post-processing.
+ * Hand-crafted 24×24 Material-style vector.
+ */
+private val PostProcessingVector: ImageVector by lazy(LazyThreadSafetyMode.NONE) {
+  ImageVector.Builder(
+    name = "PostProcessing",
+    defaultWidth = 24.dp,
+    defaultHeight = 24.dp,
+    viewportWidth = 24f,
+    viewportHeight = 24f,
+  ).apply {
+    path(
+      fill = SolidColor(Color.Black),
+      fillAlpha = 1.0f,
+      stroke = null,
+      strokeAlpha = 1.0f,
+      strokeLineWidth = 1.0f,
+      pathFillType = PathFillType.EvenOdd,
+    ) {
+      // Outer aperture ring — annulus (donut) via EvenOdd fill
+      // Outer circle: centre (11, 13), radius 9
+      moveTo(11.0f, 4.0f)
+      curveTo(6.03f, 4.0f, 2.0f, 8.03f, 2.0f, 13.0f)
+      curveTo(2.0f, 17.97f, 6.03f, 22.0f, 11.0f, 22.0f)
+      curveTo(15.97f, 22.0f, 20.0f, 17.97f, 20.0f, 13.0f)
+      curveTo(20.0f, 8.03f, 15.97f, 4.0f, 11.0f, 4.0f)
+      close()
+      // Inner hole — centre (11, 13), radius 5.5
+      moveTo(11.0f, 7.5f)
+      curveTo(13.76f, 7.5f, 16.0f, 9.74f, 16.0f, 12.5f)
+      curveTo(16.0f, 15.26f, 13.76f, 17.5f, 11.0f, 17.5f)
+      curveTo(8.24f, 17.5f, 6.0f, 15.26f, 6.0f, 12.5f)
+      curveTo(6.0f, 9.74f, 8.24f, 7.5f, 11.0f, 7.5f)
+      close()
+    }
+    path(
+      fill = SolidColor(Color.Black),
+      fillAlpha = 1.0f,
+      stroke = null,
+      strokeAlpha = 1.0f,
+      strokeLineWidth = 1.0f,
+      pathFillType = PathFillType.NonZero,
+    ) {
+      // Large 4-point sparkle star — top-right corner (17.5, 4.5), arm half-length 3.5 / 1.0
+      // Top arm
+      moveTo(17.5f, 1.0f)
+      lineTo(18.2f, 3.8f)
+      lineTo(21.0f, 4.5f)
+      lineTo(18.2f, 5.2f)
+      lineTo(17.5f, 8.0f)
+      lineTo(16.8f, 5.2f)
+      lineTo(14.0f, 4.5f)
+      lineTo(16.8f, 3.8f)
+      close()
+    }
+    path(
+      fill = SolidColor(Color.Black),
+      fillAlpha = 1.0f,
+      stroke = null,
+      strokeAlpha = 1.0f,
+      strokeLineWidth = 1.0f,
+      pathFillType = PathFillType.NonZero,
+    ) {
+      // Small 4-point sparkle dot — beside large star (21.5, 1.5), arm half-length 1.5 / 0.5
+      moveTo(21.5f, 0.5f)
+      lineTo(21.9f, 1.6f)
+      lineTo(23.0f, 2.0f)
+      lineTo(21.9f, 2.4f)
+      lineTo(21.5f, 3.5f)
+      lineTo(21.1f, 2.4f)
+      lineTo(20.0f, 2.0f)
+      lineTo(21.1f, 1.6f)
+      close()
+    }
+  }.build()
+}
