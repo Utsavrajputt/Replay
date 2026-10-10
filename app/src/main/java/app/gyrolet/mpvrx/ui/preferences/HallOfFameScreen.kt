@@ -2,7 +2,9 @@ package app.gyrolet.mpvrx.ui.preferences
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,44 +26,50 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.gyrolet.mpvrx.R
 import app.gyrolet.mpvrx.presentation.Screen
 import app.gyrolet.mpvrx.presentation.components.RemoteImage
@@ -79,10 +87,14 @@ import kotlinx.serialization.Serializable
 import org.koin.compose.koinInject
 import java.text.NumberFormat
 import java.util.Locale
+import kotlin.math.cos
+import kotlin.math.sin
+
+/** Contributor avatars are re-downloaded at most once every 72 hours. */
+private const val AVATAR_CACHE_TTL_MS = 72L * 60L * 60L * 1000L
 
 @Serializable
 object HallOfFameScreen : Screen {
-  @OptIn(ExperimentalMaterial3Api::class)
   @Composable
   override fun Content() {
     val repository = koinInject<GitHubContributorsRepository>()
@@ -131,184 +143,194 @@ object HallOfFameScreen : Screen {
       entries = active.entries.filterNot { it.displayName.lowercase(Locale.ROOT) in featuredLogins },
     )
     val topReporters = community.entries.filter { it.issuesReported > 0 }.take(3)
-    Scaffold(
-      topBar = {
-        TopAppBar(
-          title = {
-            Text(
-              text = stringResource(R.string.pref_hall_of_fame_title),
-              style = MaterialTheme.typography.headlineSmall,
-              fontWeight = FontWeight.ExtraBold,
-              color = colors.primary,
-            )
-          },
-          navigationIcon = {
-            if (LocalShowSettingsBackArrow.current) {
-              IconButton(onClick = { backstack.popSafely() }) {
-                Icon(Icons.RoundedFilled.ArrowBack, stringResource(R.string.back))
-              }
-            }
-          },
-          actions = {
-            TooltipBox(
-              positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
-              tooltip = { PlainTooltip { Text(stringResource(R.string.ui_refresh)) } },
-              state = rememberTooltipState(),
-            ) {
-              IconButton(onClick = { refreshRequest++ }, enabled = !loading) {
-                Icon(Icons.RoundedFilled.Refresh, stringResource(R.string.ui_refresh))
-              }
-            }
-          },
-        )
-      },
-    ) { paddingValues ->
-      Box(
-        modifier = Modifier.fillMaxSize().padding(paddingValues),
-        contentAlignment = Alignment.TopCenter,
-      ) {
-        LazyVerticalGrid(
-          columns = GridCells.Adaptive(136.dp),
-          modifier = Modifier.widthIn(max = 960.dp).fillMaxSize(),
-          contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 32.dp),
-          horizontalArrangement = Arrangement.spacedBy(12.dp),
-          verticalArrangement = Arrangement.spacedBy(12.dp),
+
+    val gridState = rememberLazyGridState()
+    val scope = rememberCoroutineScope()
+    var showAll by rememberSaveable { mutableStateOf(false) }
+    // Grid index of the "All contributors" header, recorded while the grid content is built so
+    // "View All" can scroll straight to it.
+    val allHeaderIndex = remember { intArrayOf(0) }
+    val showBack = LocalShowSettingsBackArrow.current
+
+    Box(
+      modifier = Modifier
+        .fillMaxSize()
+        .background(
+          Brush.verticalGradient(
+            listOf(colors.background, colors.primaryContainer.copy(alpha = 0.22f), colors.background),
+          ),
+        ),
+    ) {
+      Scaffold(containerColor = Color.Transparent) { paddingValues ->
+        Box(
+          modifier = Modifier.fillMaxSize().padding(paddingValues),
+          contentAlignment = Alignment.TopCenter,
         ) {
-          item(key = "creators", span = { GridItemSpan(maxLineSpan) }) {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-              HallOfFamePerson(
-                name = "MarlboroAdvance",
-                handle = "marlboro-advance",
-                details = stringResource(R.string.hall_of_fame_original_developer),
-                avatarUrl = "https://avatars.githubusercontent.com/u/227117361?s=256",
-                profileUrl = "https://github.com/marlboro-advance",
-                featured = true,
-                accent = colors.onPrimaryContainer,
-                containerColor = colors.primaryContainer,
-              )
-              HallOfFamePerson(
-                name = "Ritesh Pandit",
-                handle = "Riteshp2001",
-                details = stringResource(R.string.hall_of_fame_maintainer),
-                avatarUrl = "https://avatars.githubusercontent.com/u/87899750?s=256",
-                profileUrl = "https://github.com/Riteshp2001",
-                featured = true,
-                accent = colors.onTertiaryContainer,
-                containerColor = colors.tertiaryContainer,
+          LazyVerticalGrid(
+            state = gridState,
+            columns = GridCells.Adaptive(148.dp),
+            modifier = Modifier.widthIn(max = 960.dp).fillMaxSize(),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 32.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+          ) {
+            var index = 0
+
+            item(key = "header", span = { GridItemSpan(maxLineSpan) }) {
+              HallOfFameHeader(
+                showBack = showBack,
+                loading = loading,
+                onBack = { backstack.popSafely() },
+                onRefresh = { refreshRequest++ },
               )
             }
-          }
-          item(key = "featured:header", span = { GridItemSpan(maxLineSpan) }) {
-            Row(
-              modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-              Icon(Icons.RoundedFilled.Star, null, modifier = Modifier.size(22.dp), tint = colors.primary)
-              Text(
-                text = stringResource(R.string.hall_of_fame_featured_contributors),
-                modifier = Modifier.weight(1f).semantics { heading() },
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-              )
-            }
-          }
-          item(key = "featured:profiles", span = { GridItemSpan(maxLineSpan) }) {
-            HallOfFameTopThree(featuredContributors) { contributor, tileModifier ->
-              HallOfFamePerson(
-                name = contributor.name,
-                details = "@${contributor.login}",
-                avatarUrl = "https://avatars.githubusercontent.com/u/${contributor.avatarId}?s=256",
-                profileUrl = "https://github.com/${contributor.login}",
-                accent = colors.onSecondaryContainer,
-                containerColor = colors.secondaryContainer,
-                prominent = true,
-                modifier = tileModifier,
-              )
-            }
-          }
-          creditsSection(
-            sectionKey = "active",
-            titleRes = R.string.hall_of_fame_active_title,
-            subtitleRes = R.string.hall_of_fame_active_period,
-            icon = Icons.RoundedFilled.Star,
-            state = remainingActive,
-            itemKey = { it.profileUrl ?: it.displayName },
-            onRetry = { refreshRequest++ },
-            activityUrl = "$githubRepoUrl/commits",
-          ) { contributor ->
-            HallOfFamePerson(
-              name = contributor.displayName,
-              details = pluralStringResource(
-                R.plurals.hall_of_fame_commit_count, contributor.contributions, contributor.contributions,
-              ),
-              avatarUrl = contributor.avatarUrl,
-              profileUrl = contributor.profileUrl,
-              accent = colors.primary,
-            )
-          }
-          creditsSection(
-            sectionKey = "community",
-            titleRes = R.string.hall_of_fame_feedback_title,
-            subtitleRes = R.string.hall_of_fame_feedback_summary,
-            icon = Icons.RoundedFilled.BugReport,
-            state = community,
-            itemKey = { it.login },
-            onRetry = { refreshRequest++ },
-            activityUrl = "$githubRepoUrl/issues",
-            highlightedKeys = topReporters.mapTo(mutableSetOf()) { it.login },
-            highlightedContent = if (topReporters.isEmpty()) null else {
-              {
-                HallOfFameTopThree(topReporters) { member, tileModifier ->
-                  HallOfFamePerson(
-                    name = member.login,
-                    details = communityDetails(member),
-                    avatarUrl = member.avatarUrl,
-                    profileUrl = member.profileUrl,
-                    accent = colors.onTertiaryContainer,
-                    containerColor = colors.tertiaryContainer,
-                    prominent = true,
-                    modifier = tileModifier,
-                  )
-                }
+            index++
+
+            item(key = "creators", span = { GridItemSpan(maxLineSpan) }) {
+              Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                HallOfFameLeadCard(
+                  rank = 1,
+                  name = "MarlboroAdvance",
+                  handle = "marlboro-advance",
+                  tag = stringResource(R.string.hall_of_fame_original_developer),
+                  avatarUrl = "https://avatars.githubusercontent.com/u/227117361?s=256",
+                  profileUrl = "https://github.com/marlboro-advance",
+                  brush = Brush.linearGradient(
+                    listOf(colors.primaryContainer, colors.secondaryContainer.copy(alpha = 0.85f)),
+                  ),
+                  contentColor = colors.onPrimaryContainer,
+                )
+                HallOfFameLeadCard(
+                  rank = 2,
+                  name = "Ritesh Pandit",
+                  handle = "Riteshp2001",
+                  tag = stringResource(R.string.hall_of_fame_maintainer),
+                  avatarUrl = "https://avatars.githubusercontent.com/u/87899750?s=256",
+                  profileUrl = "https://github.com/Riteshp2001",
+                  brush = Brush.linearGradient(
+                    listOf(colors.secondaryContainer.copy(alpha = 0.9f), colors.surfaceContainerHigh),
+                  ),
+                  contentColor = colors.onSecondaryContainer,
+                )
               }
-            },
-          ) { member ->
-            HallOfFamePerson(
-              name = member.login,
-              details = communityDetails(member),
-              avatarUrl = member.avatarUrl,
-              profileUrl = member.profileUrl,
-              accent = colors.tertiary,
-            )
-          }
-          creditsSection(
-            sectionKey = "all",
-            titleRes = R.string.hall_of_fame_all_title,
-            subtitleRes = R.string.hall_of_fame_all_period,
-            icon = Icons.RoundedFilled.Person,
-            state = contributors,
-            itemKey = { it.profileUrl ?: "anonymous:${it.displayName}" },
-            onRetry = { refreshRequest++ },
-            activityUrl = "$githubRepoUrl/graphs/contributors",
-          ) { contributor ->
-            HallOfFamePerson(
-              name = contributor.displayName,
-              details = pluralStringResource(
-                R.plurals.contributors_contribution_count, contributor.contributions, contributor.contributions,
-              ),
-              avatarUrl = contributor.avatarUrl,
-              profileUrl = contributor.profileUrl,
-              accent = colors.secondary,
-            )
-          }
-          item(key = "github", span = { GridItemSpan(maxLineSpan) }) {
-            TextButton(
-              onClick = { runCatching { uriHandler.openUri("$githubRepoUrl/graphs/contributors") } },
-              modifier = Modifier.fillMaxWidth(),
-            ) {
-              Text(stringResource(R.string.hall_of_fame_view_github))
-              Icon(Icons.RoundedFilled.ChevronRight, null, modifier = Modifier.size(18.dp))
+            }
+            index++
+
+            item(key = "featured:header", span = { GridItemSpan(maxLineSpan) }) {
+              SectionHeader(
+                icon = { Icon(Icons.RoundedFilled.Star, null, Modifier.size(24.dp), tint = colors.primary) },
+                title = stringResource(R.string.hall_of_fame_featured_contributors),
+                subtitle = stringResource(R.string.hall_of_fame_featured_subtitle),
+                trailing = {
+                  ViewAllPill(
+                    onClick = {
+                      showAll = true
+                      scope.launch { gridState.animateScrollToItem(allHeaderIndex[0]) }
+                    },
+                  )
+                },
+              )
+            }
+            index++
+
+            item(key = "featured:profiles", span = { GridItemSpan(maxLineSpan) }) {
+              HallOfFameTopThree(featuredContributors) { contributor, tileModifier ->
+                HallOfFameSpotlightCard(
+                  name = contributor.name,
+                  subtitle = "@${contributor.login}",
+                  badge = stringResource(R.string.hall_of_fame_contributor_badge),
+                  avatarUrl = "https://avatars.githubusercontent.com/u/${contributor.avatarId}?s=256",
+                  profileUrl = "https://github.com/${contributor.login}",
+                  modifier = tileModifier,
+                )
+              }
+            }
+            index++
+
+            index += creditsSection(
+              sectionKey = "active",
+              titleRes = R.string.hall_of_fame_active_title,
+              subtitleRes = R.string.hall_of_fame_active_period,
+              icon = { BoltGlyph(colors.primary, Modifier.size(22.dp)) },
+              state = remainingActive,
+              itemKey = { it.profileUrl ?: it.displayName },
+              onRetry = { refreshRequest++ },
+              activityUrl = "$githubRepoUrl/commits",
+            ) { contributor ->
+              HallOfFamePersonCard(
+                name = contributor.displayName,
+                details = pluralStringResource(
+                  R.plurals.hall_of_fame_commit_count, contributor.contributions, contributor.contributions,
+                ),
+                avatarUrl = contributor.avatarUrl,
+                profileUrl = contributor.profileUrl,
+              )
+            }
+
+            index += creditsSection(
+              sectionKey = "community",
+              titleRes = R.string.hall_of_fame_feedback_title,
+              subtitleRes = R.string.hall_of_fame_feedback_summary,
+              icon = { Icon(Icons.RoundedFilled.BugReport, null, Modifier.size(24.dp), tint = colors.primary) },
+              state = community,
+              itemKey = { it.login },
+              onRetry = { refreshRequest++ },
+              activityUrl = "$githubRepoUrl/issues",
+              highlightedKeys = topReporters.mapTo(mutableSetOf()) { it.login },
+              highlightedContent = if (topReporters.isEmpty()) null else {
+                {
+                  HallOfFameTopThree(topReporters) { member, tileModifier ->
+                    HallOfFameSpotlightCard(
+                      name = member.login,
+                      subtitle = communityDetails(member),
+                      badge = stringResource(R.string.hall_of_fame_tester_badge),
+                      avatarUrl = member.avatarUrl,
+                      profileUrl = member.profileUrl,
+                      modifier = tileModifier,
+                    )
+                  }
+                }
+              },
+            ) { member ->
+              HallOfFamePersonCard(
+                name = member.login,
+                details = communityDetails(member),
+                avatarUrl = member.avatarUrl,
+                profileUrl = member.profileUrl,
+              )
+            }
+
+            allHeaderIndex[0] = index
+            creditsSection(
+              sectionKey = "all",
+              titleRes = R.string.hall_of_fame_all_title,
+              subtitleRes = R.string.hall_of_fame_all_period,
+              icon = { Icon(Icons.RoundedFilled.Person, null, Modifier.size(24.dp), tint = colors.primary) },
+              state = contributors,
+              itemKey = { it.profileUrl ?: "anonymous:${it.displayName}" },
+              onRetry = { refreshRequest++ },
+              activityUrl = "$githubRepoUrl/graphs/contributors",
+              expanded = showAll,
+              onToggleExpanded = { showAll = !showAll },
+            ) { contributor ->
+              HallOfFamePersonCard(
+                name = contributor.displayName,
+                details = pluralStringResource(
+                  R.plurals.contributors_contribution_count, contributor.contributions, contributor.contributions,
+                ),
+                avatarUrl = contributor.avatarUrl,
+                profileUrl = contributor.profileUrl,
+              )
+            }
+
+            item(key = "github", span = { GridItemSpan(maxLineSpan) }) {
+              TextButton(
+                onClick = { runCatching { uriHandler.openUri("$githubRepoUrl/graphs/contributors") } },
+                modifier = Modifier.fillMaxWidth(),
+              ) {
+                Text(stringResource(R.string.hall_of_fame_view_github))
+                Icon(Icons.RoundedFilled.ChevronRight, null, modifier = Modifier.size(18.dp))
+              }
             }
           }
         }
@@ -335,54 +357,48 @@ private val featuredContributors = listOf(
 
 private val featuredLogins = featuredContributors.mapTo(mutableSetOf()) { it.login.lowercase(Locale.ROOT) }
 
+/** Adds one titled section to the grid and returns how many grid items it added. */
 private fun <T> LazyGridScope.creditsSection(
   sectionKey: String,
   @StringRes titleRes: Int,
   @StringRes subtitleRes: Int,
-  icon: AppIcon,
+  icon: @Composable () -> Unit,
   state: CreditsState<T>,
   itemKey: (T) -> String,
   onRetry: () -> Unit,
   activityUrl: String,
   highlightedKeys: Set<String> = emptySet(),
   highlightedContent: (@Composable () -> Unit)? = null,
+  expanded: Boolean = true,
+  onToggleExpanded: (() -> Unit)? = null,
   content: @Composable (T) -> Unit,
-) {
+): Int {
+  var added = 0
   item(key = "$sectionKey:header", span = { GridItemSpan(maxLineSpan) }) {
-    Column(modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)) {
-      Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-      ) {
-        Icon(icon, null, modifier = Modifier.size(22.dp), tint = MaterialTheme.colorScheme.primary)
-        Text(
-          text = stringResource(titleRes),
-          modifier = Modifier.weight(1f).semantics { heading() },
-          style = MaterialTheme.typography.titleMedium,
-          fontWeight = FontWeight.Bold,
-        )
+    SectionHeader(
+      icon = icon,
+      title = stringResource(titleRes),
+      subtitle = stringResource(subtitleRes),
+      onClick = onToggleExpanded,
+      trailing = {
         if (!state.loading && !state.failed) {
-          Text(
-            text = NumberFormat.getIntegerInstance().format(state.entries.size),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          CountPill(
+            count = state.entries.size,
+            expandable = onToggleExpanded != null,
+            expanded = expanded,
           )
         }
-      }
-      Text(
-        text = stringResource(subtitleRes),
-        modifier = Modifier.padding(top = 6.dp),
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-      )
-    }
+      },
+    )
   }
-  if (highlightedContent != null) {
+  added++
+  if (expanded && highlightedContent != null) {
     item(key = "$sectionKey:highlights", span = { GridItemSpan(maxLineSpan) }) {
       highlightedContent()
     }
+    added++
   }
-  if (state.loading || state.failed || state.entries.isEmpty()) {
+  if (expanded && (state.loading || state.failed || state.entries.isEmpty())) {
     item(key = "$sectionKey:status", span = { GridItemSpan(maxLineSpan) }) {
       val uriHandler = LocalUriHandler.current
       Column(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
@@ -413,14 +429,20 @@ private fun <T> LazyGridScope.creditsSection(
         }
       }
     }
+    added++
   }
-  items(
-    state.entries.filterNot { itemKey(it) in highlightedKeys },
-    key = { "$sectionKey:${itemKey(it)}" },
-    contentType = { "person" },
-  ) { entry ->
-    content(entry)
+  if (expanded) {
+    val visible = state.entries.filterNot { itemKey(it) in highlightedKeys }
+    items(
+      visible,
+      key = { "$sectionKey:${itemKey(it)}" },
+      contentType = { "person" },
+    ) { entry ->
+      content(entry)
+    }
+    added += visible.size
   }
+  return added
 }
 
 @Composable
@@ -451,82 +473,390 @@ private fun communityDetails(member: GitHubCommunityMember): String = buildList 
   }
 }.joinToString("\n")
 
+// ── Header ───────────────────────────────────────────────────────────────────────────────────
+
 @Composable
-private fun HallOfFamePerson(
-  name: String,
-  details: String,
-  avatarUrl: String?,
-  profileUrl: String?,
-  accent: Color,
-  handle: String? = null,
-  featured: Boolean = false,
-  prominent: Boolean = false,
-  containerColor: Color = MaterialTheme.colorScheme.surfaceContainerLow,
-  modifier: Modifier = Modifier,
+private fun HallOfFameHeader(
+  showBack: Boolean,
+  loading: Boolean,
+  onBack: () -> Unit,
+  onRefresh: () -> Unit,
 ) {
-  val uriHandler = LocalUriHandler.current
-  val shape = RoundedCornerShape(8.dp)
-  val profileLabel = stringResource(R.string.hall_of_fame_view_profile, name)
-  Surface(
-    modifier = modifier.fillMaxWidth().clip(shape).clickable(
-      enabled = profileUrl != null,
-      role = Role.Button,
-      onClickLabel = profileLabel,
-      onClick = { profileUrl?.let { runCatching { uriHandler.openUri(it) } } },
-    ),
-    shape = shape,
-    color = containerColor,
-    border = if (prominent) BorderStroke(1.dp, accent.copy(alpha = 0.2f)) else null,
+  val colors = MaterialTheme.colorScheme
+  val titleBrush = Brush.horizontalGradient(
+    0f to colors.onSurface,
+    0.5f to colors.onSurface,
+    0.75f to colors.primary,
+    1f to colors.tertiary,
+  )
+  Box(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(bottom = 8.dp)
+      .drawBehind {
+        val radius = size.width * 0.6f
+        val center = Offset(size.width * 0.85f, size.height * 0.45f)
+        drawCircle(
+          brush = Brush.radialGradient(
+            colors = listOf(colors.primary.copy(alpha = 0.26f), Color.Transparent),
+            center = center,
+            radius = radius,
+          ),
+          radius = radius,
+          center = center,
+        )
+      },
   ) {
-    if (featured) {
+    TrophyIllustration(
+      modifier = Modifier.align(Alignment.TopEnd).padding(top = 44.dp).size(96.dp),
+    )
+    Column {
       Row(
-        modifier = Modifier.padding(20.dp),
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
       ) {
-        HallOfFameAvatar(avatarUrl = avatarUrl, accent = accent, size = 64.dp)
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-          Text(text = details, style = MaterialTheme.typography.labelMedium, color = accent)
-          Text(
-            text = name,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = accent,
+        if (showBack) {
+          HeaderCircleButton(
+            icon = Icons.RoundedFilled.ArrowBack,
+            contentDescription = stringResource(R.string.back),
+            onClick = onBack,
           )
-          Text(
-            text = "@${handle.orEmpty()}",
-            style = MaterialTheme.typography.bodySmall,
-            color = accent,
-          )
+        } else {
+          Spacer(Modifier.size(44.dp))
         }
-        if (profileUrl != null) {
-          Icon(Icons.RoundedFilled.ChevronRight, null, modifier = Modifier.size(18.dp), tint = accent)
-        }
+        HeaderCircleButton(
+          icon = Icons.RoundedFilled.Refresh,
+          contentDescription = stringResource(R.string.ui_refresh),
+          onClick = onRefresh,
+          enabled = !loading,
+          loading = loading,
+        )
       }
+      Spacer(Modifier.height(20.dp))
+      Text(
+        text = stringResource(R.string.pref_hall_of_fame_title),
+        modifier = Modifier.padding(end = 88.dp).semantics { heading() },
+        style = MaterialTheme.typography.displaySmall.copy(
+          brush = titleBrush,
+          fontWeight = FontWeight.ExtraBold,
+        ),
+      )
+      Text(
+        text = stringResource(R.string.hall_of_fame_subtitle),
+        modifier = Modifier.padding(top = 4.dp, end = 88.dp),
+        style = MaterialTheme.typography.titleSmall,
+        color = colors.onSurfaceVariant,
+      )
+    }
+  }
+}
+
+@Composable
+private fun HeaderCircleButton(
+  icon: AppIcon,
+  contentDescription: String,
+  onClick: () -> Unit,
+  enabled: Boolean = true,
+  loading: Boolean = false,
+) {
+  val colors = MaterialTheme.colorScheme
+  Box(
+    modifier = Modifier
+      .size(44.dp)
+      .clip(CircleShape)
+      .background(colors.surfaceContainerHigh.copy(alpha = 0.85f))
+      .border(BorderStroke(1.dp, colors.outlineVariant.copy(alpha = 0.4f)), CircleShape)
+      .clickable(enabled = enabled, role = Role.Button, onClickLabel = contentDescription, onClick = onClick),
+    contentAlignment = Alignment.Center,
+  ) {
+    if (loading) {
+      CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
     } else {
-      Column(
-        modifier = Modifier
-          .heightIn(min = if (prominent) 208.dp else 160.dp)
-          .padding(horizontal = if (prominent) 8.dp else 10.dp, vertical = if (prominent) 20.dp else 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-      ) {
-        HallOfFameAvatar(avatarUrl = avatarUrl, accent = accent, size = if (prominent) 64.dp else 48.dp)
+      Icon(icon, contentDescription, Modifier.size(22.dp), tint = colors.onSurface)
+    }
+  }
+}
+
+// ── Section header ───────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun SectionHeader(
+  icon: @Composable () -> Unit,
+  title: String,
+  subtitle: String,
+  modifier: Modifier = Modifier,
+  onClick: (() -> Unit)? = null,
+  trailing: (@Composable () -> Unit)? = null,
+) {
+  val colors = MaterialTheme.colorScheme
+  val shape = RoundedCornerShape(20.dp)
+  Row(
+    modifier = modifier
+      .fillMaxWidth()
+      .padding(top = 16.dp, bottom = 2.dp)
+      .clip(shape)
+      .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(14.dp),
+  ) {
+    Box(
+      modifier = Modifier.size(48.dp).clip(CircleShape).background(colors.primaryContainer),
+      contentAlignment = Alignment.Center,
+    ) { icon() }
+    Column(modifier = Modifier.weight(1f)) {
+      Text(
+        text = title,
+        modifier = Modifier.semantics { heading() },
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Bold,
+      )
+      Text(
+        text = subtitle,
+        style = MaterialTheme.typography.bodySmall,
+        color = colors.onSurfaceVariant,
+      )
+    }
+    trailing?.invoke()
+  }
+}
+
+@Composable
+private fun ViewAllPill(onClick: () -> Unit) {
+  val colors = MaterialTheme.colorScheme
+  Row(
+    modifier = Modifier
+      .clip(CircleShape)
+      .background(colors.primaryContainer.copy(alpha = 0.8f))
+      .clickable(role = Role.Button, onClick = onClick)
+      .padding(horizontal = 14.dp, vertical = 9.dp),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(6.dp),
+  ) {
+    Text(
+      text = stringResource(R.string.hall_of_fame_view_all),
+      style = MaterialTheme.typography.labelLarge,
+      fontWeight = FontWeight.SemiBold,
+      color = colors.onPrimaryContainer,
+    )
+    Icon(Icons.RoundedFilled.ArrowForward, null, Modifier.size(16.dp), tint = colors.onPrimaryContainer)
+  }
+}
+
+@Composable
+private fun CountPill(count: Int, expandable: Boolean, expanded: Boolean) {
+  val colors = MaterialTheme.colorScheme
+  Row(
+    modifier = Modifier
+      .clip(CircleShape)
+      .background(colors.primaryContainer)
+      .padding(horizontal = 14.dp, vertical = 8.dp),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(4.dp),
+  ) {
+    Text(
+      text = NumberFormat.getIntegerInstance().format(count),
+      style = MaterialTheme.typography.labelLarge,
+      fontWeight = FontWeight.Bold,
+      color = colors.onPrimaryContainer,
+    )
+    if (expandable) {
+      Icon(
+        Icons.RoundedFilled.ExpandMore,
+        stringResource(if (expanded) R.string.hall_of_fame_hide_section else R.string.hall_of_fame_show_section),
+        Modifier.size(18.dp).rotate(if (expanded) 180f else 0f),
+        tint = colors.onPrimaryContainer,
+      )
+    }
+  }
+}
+
+// ── Cards ────────────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun Modifier.profileClickable(name: String, profileUrl: String?): Modifier {
+  val uriHandler = LocalUriHandler.current
+  val label = stringResource(R.string.hall_of_fame_view_profile, name)
+  return clickable(enabled = profileUrl != null, role = Role.Button, onClickLabel = label) {
+    profileUrl?.let { runCatching { uriHandler.openUri(it) } }
+  }
+}
+
+@Composable
+private fun HallOfFameLeadCard(
+  rank: Int,
+  name: String,
+  handle: String,
+  tag: String,
+  avatarUrl: String?,
+  profileUrl: String?,
+  brush: Brush,
+  contentColor: Color,
+  modifier: Modifier = Modifier,
+) {
+  val shape = RoundedCornerShape(28.dp)
+  Row(
+    modifier = modifier
+      .fillMaxWidth()
+      .clip(shape)
+      .background(brush)
+      .border(BorderStroke(1.dp, contentColor.copy(alpha = 0.14f)), shape)
+      .profileClickable(name, profileUrl)
+      .padding(horizontal = 14.dp, vertical = 16.dp),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(12.dp),
+  ) {
+    RankBadge(rank)
+    AvatarWithRing(avatarUrl, size = 68.dp)
+    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+      TagPill(tag, contentColor)
+      Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
           text = name,
-          modifier = Modifier.fillMaxWidth(),
-          style = if (prominent) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleSmall,
-          fontWeight = FontWeight.Bold,
-          color = if (prominent) accent else MaterialTheme.colorScheme.onSurface,
-          textAlign = TextAlign.Center,
-          minLines = 2,
+          modifier = Modifier.weight(1f, fill = false),
+          style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+          color = contentColor,
+          maxLines = 2,
+          overflow = TextOverflow.Ellipsis,
         )
+        VerifiedBadge(Modifier.size(18.dp))
+      }
+      Text(
+        text = "@$handle",
+        style = MaterialTheme.typography.bodyMedium,
+        color = contentColor.copy(alpha = 0.7f),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+      )
+    }
+    if (profileUrl != null) {
+      Box(
+        modifier = Modifier.size(36.dp).clip(CircleShape).background(contentColor.copy(alpha = 0.16f)),
+        contentAlignment = Alignment.Center,
+      ) {
+        Icon(Icons.RoundedFilled.ChevronRight, null, Modifier.size(20.dp), tint = contentColor)
+      }
+    }
+  }
+}
+
+@Composable
+private fun RankBadge(rank: Int) {
+  val gold = rank == 1
+  val medal = if (gold) listOf(Color(0xFFF6D77C), Color(0xFFC79436)) else listOf(Color(0xFFE3E8F3), Color(0xFF93A0BA))
+  val ink = if (gold) Color(0xFF2B2111) else Color(0xFF1F2636)
+  val label = stringResource(R.string.hall_of_fame_rank_label, rank)
+  Box(
+    modifier = Modifier
+      .size(width = 28.dp, height = 56.dp)
+      .clip(RoundedCornerShape(14.dp))
+      .background(Brush.verticalGradient(medal))
+      .semantics { contentDescription = label },
+    contentAlignment = Alignment.Center,
+  ) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+      CrownGlyph(ink.copy(alpha = 0.85f), Modifier.size(13.dp))
+      Text(
+        text = rank.toString(),
+        style = MaterialTheme.typography.labelMedium.copy(fontSize = 12.sp, fontWeight = FontWeight.ExtraBold),
+        color = ink.copy(alpha = 0.85f),
+      )
+    }
+  }
+}
+
+@Composable
+private fun TagPill(text: String, contentColor: Color) {
+  Row(
+    modifier = Modifier
+      .clip(CircleShape)
+      .background(contentColor.copy(alpha = 0.14f))
+      .padding(horizontal = 10.dp, vertical = 4.dp),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(6.dp),
+  ) {
+    Icon(Icons.RoundedFilled.Star, null, Modifier.size(12.dp), tint = contentColor)
+    Text(
+      text = text,
+      style = MaterialTheme.typography.labelMedium,
+      fontWeight = FontWeight.SemiBold,
+      color = contentColor,
+      maxLines = 1,
+      overflow = TextOverflow.Ellipsis,
+    )
+  }
+}
+
+@Composable
+private fun HallOfFameSpotlightCard(
+  name: String,
+  subtitle: String,
+  badge: String,
+  avatarUrl: String?,
+  profileUrl: String?,
+  modifier: Modifier = Modifier,
+) {
+  val colors = MaterialTheme.colorScheme
+  val shape = RoundedCornerShape(24.dp)
+  Box(
+    modifier = modifier
+      .clip(shape)
+      .background(Brush.verticalGradient(listOf(colors.surfaceContainerHigh, colors.surfaceContainer)))
+      .border(BorderStroke(1.dp, colors.outlineVariant.copy(alpha = 0.4f)), shape)
+      .profileClickable(name, profileUrl),
+  ) {
+    Box(
+      modifier = Modifier
+        .align(Alignment.TopEnd)
+        .padding(8.dp)
+        .size(24.dp)
+        .clip(CircleShape)
+        .background(colors.primaryContainer),
+      contentAlignment = Alignment.Center,
+    ) {
+      CrownGlyph(colors.primary, Modifier.size(12.dp))
+    }
+    Column(
+      modifier = Modifier.fillMaxSize().padding(start = 8.dp, end = 8.dp, top = 26.dp, bottom = 12.dp),
+      horizontalAlignment = Alignment.CenterHorizontally,
+      verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+      AvatarWithRing(avatarUrl, size = 60.dp)
+      Box(modifier = Modifier.heightIn(min = 40.dp), contentAlignment = Alignment.Center) {
         Text(
-          text = details,
-          modifier = Modifier.fillMaxWidth(),
-          style = MaterialTheme.typography.bodySmall,
-          color = if (prominent) accent else MaterialTheme.colorScheme.onSurfaceVariant,
+          text = name,
+          style = MaterialTheme.typography.titleSmall,
+          fontWeight = FontWeight.Bold,
           textAlign = TextAlign.Center,
+          maxLines = 2,
+          overflow = TextOverflow.Ellipsis,
+        )
+      }
+      Text(
+        text = subtitle,
+        style = MaterialTheme.typography.bodySmall,
+        color = colors.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
+      )
+      Spacer(Modifier.weight(1f))
+      Row(
+        modifier = Modifier
+          .fillMaxWidth()
+          .height(38.dp)
+          .clip(CircleShape)
+          .background(Brush.horizontalGradient(listOf(colors.primary, colors.primary.copy(alpha = 0.82f)))),
+        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically,
+      ) {
+        Icon(Icons.RoundedFilled.Person, null, Modifier.size(16.dp), tint = colors.onPrimary)
+        Text(
+          text = badge,
+          style = MaterialTheme.typography.labelMedium,
+          fontWeight = FontWeight.SemiBold,
+          color = colors.onPrimary,
+          maxLines = 1,
         )
       }
     }
@@ -534,14 +864,222 @@ private fun HallOfFamePerson(
 }
 
 @Composable
-private fun HallOfFameAvatar(avatarUrl: String?, accent: Color, size: Dp) {
+private fun HallOfFamePersonCard(
+  name: String,
+  details: String,
+  avatarUrl: String?,
+  profileUrl: String?,
+  modifier: Modifier = Modifier,
+) {
+  val colors = MaterialTheme.colorScheme
+  val shape = RoundedCornerShape(20.dp)
+  Row(
+    modifier = modifier
+      .fillMaxWidth()
+      .heightIn(min = 72.dp)
+      .clip(shape)
+      .background(colors.surfaceContainerLow)
+      .border(BorderStroke(1.dp, colors.outlineVariant.copy(alpha = 0.35f)), shape)
+      .profileClickable(name, profileUrl)
+      .padding(horizontal = 10.dp, vertical = 10.dp),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(8.dp),
+  ) {
+    AvatarWithRing(avatarUrl, size = 46.dp, ringWidth = 2.dp)
+    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+      Text(
+        text = name,
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
+      )
+      if (details.isNotBlank()) {
+        Text(
+          text = details,
+          style = MaterialTheme.typography.bodySmall,
+          color = colors.onSurfaceVariant,
+          maxLines = 2,
+          overflow = TextOverflow.Ellipsis,
+        )
+      }
+    }
+    if (profileUrl != null) {
+      Icon(Icons.RoundedFilled.ChevronRight, null, Modifier.size(16.dp), tint = colors.onSurfaceVariant)
+    }
+  }
+}
+
+// ── Avatar ───────────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun AvatarWithRing(
+  avatarUrl: String?,
+  size: Dp,
+  modifier: Modifier = Modifier,
+  ringWidth: Dp = 2.5.dp,
+) {
+  val colors = MaterialTheme.colorScheme
   Box(
-    modifier = Modifier.size(size).clip(CircleShape).background(accent.copy(alpha = 0.12f)),
+    modifier = modifier
+      .size(size)
+      .border(ringWidth, Brush.sweepGradient(listOf(colors.primary, colors.tertiary, colors.primary)), CircleShape)
+      .padding(ringWidth + 2.dp),
+  ) {
+    HallOfFameAvatar(avatarUrl = avatarUrl, accent = colors.primary, modifier = Modifier.fillMaxSize())
+  }
+}
+
+@Composable
+private fun HallOfFameAvatar(avatarUrl: String?, accent: Color, modifier: Modifier = Modifier) {
+  Box(
+    modifier = modifier.clip(CircleShape).background(accent.copy(alpha = 0.12f)),
     contentAlignment = Alignment.Center,
   ) {
     Icon(Icons.RoundedFilled.Person, null, modifier = Modifier.size(24.dp), tint = accent)
     avatarUrl?.let { url ->
-      RemoteImage(url, null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+      RemoteImage(
+        url = url,
+        contentDescription = null,
+        modifier = Modifier.fillMaxSize(),
+        contentScale = ContentScale.Crop,
+        cacheTtlMs = AVATAR_CACHE_TTL_MS,
+      )
     }
+  }
+}
+
+// ── Small drawn glyphs (kept local so the shared icon set stays untouched) ────────────────────
+
+@Composable
+private fun CrownGlyph(tint: Color, modifier: Modifier = Modifier) {
+  Canvas(modifier) {
+    val w = size.width
+    val h = size.height
+    val crown = Path().apply {
+      moveTo(w * 0.08f, h * 0.78f)
+      lineTo(w * 0.02f, h * 0.28f)
+      lineTo(w * 0.30f, h * 0.50f)
+      lineTo(w * 0.50f, h * 0.12f)
+      lineTo(w * 0.70f, h * 0.50f)
+      lineTo(w * 0.98f, h * 0.28f)
+      lineTo(w * 0.92f, h * 0.78f)
+      close()
+    }
+    drawPath(crown, tint)
+    drawRoundRect(
+      color = tint,
+      topLeft = Offset(w * 0.08f, h * 0.84f),
+      size = Size(w * 0.84f, h * 0.14f),
+      cornerRadius = CornerRadius(h * 0.07f),
+    )
+  }
+}
+
+@Composable
+private fun BoltGlyph(tint: Color, modifier: Modifier = Modifier) {
+  Canvas(modifier) {
+    val w = size.width
+    val h = size.height
+    val bolt = Path().apply {
+      moveTo(w * 0.58f, 0f)
+      lineTo(w * 0.18f, h * 0.56f)
+      lineTo(w * 0.46f, h * 0.56f)
+      lineTo(w * 0.38f, h)
+      lineTo(w * 0.82f, h * 0.40f)
+      lineTo(w * 0.52f, h * 0.40f)
+      close()
+    }
+    drawPath(bolt, tint)
+  }
+}
+
+@Composable
+private fun VerifiedBadge(modifier: Modifier = Modifier) {
+  val colors = MaterialTheme.colorScheme
+  val fill = colors.primary
+  val check = colors.onPrimary
+  Canvas(modifier) {
+    val w = size.width
+    val h = size.height
+    drawCircle(fill)
+    val tick = Path().apply {
+      moveTo(w * 0.28f, h * 0.52f)
+      lineTo(w * 0.44f, h * 0.67f)
+      lineTo(w * 0.74f, h * 0.35f)
+    }
+    drawPath(tick, check, style = Stroke(width = w * 0.11f, cap = StrokeCap.Round))
+  }
+}
+
+@Composable
+private fun TrophyIllustration(modifier: Modifier = Modifier) {
+  val colors = MaterialTheme.colorScheme
+  val primary = colors.primary
+  val tertiary = colors.tertiary
+  val star = colors.onPrimary
+  Canvas(modifier) {
+    val w = size.width
+    val h = size.height
+    val body = Brush.verticalGradient(listOf(primary, tertiary))
+    val handle = Stroke(width = w * 0.07f, cap = StrokeCap.Round)
+
+    drawArc(
+      color = primary.copy(alpha = 0.7f),
+      startAngle = 90f,
+      sweepAngle = 180f,
+      useCenter = false,
+      topLeft = Offset(w * 0.04f, h * 0.12f),
+      size = Size(w * 0.30f, h * 0.30f),
+      style = handle,
+    )
+    drawArc(
+      color = primary.copy(alpha = 0.7f),
+      startAngle = 270f,
+      sweepAngle = 180f,
+      useCenter = false,
+      topLeft = Offset(w * 0.66f, h * 0.12f),
+      size = Size(w * 0.30f, h * 0.30f),
+      style = handle,
+    )
+
+    val cup = Path().apply {
+      moveTo(w * 0.22f, h * 0.08f)
+      lineTo(w * 0.78f, h * 0.08f)
+      lineTo(w * 0.78f, h * 0.30f)
+      cubicTo(w * 0.78f, h * 0.50f, w * 0.64f, h * 0.60f, w * 0.50f, h * 0.60f)
+      cubicTo(w * 0.36f, h * 0.60f, w * 0.22f, h * 0.50f, w * 0.22f, h * 0.30f)
+      close()
+    }
+    drawPath(cup, body)
+
+    drawRoundRect(
+      brush = body,
+      topLeft = Offset(w * 0.44f, h * 0.56f),
+      size = Size(w * 0.12f, h * 0.22f),
+      cornerRadius = CornerRadius(w * 0.02f),
+    )
+    drawRoundRect(
+      brush = body,
+      topLeft = Offset(w * 0.28f, h * 0.76f),
+      size = Size(w * 0.44f, h * 0.12f),
+      cornerRadius = CornerRadius(w * 0.04f),
+    )
+
+    val starPath = Path().apply {
+      val cx = w * 0.5f
+      val cy = h * 0.30f
+      val outer = w * 0.11f
+      val inner = outer * 0.45f
+      for (i in 0 until 10) {
+        val r = if (i % 2 == 0) outer else inner
+        val angle = Math.PI / 5.0 * i - Math.PI / 2.0
+        val x = cx + (r * cos(angle)).toFloat()
+        val y = cy + (r * sin(angle)).toFloat()
+        if (i == 0) moveTo(x, y) else lineTo(x, y)
+      }
+      close()
+    }
+    drawPath(starPath, star.copy(alpha = 0.9f))
   }
 }

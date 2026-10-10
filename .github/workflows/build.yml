@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - blackscreen
   pull_request:
   workflow_dispatch:
 

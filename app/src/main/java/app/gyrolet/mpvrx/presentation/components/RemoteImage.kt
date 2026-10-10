@@ -52,6 +52,12 @@ fun RemoteImage(
   contentScale: ContentScale = ContentScale.Fit,
   alignment: Alignment = Alignment.Center,
   alpha: Float = 1f,
+  /**
+   * Optional max age of the on-disk copy. When set, a cached file older than this is re-downloaded
+   * (the stale copy is still used if the network fails). `null` keeps the default behaviour of
+   * trusting the disk cache indefinitely.
+   */
+  cacheTtlMs: Long? = null,
 ) {
   val context = LocalContext.current
   val client = koinInject<OkHttpClient>()
@@ -59,7 +65,7 @@ fun RemoteImage(
 
   LaunchedEffect(url) {
     if (bitmap == null) {
-      bitmap = RemoteImageLoader.load(context, client, url)
+      bitmap = RemoteImageLoader.load(context, client, url, cacheTtlMs)
     }
   }
 
@@ -103,6 +109,7 @@ internal object RemoteImageLoader {
     context: Context,
     client: OkHttpClient,
     url: String,
+    cacheTtlMs: Long? = null,
   ): Bitmap? {
     if (url.isBlank()) return null
     getFromMemory(url)?.let { return it }
@@ -114,7 +121,7 @@ internal object RemoteImageLoader {
 
     val candidate =
       loaderScope.async(start = CoroutineStart.LAZY) {
-        loadUncoalesced(context, client, url).also { result ->
+        loadUncoalesced(context, client, url, cacheTtlMs).also { result ->
           if (url.startsWith("http://", ignoreCase = true) || url.startsWith("https://", ignoreCase = true)) {
             if (result == null) failedAt[url] = SystemClock.elapsedRealtime() else failedAt.remove(url)
           }
@@ -134,6 +141,7 @@ internal object RemoteImageLoader {
     context: Context,
     client: OkHttpClient,
     url: String,
+    cacheTtlMs: Long? = null,
   ): Bitmap? {
     getFromMemory(url)?.let { return it }
 
@@ -162,9 +170,13 @@ internal object RemoteImageLoader {
 
     val cacheDirectory = File(context.cacheDir, CACHE_DIRECTORY).apply { mkdirs() }
     val cacheFile = File(cacheDirectory, hash(url))
-    decodeSampled(cacheFile)?.let { bitmap ->
-      synchronized(memoryCache) { memoryCache.put(url, bitmap) }
-      return bitmap
+    val cacheIsFresh =
+      cacheTtlMs == null || System.currentTimeMillis() - cacheFile.lastModified() < cacheTtlMs
+    if (cacheIsFresh) {
+      decodeSampled(cacheFile)?.let { bitmap ->
+        synchronized(memoryCache) { memoryCache.put(url, bitmap) }
+        return bitmap
+      }
     }
 
     val host = httpUrl.host
@@ -183,16 +195,29 @@ internal object RemoteImageLoader {
           .build()
       }.getOrNull() ?: return null
 
-    return runCatching {
-      client.newCall(request).awaitResponse().use { response ->
-        if (!response.isSuccessful) return@use null
-        val bytes = response.body.bytes()
-        FileOutputStream(cacheFile).use { it.write(bytes) }
-        decodeSampled(cacheFile)?.also { bitmap ->
-          synchronized(memoryCache) { memoryCache.put(url, bitmap) }
+    val downloaded =
+      runCatching {
+        client.newCall(request).awaitResponse().use { response ->
+          if (!response.isSuccessful) return@use null
+          val bytes = response.body.bytes()
+          // Write to a temp file first so a failed download never destroys a usable stale copy.
+          val tempFile = File(cacheDirectory, "${cacheFile.name}.tmp")
+          FileOutputStream(tempFile).use { it.write(bytes) }
+          if (!tempFile.renameTo(cacheFile)) {
+            tempFile.copyTo(cacheFile, overwrite = true)
+            tempFile.delete()
+          }
+          decodeSampled(cacheFile)?.also { bitmap ->
+            synchronized(memoryCache) { memoryCache.put(url, bitmap) }
+          }
         }
-      }
-    }.getOrNull()
+      }.getOrNull()
+    if (downloaded != null || cacheIsFresh) return downloaded
+
+    // Offline or the host failed: an expired avatar is better than an empty circle.
+    return decodeSampled(cacheFile)?.also { bitmap ->
+      synchronized(memoryCache) { memoryCache.put(url, bitmap) }
+    }
   }
 
   private fun decodeSampled(
