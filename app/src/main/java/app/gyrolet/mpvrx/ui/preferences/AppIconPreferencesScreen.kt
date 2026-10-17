@@ -53,6 +53,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -79,6 +81,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import app.gyrolet.mpvrx.R
+import app.gyrolet.mpvrx.preferences.AppearancePreferences
+import app.gyrolet.mpvrx.preferences.preference.collectAsState
 import app.gyrolet.mpvrx.presentation.Screen
 import app.gyrolet.mpvrx.ui.theme.AppMotion
 import app.gyrolet.mpvrx.ui.theme.appPressFeedback
@@ -88,10 +92,10 @@ import app.gyrolet.mpvrx.ui.theme.AppConnectedShapeTokens
 import app.gyrolet.mpvrx.ui.theme.ConnectedLayout
 import app.gyrolet.mpvrx.ui.theme.connectedShape
 import app.gyrolet.mpvrx.ui.utils.LocalBackStack
-import app.gyrolet.mpvrx.ui.utils.navigateTo
 import app.gyrolet.mpvrx.ui.utils.popSafely
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import org.koin.compose.koinInject
 import kotlin.math.abs
 
 /**
@@ -108,10 +112,28 @@ object AppIconPreferencesScreen : Screen {
       mutableStateOf(runCatching { LauncherIconManager.current(context) }.getOrDefault(LauncherIcon.Default))
     }
     var pending by remember { mutableStateOf(current) }
-    val pager = rememberPagerState(initialPage = pending.background.ordinal) { IconBackground.entries.size }
+    val customPage = IconBackground.entries.size
+    val pager = rememberPagerState(initialPage = pending.background.ordinal) { customPage + 1 }
     var confirming by remember { mutableStateOf<LauncherIcon?>(null) }
-    val visibleChoice = LauncherIcon.resolve(IconBackground.entries[pager.currentPage], pending.mark)
-    val canApply = visibleChoice != current && !pager.isScrollInProgress
+    val customSelected = pager.currentPage == customPage
+    val visibleChoice = LauncherIcon.resolve(IconBackground.entries[pager.currentPage.coerceAtMost(customPage - 1)], pending.mark)
+    val canApply = !pager.isScrollInProgress && (customSelected || visibleChoice != current)
+
+    val appearance = koinInject<AppearancePreferences>()
+    val serializedCustom by appearance.customLauncherIcons.collectAsState()
+    val savedCustom = remember(serializedCustom) { CustomLauncherIcons.parse(serializedCustom) }
+    val defaultCustomName = stringResource(R.string.custom_icon_default_name)
+    var draft by rememberSaveable(stateSaver = DraftSaver) {
+      mutableStateOf(CustomLauncherIcon(name = "$defaultCustomName ${savedCustom.size + 1}"))
+    }
+    fun persistCustom(icon: CustomLauncherIcon): CustomLauncherIcon {
+      val named = icon.copy(name = icon.name.trim().ifBlank { defaultCustomName })
+      appearance.customLauncherIcons.set(
+        CustomLauncherIcons.serialize(CustomLauncherIcons.upsert(savedCustom, named)),
+      )
+      CustomLauncherIcons.refreshPinned(context, named)
+      return named
+    }
     val applyInteractionSource = remember { MutableInteractionSource() }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
@@ -141,14 +163,51 @@ object AppIconPreferencesScreen : Screen {
           horizontalAlignment = Alignment.CenterHorizontally,
           verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-          IconBuilder(pending = pending, current = current, pager = pager, onPick = { pending = it })
+          IconBuilder(
+            pending = pending,
+            current = current,
+            pager = pager,
+            onPick = { pending = it },
+            draft = draft,
+            onDraftChange = { draft = it },
+            savedCustom = savedCustom,
+            onSaveCustom = { draft = persistCustom(it) },
+            onDeleteCustom = { icon ->
+              appearance.customLauncherIcons.set(
+                CustomLauncherIcons.serialize(savedCustom.filterNot { it.id == icon.id }),
+              )
+            },
+            onNewCustom = {
+              draft = CustomLauncherIcon(
+                name = "$defaultCustomName ${savedCustom.size + 1}",
+                bgStart = draft.bgStart,
+                bgEnd = draft.bgEnd,
+                gradient = draft.gradient,
+                radial = draft.radial,
+                angle = draft.angle,
+                logo = draft.logo,
+                classic = draft.classic,
+              )
+            },
+          )
           Button(
             onClick = {
               // Read the visible page directly: the preview's snapshotFlow may still be catching up.
               // Freeze this choice so a late pager emission cannot change the confirmation target.
               if (!pager.isScrollInProgress) {
-                confirming = LauncherIcon.resolve(IconBackground.entries[pager.currentPage], pending.mark)
-                  .takeIf { it != current }
+                if (customSelected) {
+                  // Custom icons cannot be launcher aliases, so they are saved and pinned as a shortcut.
+                  val icon = persistCustom(draft)
+                  draft = icon
+                  Toast.makeText(
+                    context,
+                    if (CustomLauncherIcons.pin(context, icon)) R.string.custom_icon_pin_requested else R.string.custom_icon_pin_unsupported,
+                    Toast.LENGTH_LONG,
+                  ).show()
+                } else {
+                  confirming = LauncherIcon.resolve(IconBackground.entries[pager.currentPage], pending.mark)
+                    .takeIf { it != current }
+                }
               }
             },
             enabled = canApply,
@@ -156,12 +215,11 @@ object AppIconPreferencesScreen : Screen {
             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)
               .appPressFeedback(applyInteractionSource, enabled = canApply),
           ) {
-            Text(stringResource(R.string.app_icon_apply), style = MaterialTheme.typography.titleMedium)
+            Text(
+              stringResource(if (customSelected) R.string.custom_icon_add_home else R.string.app_icon_apply),
+              style = MaterialTheme.typography.titleMedium,
+            )
           }
-          CustomIconSection(
-            onCreate = { backstack.navigateTo(CustomIconEditorScreen()) },
-            onEdit = { backstack.navigateTo(CustomIconEditorScreen(it)) },
-          )
         }
       }
     }
@@ -194,6 +252,11 @@ object AppIconPreferencesScreen : Screen {
   }
 }
 
+private val DraftSaver = Saver<CustomLauncherIcon, String>(
+  save = { CustomLauncherIcons.serialize(listOf(it)) },
+  restore = { CustomLauncherIcons.parse(it).firstOrNull() },
+)
+
 /** Name of an icon: its background, plus the logo when that is not the one the background leads with. */
 @Composable
 private fun iconName(icon: LauncherIcon): String {
@@ -203,8 +266,21 @@ private fun iconName(icon: LauncherIcon): String {
 }
 
 @Composable
-private fun IconBuilder(pending: LauncherIcon, current: LauncherIcon, pager: PagerState, onPick: (LauncherIcon) -> Unit) {
+private fun IconBuilder(
+  pending: LauncherIcon,
+  current: LauncherIcon,
+  pager: PagerState,
+  onPick: (LauncherIcon) -> Unit,
+  draft: CustomLauncherIcon,
+  onDraftChange: (CustomLauncherIcon) -> Unit,
+  savedCustom: List<CustomLauncherIcon>,
+  onSaveCustom: (CustomLauncherIcon) -> Unit,
+  onDeleteCustom: (CustomLauncherIcon) -> Unit,
+  onNewCustom: () -> Unit,
+) {
   val backgrounds = IconBackground.entries
+  val customPage = backgrounds.size
+  val customSelected = pager.currentPage == customPage
   val scope = rememberCoroutineScope()
   val latest by rememberUpdatedState(pending)
   val reduceMotion = AppMotion.shouldReduceMotion()
@@ -213,17 +289,20 @@ private fun IconBuilder(pending: LauncherIcon, current: LauncherIcon, pager: Pag
   // A logo that does not read on the new background gives way to that background's own.
   LaunchedEffect(pager) {
     snapshotFlow { pager.currentPage }.collect { page ->
+      // The Custom page leaves the last preset in place, so leaving Custom returns to it.
+      if (page >= backgrounds.size) return@collect
       val background = backgrounds[page]
       if (background != latest.background) onPick(LauncherIcon.resolve(background, latest.mark))
     }
   }
 
-  fun turn(step: Int) {
-    val target = (pager.currentPage + step).coerceIn(0, backgrounds.lastIndex)
+  fun scrollTo(page: Int) {
     scope.launch {
-      if (reduceMotion) pager.scrollToPage(target) else pager.animateScrollToPage(target)
+      if (reduceMotion) pager.scrollToPage(page) else pager.animateScrollToPage(page)
     }
   }
+
+  fun turn(step: Int) = scrollTo((pager.currentPage + step).coerceIn(0, customPage))
 
   Column(
     modifier = Modifier.fillMaxWidth(),
@@ -231,24 +310,24 @@ private fun IconBuilder(pending: LauncherIcon, current: LauncherIcon, pager: Pag
     verticalArrangement = Arrangement.spacedBy(16.dp),
   ) {
     IconPreviewCard {
-      IconPreview(
-        background = pending.background,
-        mark = pending.mark,
-        size = 132.dp,
-        modifier = Modifier.pointerInput(Unit) {
-          var travelled = 0f
-          detectHorizontalDragGestures(
-            onDragStart = { travelled = 0f },
-            onDragEnd = { if (abs(travelled) > 48.dp.toPx()) turn(if (travelled < 0f) 1 else -1) },
-          ) { change, delta ->
-            change.consume()
-            travelled += delta
-          }
-        },
-      )
+      val swipe = Modifier.pointerInput(Unit) {
+        var travelled = 0f
+        detectHorizontalDragGestures(
+          onDragStart = { travelled = 0f },
+          onDragEnd = { if (abs(travelled) > 48.dp.toPx()) turn(if (travelled < 0f) 1 else -1) },
+        ) { change, delta ->
+          change.consume()
+          travelled += delta
+        }
+      }
+      if (customSelected) {
+        CustomIconPreview(icon = draft, size = 132.dp, modifier = swipe)
+      } else {
+        IconPreview(background = pending.background, mark = pending.mark, size = 132.dp, modifier = swipe)
+      }
 
       AnimatedContent(
-        targetState = iconName(pending),
+        targetState = if (customSelected) draft.name else iconName(pending),
         transitionSpec = {
           val transition = if (reduceMotion) {
             fadeIn(snap()) togetherWith fadeOut(snap())
@@ -271,7 +350,7 @@ private fun IconBuilder(pending: LauncherIcon, current: LauncherIcon, pager: Pag
         )
       }
       Text(
-        text = stringResource(if (pending == current) R.string.app_icon_current else R.string.app_icon_pending),
+        text = stringResource(if (!customSelected && pending == current) R.string.app_icon_current else R.string.app_icon_pending),
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier
@@ -290,10 +369,11 @@ private fun IconBuilder(pending: LauncherIcon, current: LauncherIcon, pager: Pag
         contentPadding = PaddingValues(horizontal = (maxWidth - swatch - gap) / 2),
         modifier = Modifier.fillMaxWidth().selectableGroup(),
       ) { page ->
-        val background = backgrounds[page]
+        val isCustom = page == customPage
+        val background = backgrounds.getOrNull(page)
         val distance = abs(page - pager.currentPage - pager.currentPageOffsetFraction).coerceAtMost(2f)
-        val label = stringResource(background.label)
-        val selected = background == pending.background
+        val label = stringResource(background?.label ?: R.string.app_icon_bg_custom)
+        val selected = if (isCustom) customSelected else !customSelected && background == pending.background
         Box(
           modifier = Modifier
             .fillMaxWidth()
@@ -319,37 +399,71 @@ private fun IconBuilder(pending: LauncherIcon, current: LauncherIcon, pager: Pag
             .padding(4.dp),
           contentAlignment = Alignment.Center,
         ) {
-          IconPreview(background, LauncherIcon.resolve(background, pending.mark).mark, swatch)
+          if (background == null) {
+            CustomIconPreview(draft, swatch)
+          } else {
+            IconPreview(background, LauncherIcon.resolve(background, pending.mark).mark, swatch)
+          }
         }
       }
     }
 
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
       SectionLabel(stringResource(R.string.app_icon_section_logo), stringResource(R.string.app_icon_logo_hint))
-      // Let labels grow with font scale instead of squeezing five choices into one row.
+      // Let labels grow with font scale instead of squeezing six choices into one row.
       val fontScale = LocalDensity.current.fontScale
+      // The last tile (null) is Custom: it opens the editor below.
+      val tiles: List<IconMark?> = IconMark.entries + null
       BoxWithConstraints(Modifier.fillMaxWidth()) {
-        val columns = (maxWidth / (104.dp * fontScale)).toInt().coerceIn(1, IconMark.entries.size)
+        val columns = (maxWidth / (104.dp * fontScale)).toInt().coerceIn(1, tiles.size)
         Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(AppConnectedShapeTokens.spacing)) {
-          IconMark.entries.chunked(columns).forEachIndexed { row, marks ->
+          tiles.chunked(columns).forEachIndexed { row, chunk ->
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(AppConnectedShapeTokens.spacing)) {
-              marks.forEachIndexed { column, mark ->
-                val icon = LauncherIcon.of(pending.background, mark)
-                MarkTile(
-                  background = pending.background,
-                  mark = mark,
-                  selected = pending.mark == mark,
-                  enabled = icon != null,
-                  onClick = { icon?.let(onPick) },
-                  shape = connectedShape(row * columns + column, IconMark.entries.size, ConnectedLayout.Grid, columns),
-                  modifier = Modifier.weight(1f),
-                )
+              chunk.forEachIndexed { column, mark ->
+                val shape = connectedShape(row * columns + column, tiles.size, ConnectedLayout.Grid, columns)
+                if (mark == null) {
+                  MarkTile(
+                    label = stringResource(R.string.app_icon_bg_custom),
+                    selected = customSelected,
+                    enabled = true,
+                    onClick = { scrollTo(customPage) },
+                    shape = shape,
+                    modifier = Modifier.weight(1f),
+                  ) { CustomIconPreview(draft, 44.dp) }
+                } else {
+                  val icon = LauncherIcon.of(pending.background, mark)
+                  MarkTile(
+                    label = stringResource(mark.label),
+                    selected = !customSelected && pending.mark == mark,
+                    enabled = icon != null,
+                    onClick = {
+                      icon?.let {
+                        onPick(it)
+                        // Leaving Custom goes back to the preset background the pick belongs to.
+                        if (customSelected) scrollTo(it.background.ordinal)
+                      }
+                    },
+                    shape = shape,
+                    modifier = Modifier.weight(1f),
+                  ) { IconPreview(pending.background, mark, 44.dp) }
+                }
               }
-              repeat(columns - marks.size) { Box(Modifier.weight(1f)) }
+              repeat(columns - chunk.size) { Box(Modifier.weight(1f)) }
             }
           }
         }
       }
+    }
+
+    if (customSelected) {
+      CustomIconEditor(
+        draft = draft,
+        onDraftChange = onDraftChange,
+        saved = savedCustom,
+        onSave = onSaveCustom,
+        onDelete = onDeleteCustom,
+        onNew = onNewCustom,
+      )
     }
   }
 }
@@ -371,13 +485,13 @@ private fun SectionLabel(text: String, supportingText: String) {
 /** A logo choice, drawn on the background it would sit on. A logo that would not read there stays off. */
 @Composable
 private fun MarkTile(
-  background: IconBackground,
-  mark: IconMark,
+  label: String,
   selected: Boolean,
   enabled: Boolean,
   onClick: () -> Unit,
   shape: Shape,
   modifier: Modifier = Modifier,
+  preview: @Composable () -> Unit,
 ) {
   val interactionSource = remember { MutableInteractionSource() }
   val reduceMotion = AppMotion.shouldReduceMotion()
@@ -417,7 +531,7 @@ private fun MarkTile(
   ) {
     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
       Box(Modifier.alpha(if (enabled) 1f else 0.35f)) {
-        IconPreview(background, mark, 44.dp)
+        preview()
       }
       androidx.compose.animation.AnimatedVisibility(
         visible = selected,
@@ -434,7 +548,7 @@ private fun MarkTile(
       }
     }
     Text(
-      text = stringResource(mark.label),
+      text = label,
       style = MaterialTheme.typography.bodySmall,
       fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
       color = (if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface)

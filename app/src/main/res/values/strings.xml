@@ -2640,31 +2640,27 @@
   <string name="color_picker_brightness">Brightness</string>
 
   <!-- Custom launcher icon -->
-  <string name="custom_icon_section_title">Custom icon</string>
-  <string name="custom_icon_section_hint">Pick any colour or gradient. Custom icons are added to your home screen.</string>
   <string name="custom_icon_new">New</string>
-  <string name="custom_icon_editor_new">New custom icon</string>
-  <string name="custom_icon_editor_edit">Edit custom icon</string>
+  <string name="app_icon_bg_custom">Custom</string>
+  <string name="custom_icon_saved">Saved icons</string>
+  <string name="custom_icon_tab_background">Background</string>
+  <string name="custom_icon_tab_logo">Logo</string>
+  <string name="custom_icon_logo_ribbon">Ribbon</string>
+  <string name="custom_icon_update">Update</string>
   <string name="custom_icon_default_name">Custom icon</string>
   <string name="custom_icon_name">Icon name</string>
   <string name="custom_icon_presets">Start from</string>
-  <string name="custom_icon_section_background">Background</string>
-  <string name="custom_icon_section_colors">Colors</string>
   <string name="custom_icon_bg_solid">Solid</string>
   <string name="custom_icon_bg_gradient">Gradient</string>
   <string name="custom_icon_gradient_linear">Linear</string>
   <string name="custom_icon_gradient_radial">Radial</string>
   <string name="custom_icon_angle">Angle</string>
   <string name="custom_icon_swap">Swap colors</string>
-  <string name="custom_icon_target_background">Background</string>
   <string name="custom_icon_target_start">Start</string>
   <string name="custom_icon_target_end">End</string>
-  <string name="custom_icon_target_logo">Logo</string>
   <string name="custom_icon_save">Save</string>
   <string name="custom_icon_add_home">Add to home screen</string>
   <string name="custom_icon_delete">Delete</string>
-  <string name="custom_icon_delete_title">Delete custom icon?</string>
-  <string name="custom_icon_delete_message">\"%1$s\" will be removed from your saved icons. A shortcut already on your home screen stays until you remove it.</string>
   <string name="custom_icon_pin_requested">Confirm on your home screen to add the icon</string>
   <string name="custom_icon_pin_unsupported">Your launcher cannot add shortcuts. Try a different launcher.</string>
   <string name="custom_icon_hint">Android fixes the app\'s own icon when it is installed, so a custom icon is added to your home screen as a shortcut. Saving again recolors a shortcut that is already there.</string>

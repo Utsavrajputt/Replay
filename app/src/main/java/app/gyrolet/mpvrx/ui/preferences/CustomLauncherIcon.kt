@@ -42,7 +42,11 @@ internal data class CustomLauncherIcon(
   /** Direction of a linear gradient in degrees: 0 runs left to right, 90 top to bottom. */
   val angle: Int = 135,
   val logo: Int = 0xFFFFFFFF.toInt(),
+  /** False draws the ribbon, true the original classic mark. Both are single-colour shapes tinted by [logo]. */
+  val classic: Boolean = false,
 ) {
+  val logoRes: Int get() = if (classic) R.drawable.ic_launcher_classic_foreground else R.drawable.ic_launcher_white_foreground
+
   /** Compose brush for previews, filling a box of [size] px. */
   fun brush(size: Float): Brush {
     if (!gradient) return Brush.linearGradient(listOf(Color(bgStart), Color(bgStart)))
@@ -125,7 +129,7 @@ internal object CustomLauncherIcons {
     if (!icon.gradient) paint.color = icon.bgStart
     canvas.drawRect(0f, 0f, size, size, paint)
 
-    ContextCompat.getDrawable(context, R.drawable.ic_launcher_white_foreground)?.mutate()?.let { logo ->
+    ContextCompat.getDrawable(context, icon.logoRes)?.mutate()?.let { logo ->
       logo.setTint(icon.logo)
       logo.setBounds(0, 0, sizePx, sizePx)
       logo.draw(canvas)
