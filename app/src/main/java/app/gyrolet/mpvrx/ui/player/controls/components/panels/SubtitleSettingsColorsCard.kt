@@ -38,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -52,14 +51,13 @@ import app.gyrolet.mpvrx.preferences.SubtitlesPreferences
 import app.gyrolet.mpvrx.preferences.preference.Preference
 import app.gyrolet.mpvrx.preferences.preference.deleteAndGet
 import app.gyrolet.mpvrx.presentation.components.ExpandableCard
-import app.gyrolet.mpvrx.presentation.components.TintedSliderItem
 import app.gyrolet.mpvrx.ui.icons.Icon
 import app.gyrolet.mpvrx.ui.icons.Icons
 import app.gyrolet.mpvrx.ui.player.PlayerViewModel
 import app.gyrolet.mpvrx.ui.player.applySubtitleLayout
 import app.gyrolet.mpvrx.ui.player.controls.CARDS_MAX_WIDTH
 import app.gyrolet.mpvrx.ui.player.controls.panelCardsColors
-import app.gyrolet.mpvrx.ui.theme.AppConnectedShapeTokens
+import app.gyrolet.mpvrx.ui.components.ColorPicker
 import app.gyrolet.mpvrx.ui.theme.spacing
 import app.gyrolet.mpvrx.ui.utils.currentMpvConfigOverrideOptions
 import org.koin.compose.koinInject
@@ -120,6 +118,7 @@ fun SubtitleSettingsColorsCard(
                 SubColorType.Text -> Icons.RoundedFilled.FormatColorText
                 SubColorType.Border -> Icons.RoundedFilled.BorderColor
                 SubColorType.Shadow -> Icons.RoundedFilled.Shadow
+                SubColorType.Background -> Icons.RoundedFilled.FormatColorFill
               },
               null,
             )
@@ -192,6 +191,11 @@ enum class SubColorType(
     "sub-shadow-color",
     preference = SubtitlesPreferences::shadowColor,
   ),
+  Background(
+    R.string.player_sheets_subtitles_color_background,
+    "sub-back-color",
+    preference = SubtitlesPreferences::backgroundColor,
+  ),
 }
 
 fun resetColors(
@@ -203,6 +207,7 @@ fun resetColors(
       SubColorType.Text -> preferences.textColor.deleteAndGet().toColorHexString()
       SubColorType.Border -> preferences.borderColor.deleteAndGet().toColorHexString()
       SubColorType.Shadow -> preferences.shadowColor.deleteAndGet().toColorHexString()
+      SubColorType.Background -> preferences.backgroundColor.deleteAndGet().toColorHexString()
     }
   PlaybackSession.setPropertyString(type.property, hexColor)
 }
@@ -218,59 +223,14 @@ fun SubtitlesColorPicker(
   modifier: Modifier = Modifier,
   enabled: Boolean = true,
 ) {
-  Column(modifier, verticalArrangement = Arrangement.spacedBy(AppConnectedShapeTokens.spacing)) {
-    PanelConnectedTile(index = 0, itemCount = 4) {
-      TintedSliderItem(
-        stringResource(R.string.player_sheets_sub_color_red),
-        color.red,
-        color.red.toString(),
-        onChange = { onColorChange(color.copyAsArgb(red = it)) },
-        max = 255,
-        tint = Color.Red,
-        enabled = enabled,
-        continuous = true,
-      )
-    }
-
-    PanelConnectedTile(index = 1, itemCount = 4) {
-      TintedSliderItem(
-        stringResource(R.string.player_sheets_sub_color_green),
-        color.green,
-        color.green.toString(),
-        onChange = { onColorChange(color.copyAsArgb(green = it)) },
-        max = 255,
-        tint = Color.Green,
-        enabled = enabled,
-        continuous = true,
-      )
-    }
-
-    PanelConnectedTile(index = 2, itemCount = 4) {
-      TintedSliderItem(
-        stringResource(R.string.player_sheets_sub_color_blue),
-        color.blue,
-        color.blue.toString(),
-        onChange = { onColorChange(color.copyAsArgb(blue = it)) },
-        max = 255,
-        tint = Color.Blue,
-        enabled = enabled,
-        continuous = true,
-      )
-    }
-
-    PanelConnectedTile(index = 3, itemCount = 4) {
-      TintedSliderItem(
-        stringResource(R.string.player_sheets_sub_color_alpha),
-        color.alpha,
-        color.alpha.toString(),
-        onChange = { onColorChange(color.copyAsArgb(alpha = it)) },
-        max = 255,
-        tint = Color.White,
-        enabled = enabled,
-        continuous = true,
-      )
-    }
-  }
+  ColorPicker(
+    color = color,
+    onColorChange = onColorChange,
+    modifier = modifier.padding(horizontal = MaterialTheme.spacing.medium),
+    enabled = enabled,
+    showAlpha = true,
+    maxWheelSize = 200.dp,
+  )
 }
 
 @Composable

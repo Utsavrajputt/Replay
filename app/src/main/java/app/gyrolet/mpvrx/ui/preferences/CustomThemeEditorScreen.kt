@@ -12,6 +12,7 @@ package app.gyrolet.mpvrx.ui.preferences
 import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,8 +31,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import app.gyrolet.mpvrx.ui.components.AppSlider as Slider
-import androidx.compose.material3.SliderDefaults
+import app.gyrolet.mpvrx.ui.components.ColorPicker
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -59,14 +59,12 @@ import app.gyrolet.mpvrx.ui.icons.Icons
 import app.gyrolet.mpvrx.ui.preferences.components.ThemePreviewCard
 import app.gyrolet.mpvrx.ui.player.controls.components.rememberTvInitialFocusRequester
 import app.gyrolet.mpvrx.ui.player.controls.components.tvFocusGroup
-import app.gyrolet.mpvrx.ui.player.controls.components.tvFocusHighlight
 import app.gyrolet.mpvrx.ui.player.controls.components.tvInitialFocus
 import app.gyrolet.mpvrx.ui.theme.CustomThemeDefinition
 import app.gyrolet.mpvrx.ui.utils.LocalBackStack
 import app.gyrolet.mpvrx.ui.utils.popSafely
 import kotlinx.serialization.Serializable
 import org.koin.compose.koinInject
-import kotlin.math.roundToInt
 
 @Serializable
 data class CustomThemeEditorScreen(
@@ -290,7 +288,6 @@ data class CustomThemeEditorScreen(
                 title = stringResource(R.string.pref_appearance_custom_theme_light_primary),
                 hex = primaryLight,
                 onHexChange = { primaryLight = it },
-                showValidationError = showValidationErrors,
               )
             }
             item {
@@ -298,7 +295,6 @@ data class CustomThemeEditorScreen(
                 title = stringResource(R.string.pref_appearance_custom_theme_light_secondary),
                 hex = secondaryLight,
                 onHexChange = { secondaryLight = it },
-                showValidationError = showValidationErrors,
               )
             }
             item {
@@ -306,7 +302,6 @@ data class CustomThemeEditorScreen(
                 title = stringResource(R.string.pref_appearance_custom_theme_light_tertiary),
                 hex = tertiaryLight,
                 onHexChange = { tertiaryLight = it },
-                showValidationError = showValidationErrors,
               )
             }
             item {
@@ -314,7 +309,6 @@ data class CustomThemeEditorScreen(
                 title = stringResource(R.string.pref_appearance_custom_theme_light_background),
                 hex = backgroundLight,
                 onHexChange = { backgroundLight = it },
-                showValidationError = showValidationErrors,
               )
             }
           } else {
@@ -323,7 +317,6 @@ data class CustomThemeEditorScreen(
                 title = stringResource(R.string.pref_appearance_custom_theme_dark_primary),
                 hex = primaryDark,
                 onHexChange = { primaryDark = it },
-                showValidationError = showValidationErrors,
               )
             }
             item {
@@ -331,7 +324,6 @@ data class CustomThemeEditorScreen(
                 title = stringResource(R.string.pref_appearance_custom_theme_dark_secondary),
                 hex = secondaryDark,
                 onHexChange = { secondaryDark = it },
-                showValidationError = showValidationErrors,
               )
             }
             item {
@@ -339,7 +331,6 @@ data class CustomThemeEditorScreen(
                 title = stringResource(R.string.pref_appearance_custom_theme_dark_tertiary),
                 hex = tertiaryDark,
                 onHexChange = { tertiaryDark = it },
-                showValidationError = showValidationErrors,
               )
             }
             item {
@@ -347,7 +338,6 @@ data class CustomThemeEditorScreen(
                 title = stringResource(R.string.pref_appearance_custom_theme_dark_background),
                 hex = backgroundDark,
                 onHexChange = { backgroundDark = it },
-                showValidationError = showValidationErrors,
               )
             }
           }
@@ -367,18 +357,21 @@ private fun ThemeColorEditor(
   title: String,
   hex: String,
   onHexChange: (String) -> Unit,
-  showValidationError: Boolean,
 ) {
   val color = parseThemeColor(hex)
   val argb = color?.toArgb() ?: 0xFF000000.toInt()
+  var expanded by rememberSaveable(title) { mutableStateOf(false) }
 
   PreferenceCard {
     Column(
       modifier = Modifier.fillMaxWidth().padding(16.dp),
-      verticalArrangement = Arrangement.spacedBy(8.dp),
+      verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
       Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+          .fillMaxWidth()
+          .clip(RoundedCornerShape(12.dp))
+          .clickable { expanded = !expanded },
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
       ) {
@@ -390,65 +383,27 @@ private fun ThemeColorEditor(
               .background(color ?: MaterialTheme.colorScheme.errorContainer)
               .border(1.dp, MaterialTheme.colorScheme.outlineVariant, CircleShape),
         )
-        OutlinedTextField(
-          value = hex,
-          onValueChange = { value -> onHexChange(normalizeHexInput(value)) },
-          modifier = Modifier.weight(1f),
-          label = { Text(title) },
-          supportingText = {
-            if (showValidationError && color == null) {
-              Text(stringResource(R.string.pref_appearance_custom_theme_hex_invalid))
-            }
-          },
-          isError = showValidationError && color == null,
-          singleLine = true,
+        Column(modifier = Modifier.weight(1f)) {
+          Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+          Text(
+            hex,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+          )
+        }
+        Icon(
+          if (expanded) Icons.RoundedFilled.ExpandLess else Icons.RoundedFilled.ExpandMore,
+          contentDescription = null,
+          tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
       }
-      ColorChannelSlider(
-        label = stringResource(R.string.player_sheets_sub_color_red),
-        value = AndroidColor.red(argb),
-        tint = Color.Red,
-        onValueChange = { red -> onHexChange(argb.withColorChannel(red = red).toOpaqueHex()) },
-      )
-      ColorChannelSlider(
-        label = stringResource(R.string.player_sheets_sub_color_green),
-        value = AndroidColor.green(argb),
-        tint = Color.Green,
-        onValueChange = { green -> onHexChange(argb.withColorChannel(green = green).toOpaqueHex()) },
-      )
-      ColorChannelSlider(
-        label = stringResource(R.string.player_sheets_sub_color_blue),
-        value = AndroidColor.blue(argb),
-        tint = Color.Blue,
-        onValueChange = { blue -> onHexChange(argb.withColorChannel(blue = blue).toOpaqueHex()) },
-      )
+      if (expanded) {
+        ColorPicker(
+          color = argb,
+          onColorChange = { picked -> onHexChange(picked.toOpaqueHex()) },
+        )
+      }
     }
-  }
-}
-
-@Composable
-private fun ColorChannelSlider(
-  label: String,
-  value: Int,
-  tint: Color,
-  onValueChange: (Int) -> Unit,
-) {
-  Column {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-      Text(label, style = MaterialTheme.typography.labelMedium)
-      Text(value.toString(), style = MaterialTheme.typography.labelMedium)
-    }
-    Slider(
-      value = value.toFloat(),
-      onValueChange = { onValueChange(it.roundToInt().coerceIn(0, 255)) },
-      valueRange = 0f..255f,
-      modifier = Modifier.fillMaxWidth().tvFocusHighlight(RoundedCornerShape(12.dp), focusedScale = 1.01f),
-      colors =
-        SliderDefaults.colors(
-          thumbColor = tint,
-          activeTrackColor = tint,
-        ),
-    )
   }
 }
 
@@ -458,17 +413,7 @@ private fun parseThemeColor(value: String): Color? {
   return runCatching { Color(AndroidColor.parseColor(normalized)) }.getOrNull()
 }
 
-private fun normalizeHexInput(value: String): String {
-  val digits = value.filter { character -> character.isDigit() || character.uppercaseChar() in 'A'..'F' }.take(6).uppercase()
-  return if (digits.isEmpty()) "" else "#$digits"
-}
-
 private fun Color?.toEditorHex(fallback: String): String = this?.toArgb()?.toOpaqueHex() ?: fallback
 
 private fun Int.toOpaqueHex(): String = "#%06X".format(this and 0x00FFFFFF)
 
-private fun Int.withColorChannel(
-  red: Int = AndroidColor.red(this),
-  green: Int = AndroidColor.green(this),
-  blue: Int = AndroidColor.blue(this),
-): Int = AndroidColor.rgb(red, green, blue)

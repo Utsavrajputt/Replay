@@ -88,6 +88,7 @@ import app.gyrolet.mpvrx.ui.theme.AppConnectedShapeTokens
 import app.gyrolet.mpvrx.ui.theme.ConnectedLayout
 import app.gyrolet.mpvrx.ui.theme.connectedShape
 import app.gyrolet.mpvrx.ui.utils.LocalBackStack
+import app.gyrolet.mpvrx.ui.utils.navigateTo
 import app.gyrolet.mpvrx.ui.utils.popSafely
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -157,6 +158,10 @@ object AppIconPreferencesScreen : Screen {
           ) {
             Text(stringResource(R.string.app_icon_apply), style = MaterialTheme.typography.titleMedium)
           }
+          CustomIconSection(
+            onCreate = { backstack.navigateTo(CustomIconEditorScreen()) },
+            onEdit = { backstack.navigateTo(CustomIconEditorScreen(it)) },
+          )
         }
       }
     }

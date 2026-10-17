@@ -61,6 +61,7 @@ class AppearancePreferences(
   val appTheme = preferenceStore.getEnum("app_theme", AppTheme.Dynamic)
   val customTheme = preferenceStore.getString("custom_theme", "")
   val selectedCustomThemeName = preferenceStore.getString("selected_custom_theme_name", "")
+  val customLauncherIcons = preferenceStore.getString("custom_launcher_icons", "")
   val customWallpaperUri = preferenceStore.getString(CUSTOM_WALLPAPER_URI_KEY, "")
   val customWallpaperZoom = preferenceStore.getFloat("custom_wallpaper_zoom", 1f)
   val customWallpaperOffsetX = preferenceStore.getFloat("custom_wallpaper_offset_x", 0f)
