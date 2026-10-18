@@ -48,6 +48,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.ui.utils.NavigationPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -1084,7 +1085,7 @@ internal fun ExpressivePillNavigationBar(
         translationY = frame.trackOffsetY * density.density
       }.graphicsLayer {
         translationX = motion.frame.panelOffset * density.density
-      },
+      }.celestialBorder(CircleShape),
     ) {
       if (liquidGlassEnabled && kyantBackdrop != null) {
         Box(

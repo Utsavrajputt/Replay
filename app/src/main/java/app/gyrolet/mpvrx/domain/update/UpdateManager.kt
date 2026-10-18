@@ -185,7 +185,7 @@ class UpdateManager(
   private fun selectBestApkAsset(assets: List<Asset>): Asset? {
     val compatibleAssets =
       assets.filter { asset ->
-        asset.name.startsWith("mpvRx-", ignoreCase = true) &&
+        asset.name.startsWith("Replay-", ignoreCase = true) &&
           asset.name.endsWith(".apk", ignoreCase = true) &&
           asset.name.matchesApkVariant(BuildConfig.UPDATE_APK_VARIANT)
       }
@@ -457,9 +457,9 @@ class UpdateManager(
   }
 
   private companion object {
-    const val STABLE_RELEASE_URL = "https://api.github.com/repos/Riteshp2001/mpvRx/releases/latest"
-    const val PREVIEW_RELEASE_URL = "https://riteshp2001.github.io/mpvRx/latest.json"
-    const val EXPERIMENTAL_RELEASE_URL = "https://riteshp2001.github.io/mpvRx/experimental.json"
+    const val STABLE_RELEASE_URL = "https://api.github.com/repos/Utsavrajputt/Replay/releases/latest"
+    const val PREVIEW_RELEASE_URL = "https://utsavrajputt.github.io/Replay/latest.json"
+    const val EXPERIMENTAL_RELEASE_URL = "https://utsavrajputt.github.io/Replay/experimental.json"
     const val LEGACY_IGNORED_VERSION_KEY = "ignored_version"
     const val PART_SUFFIX = ".part"
     const val LOCAL_HASH_LENGTH = 12

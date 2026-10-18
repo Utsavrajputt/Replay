@@ -11,6 +11,8 @@ package app.gyrolet.mpvrx.ui.browser.recentlyplayed
 
 import android.content.Intent
 import android.widget.Toast
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
+import app.gyrolet.mpvrx.ui.celestial.celestialFabColors
 import app.gyrolet.mpvrx.ui.utils.NavigationBackHandler as BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -321,13 +323,16 @@ object RecentlyPlayedScreen : Screen {
               },
               state = rememberTooltipState(),
             ) {
+              val celestialFab = celestialFabColors()
               ToggleFloatingActionButton(
+                containerColor = celestialFab.containerColor,
+                containerCornerRadius = celestialFab.containerCornerRadius,
                 modifier =
                   Modifier
                     .animateFloatingActionButton(
                       visible = isFabShouldBeVisible,
                       alignment = Alignment.BottomEnd,
-                    ),
+                    ).celestialBorder(),
                 checked = isFabExpanded.value && !quickPlayFabDirect,
                 onCheckedChange = {
                   if (quickPlayFabDirect) {

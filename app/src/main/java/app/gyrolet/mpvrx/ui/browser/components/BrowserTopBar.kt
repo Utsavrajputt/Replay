@@ -29,6 +29,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import app.gyrolet.mpvrx.ui.celestial.celestialIconColor
+import app.gyrolet.mpvrx.ui.celestial.celestialTitleColor
 import app.gyrolet.mpvrx.presentation.components.AppDropdownMenu as DropdownMenu
 import app.gyrolet.mpvrx.presentation.components.AppDropdownMenuItem as DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -256,6 +258,8 @@ private fun NormalTopBar(
   showBetaBadge: Boolean = false,
   customTitle: (@Composable () -> Unit)? = null,
 ) {
+  val celestialTitleColor = celestialTitleColor()
+  val celestialIconColor = celestialIconColor()
   val preferences = koinInject<AppearancePreferences>()
   val wallpaperActive = LocalAppWallpaperActive.current
   val darkMode by preferences.darkMode.collectAsState()
@@ -387,7 +391,7 @@ private fun NormalTopBar(
               } else {
                 MaterialTheme.typography.headlineMediumEmphasized.copy(fontWeight = FontWeight.ExtraBold)
               },
-            color = MaterialTheme.colorScheme.primary.onWallpaper(),
+            color = celestialTitleColor.onWallpaper(),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = titleModifier.weight(1f, fill = false),
@@ -418,7 +422,7 @@ private fun NormalTopBar(
             Icons.RoundedFilled.ArrowBack,
             contentDescription = stringResource(R.string.back),
             modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.secondary.onWallpaper(),
+            tint = celestialIconColor.onWallpaper(),
           )
         }
       }
@@ -437,7 +441,7 @@ private fun NormalTopBar(
                 app.gyrolet.mpvrx.R.string.seerr_discover,
               ),
             modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.secondary.onWallpaper(),
+            tint = celestialIconColor.onWallpaper(),
           )
         }
       }
@@ -453,7 +457,7 @@ private fun NormalTopBar(
                 app.gyrolet.mpvrx.R.string.settings_search_title,
               ),
             modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.secondary.onWallpaper(),
+            tint = celestialIconColor.onWallpaper(),
           )
         }
       }
@@ -467,7 +471,7 @@ private fun NormalTopBar(
             Icons.RoundedFilled.SortByAlpha,
             contentDescription = stringResource(R.string.sort),
             modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.secondary.onWallpaper(),
+            tint = celestialIconColor.onWallpaper(),
           )
         }
       }
@@ -483,7 +487,7 @@ private fun NormalTopBar(
               androidx.compose.ui.res
                 .stringResource(app.gyrolet.mpvrx.R.string.ui_settings),
             modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.secondary.onWallpaper(),
+            tint = celestialIconColor.onWallpaper(),
           )
         }
       }

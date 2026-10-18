@@ -7,6 +7,8 @@ package app.gyrolet.mpvrx.ui.browser.music
 import android.app.Application
 import android.net.Uri
 import android.text.format.DateUtils
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
+import app.gyrolet.mpvrx.ui.celestial.celestialFabColors
 import app.gyrolet.mpvrx.ui.browser.jellyfin.JellyfinViewModel
 import app.gyrolet.mpvrx.ui.utils.NavigationBackHandler as BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -633,12 +635,15 @@ fun MusicLibraryContent(
           modifier = Modifier.padding(bottom = FabPlacement.scaffoldBottomPadding()),
           expanded = false,
           button = {
+            val celestialFab = celestialFabColors()
             ToggleFloatingActionButton(
+              containerColor = celestialFab.containerColor,
+              containerCornerRadius = celestialFab.containerCornerRadius,
               modifier =
                 Modifier.animateFloatingActionButton(
                   visible = isFabShouldBeVisible,
                   alignment = Alignment.BottomEnd,
-                ),
+                ).celestialBorder(),
               checked = false,
               onCheckedChange = { showCreatePlaylistDialog = true },
             ) {
@@ -662,12 +667,15 @@ fun MusicLibraryContent(
               tooltip = { PlainTooltip { Text(stringResource(R.string.ui_toggle_menu)) } },
               state = rememberTooltipState(),
             ) {
+              val celestialFab = celestialFabColors()
               ToggleFloatingActionButton(
+                containerColor = celestialFab.containerColor,
+                containerCornerRadius = celestialFab.containerCornerRadius,
                 modifier =
                   Modifier.animateFloatingActionButton(
                     visible = isFabShouldBeVisible,
                     alignment = Alignment.BottomEnd,
-                  ),
+                  ).celestialBorder(),
                 checked = isFabExpanded.value && !quickPlayFabDirect,
                 onCheckedChange = {
                   if (quickPlayFabDirect) {
