@@ -57,6 +57,7 @@ import app.gyrolet.mpvrx.preferences.preference.collectAsState
 import app.gyrolet.mpvrx.presentation.Screen
 import app.gyrolet.mpvrx.presentation.components.ConfirmDialog
 import app.gyrolet.mpvrx.ui.icons.Icon
+import app.gyrolet.mpvrx.ui.celestial.CelestialEffectsToggle
 import app.gyrolet.mpvrx.ui.icons.Icons
 import app.gyrolet.mpvrx.ui.player.ControlsAnimationStyle
 import app.gyrolet.mpvrx.ui.player.NavigationAnimStyle
@@ -998,7 +999,7 @@ object AppearancePreferencesScreen : Screen {
                     )
                   },
                   groupIndex = 0,
-                  groupSize = 5,
+                  groupSize = 6,
                 )
                 val quickPlayFabDirect by preferences.quickPlayFabDirect.collectAsState()
                 SwitchPreference(
@@ -1014,7 +1015,7 @@ object AppearancePreferencesScreen : Screen {
                     )
                   },
                   groupIndex = 1,
-                  groupSize = 5,
+                  groupSize = 6,
                 )
                 val navigationBarGlow by preferences.navigationBarGlow.collectAsState()
                 SwitchPreference(
@@ -1024,7 +1025,7 @@ object AppearancePreferencesScreen : Screen {
                   title = { Text(stringResource(R.string.navbar_glow_title)) },
                   summary = { Text(stringResource(R.string.navbar_glow_summary), color = MaterialTheme.colorScheme.outline) },
                   groupIndex = 2,
-                  groupSize = 5,
+                  groupSize = 6,
                 )
                 val legacyNavigationBar by preferences.legacyNavigationBar.collectAsState()
                 val progressiveNavigationBlur by preferences.progressiveNavigationBlur.collectAsState()
@@ -1043,7 +1044,7 @@ object AppearancePreferencesScreen : Screen {
                   title = { Text(stringResource(R.string.legacy_navigation_bar_title)) },
                   summary = { Text(stringResource(R.string.legacy_navigation_bar_summary), color = MaterialTheme.colorScheme.outline) },
                   groupIndex = 3,
-                  groupSize = 5,
+                  groupSize = 6,
                 )
                 SwitchPreference(
                   modifier = Modifier.settingsSearchTarget(R.string.progressive_navigation_blur_title),
@@ -1053,8 +1054,9 @@ object AppearancePreferencesScreen : Screen {
                   title = { Text(stringResource(R.string.progressive_navigation_blur_title)) },
                   summary = { Text(stringResource(R.string.progressive_navigation_blur_summary), color = MaterialTheme.colorScheme.outline) },
                   groupIndex = 4,
-                  groupSize = 5,
+                  groupSize = 6,
                 )
+                CelestialEffectsToggle(groupIndex = 5, groupSize = 6)
               }
             }
           }

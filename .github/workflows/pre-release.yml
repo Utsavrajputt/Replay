@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: mpvrx-pre-release-${{ github.ref }}
+  group: replay-pre-release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -150,7 +150,7 @@ jobs:
           for abi in $APK_ABIS; do
             base="app-${APK_DIR}-${abi}-preview"
             sign_apk "$out_dir" "$base" "${APK_DIR} ${abi} preview"
-            cp "$out_dir/$base.apk" "preview/mpvRx-preview-${ASSET_NAME:-$abi}-${VERSION_TAG}.apk"
+            cp "$out_dir/$base.apk" "preview/Replay-preview-${ASSET_NAME:-$abi}-${VERSION_TAG}.apk"
           done
 
       - name: Upload pre-release assets
@@ -188,7 +188,7 @@ jobs:
           : > checksums.txt
           variants=(universal arm64-v8a armeabi-v7a x86 x86_64 fongmi no-vulkan)
           for variant in "${variants[@]}"; do
-            asset="preview/mpvRx-preview-${variant}-${VERSION_TAG}.apk"
+            asset="preview/Replay-preview-${variant}-${VERSION_TAG}.apk"
             if [[ ! -f "$asset" ]]; then
               echo "Missing expected pre-release asset: $asset"
               find preview -type f -name '*.apk' -print || true
@@ -227,19 +227,19 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.VERSION_TAG }}
-          name: mpvRx ${{ env.VERSION_TAG }}
+          name: Replay ${{ env.VERSION_TAG }}
           body_path: pre-release-notes.md
           generate_release_notes: true
           draft: false
           prerelease: true
           fail_on_unmatched_files: true
           files: |
-            preview/mpvRx-preview-universal-${{ env.VERSION_TAG }}.apk
-            preview/mpvRx-preview-arm64-v8a-${{ env.VERSION_TAG }}.apk
-            preview/mpvRx-preview-armeabi-v7a-${{ env.VERSION_TAG }}.apk
-            preview/mpvRx-preview-x86-${{ env.VERSION_TAG }}.apk
-            preview/mpvRx-preview-x86_64-${{ env.VERSION_TAG }}.apk
-            preview/mpvRx-preview-fongmi-${{ env.VERSION_TAG }}.apk
-            preview/mpvRx-preview-no-vulkan-${{ env.VERSION_TAG }}.apk
+            preview/Replay-preview-universal-${{ env.VERSION_TAG }}.apk
+            preview/Replay-preview-arm64-v8a-${{ env.VERSION_TAG }}.apk
+            preview/Replay-preview-armeabi-v7a-${{ env.VERSION_TAG }}.apk
+            preview/Replay-preview-x86-${{ env.VERSION_TAG }}.apk
+            preview/Replay-preview-x86_64-${{ env.VERSION_TAG }}.apk
+            preview/Replay-preview-fongmi-${{ env.VERSION_TAG }}.apk
+            preview/Replay-preview-no-vulkan-${{ env.VERSION_TAG }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

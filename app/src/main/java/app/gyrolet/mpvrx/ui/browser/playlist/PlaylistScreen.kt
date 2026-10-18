@@ -9,6 +9,7 @@
 
 package app.gyrolet.mpvrx.ui.browser.playlist
 
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.ui.utils.NavigationBackHandler as BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -328,7 +329,7 @@ object PlaylistScreen : Screen {
             },
             icon = { Icon(Icons.RoundedFilled.Add, contentDescription = null) },
             text = { Text(stringResource(R.string.ui_create_playlist)) },
-            modifier = Modifier.padding(bottom = FabPlacement.scaffoldBottomPadding()),
+            modifier = Modifier.padding(bottom = FabPlacement.scaffoldBottomPadding()).celestialBorder(RoundedCornerShape(16.dp)),
           )
         }
       },

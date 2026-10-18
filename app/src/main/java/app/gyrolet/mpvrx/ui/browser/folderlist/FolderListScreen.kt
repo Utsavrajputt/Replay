@@ -21,6 +21,8 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import app.gyrolet.mpvrx.ui.browser.fab.FabPlacement
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
+import app.gyrolet.mpvrx.ui.celestial.celestialFabColors
 import app.gyrolet.mpvrx.ui.browser.fab.FabScrollHelper
 import app.gyrolet.mpvrx.ui.theme.AppMotion
 import androidx.compose.foundation.layout.Arrangement
@@ -820,12 +822,15 @@ object FolderListScreen : Screen {
                 },
                 state = rememberTooltipState(),
               ) {
+                val celestialFab = celestialFabColors()
                 ToggleFloatingActionButton(
+                  containerColor = celestialFab.containerColor,
+                  containerCornerRadius = celestialFab.containerCornerRadius,
                   modifier =
                     Modifier.animateFloatingActionButton(
                       visible = isFabShouldBeVisible,
                       alignment = Alignment.BottomEnd,
-                    ).focusableWhen(isFabShouldBeVisible),
+                    ).celestialBorder().focusableWhen(isFabShouldBeVisible),
                   checked = isFabExpanded.value && !quickPlayFabDirect,
                   onCheckedChange = {
                     if (quickPlayFabDirect) {

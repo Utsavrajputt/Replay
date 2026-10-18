@@ -12,6 +12,8 @@ package app.gyrolet.mpvrx.ui.browser.medialibrary
 import android.content.Intent
 import android.os.Environment
 import android.widget.Toast
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
+import app.gyrolet.mpvrx.ui.celestial.celestialFabColors
 import app.gyrolet.mpvrx.ui.utils.NavigationBackHandler as BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -517,12 +519,15 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
             },
             state = rememberTooltipState(),
           ) {
+            val celestialFab = celestialFabColors()
             ToggleFloatingActionButton(
+              containerColor = celestialFab.containerColor,
+              containerCornerRadius = celestialFab.containerCornerRadius,
               modifier =
                 Modifier.animateFloatingActionButton(
                   visible = isFabShouldBeVisible,
                   alignment = Alignment.BottomEnd,
-                ).focusableWhen(isFabShouldBeVisible),
+                ).celestialBorder().focusableWhen(isFabShouldBeVisible),
               checked = isFabExpanded.value && !quickPlayFabDirect,
                 onCheckedChange = {
                   if (quickPlayFabDirect) {

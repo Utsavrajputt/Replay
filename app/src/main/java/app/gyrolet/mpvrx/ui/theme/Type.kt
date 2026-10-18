@@ -116,7 +116,7 @@ val GoogleSansRounded =
 /**
  * Display cut of the bundled Google Sans Flex variable font.
  *
- * The wider, lightly slanted axis mix gives app headings and hero copy a recognizable expressive
+ * The wider (upright, no slant) axis mix gives app headings and hero copy a recognizable expressive
  * voice; body text keeps [GoogleSansRounded] for readability and predictable fallback. Multiple
  * weight instances keep the variable axes intentional instead of relying on synthetic bolding.
  */
@@ -130,7 +130,6 @@ val GoogleSansExpressiveDisplay =
         FontVariation.Settings(
           FontVariation.weight(FontWeight.Medium.weight),
           FontVariation.width(110f),
-          FontVariation.slant(-4f),
           FontVariation.Setting("GRAD", 60f),
           FontVariation.Setting("ROND", GoogleSansRoundedAxis),
         ),
@@ -142,7 +141,6 @@ val GoogleSansExpressiveDisplay =
         FontVariation.Settings(
           FontVariation.weight(FontWeight.SemiBold.weight),
           FontVariation.width(111f),
-          FontVariation.slant(-4f),
           FontVariation.Setting("GRAD", 70f),
           FontVariation.Setting("ROND", GoogleSansRoundedAxis),
         ),
@@ -154,7 +152,6 @@ val GoogleSansExpressiveDisplay =
         FontVariation.Settings(
           FontVariation.weight(FontWeight.Bold.weight),
           FontVariation.width(112f),
-          FontVariation.slant(-4f),
           FontVariation.Setting("GRAD", 80f),
           FontVariation.Setting("ROND", GoogleSansRoundedAxis),
         ),
@@ -166,7 +163,6 @@ val GoogleSansExpressiveDisplay =
         FontVariation.Settings(
           FontVariation.weight(FontWeight.ExtraBold.weight),
           FontVariation.width(112f),
-          FontVariation.slant(-3f),
           FontVariation.Setting("GRAD", 90f),
           FontVariation.Setting("ROND", GoogleSansRoundedAxis),
         ),
@@ -178,7 +174,6 @@ val GoogleSansExpressiveDisplay =
         FontVariation.Settings(
           FontVariation.weight(FontWeight.Black.weight),
           FontVariation.width(112f),
-          FontVariation.slant(-2f),
           FontVariation.Setting("GRAD", 100f),
           FontVariation.Setting("ROND", GoogleSansRoundedAxis),
         ),

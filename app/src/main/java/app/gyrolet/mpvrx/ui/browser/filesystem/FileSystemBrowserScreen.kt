@@ -12,6 +12,8 @@ package app.gyrolet.mpvrx.ui.browser.filesystem
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
+import app.gyrolet.mpvrx.ui.celestial.celestialFabColors
 import app.gyrolet.mpvrx.ui.utils.NavigationBackHandler as BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -698,13 +700,16 @@ fun FileSystemBrowserScreen(path: String? = null) {
                 },
                 state = rememberTooltipState(),
               ) {
+                val celestialFab = celestialFabColors()
                 ToggleFloatingActionButton(
+                  containerColor = celestialFab.containerColor,
+                  containerCornerRadius = celestialFab.containerCornerRadius,
                   modifier =
                     Modifier
                       .animateFloatingActionButton(
                         visible = isFabShouldBeVisible,
                         alignment = Alignment.BottomEnd,
-                      ).focusableWhen(isFabShouldBeVisible),
+                      ).celestialBorder().focusableWhen(isFabShouldBeVisible),
                   checked = isFabExpanded.value && !quickPlayFabDirect,
                   onCheckedChange = {
                     if (quickPlayFabDirect) {
