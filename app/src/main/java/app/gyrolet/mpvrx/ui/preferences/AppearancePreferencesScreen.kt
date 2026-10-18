@@ -54,6 +54,7 @@ import app.gyrolet.mpvrx.preferences.preference.collectAsState
 import app.gyrolet.mpvrx.presentation.Screen
 import app.gyrolet.mpvrx.presentation.components.ConfirmDialog
 import app.gyrolet.mpvrx.ui.icons.Icon
+import app.gyrolet.mpvrx.ui.celestial.CelestialEffectsToggle
 import app.gyrolet.mpvrx.ui.background.BackgroundPickerDialog
 import app.gyrolet.mpvrx.ui.icons.Icons
 import app.gyrolet.mpvrx.ui.player.ControlsAnimationStyle
@@ -900,7 +901,7 @@ object AppearancePreferencesScreen : Screen {
                   )
                 },
                 groupIndex = 0,
-                groupSize = 2,
+                groupSize = 3,
               )
               val quickPlayFabDirect by preferences.quickPlayFabDirect.collectAsState()
               SwitchPreference(
@@ -916,8 +917,9 @@ object AppearancePreferencesScreen : Screen {
                   )
                 },
                 groupIndex = 1,
-                groupSize = 2,
+                groupSize = 3,
               )
+              CelestialEffectsToggle(groupIndex = 2, groupSize = 3)
             }
           }
 

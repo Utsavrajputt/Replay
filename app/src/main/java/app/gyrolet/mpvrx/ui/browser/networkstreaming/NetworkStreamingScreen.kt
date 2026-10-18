@@ -10,6 +10,7 @@
 package app.gyrolet.mpvrx.ui.browser.networkstreaming
 
 import android.content.Context
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.ui.utils.NavigationBackHandler as BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -440,7 +441,7 @@ object NetworkStreamingScreen : Screen {
                   stringResource(R.string.ui_add_connection),
                 )
               },
-              modifier = Modifier.padding(bottom = bottomOverlayClearance),
+              modifier = Modifier.padding(bottom = bottomOverlayClearance).celestialBorder(RoundedCornerShape(16.dp)),
             )
           }
           NetworkTab.MEDIA.ordinal -> {
@@ -448,7 +449,7 @@ object NetworkStreamingScreen : Screen {
               onClick = { showAddMediaDialog = true },
               icon = { Icon(Icons.RoundedFilled.Add, contentDescription = null) },
               text = { Text("Add Media") },
-              modifier = Modifier.padding(bottom = bottomOverlayClearance),
+              modifier = Modifier.padding(bottom = bottomOverlayClearance).celestialBorder(RoundedCornerShape(16.dp)),
             )
           }
         }

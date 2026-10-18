@@ -9,6 +9,7 @@
 
 package app.gyrolet.mpvrx.ui.browser.playlist
 
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.ui.utils.NavigationBackHandler as BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -339,7 +340,7 @@ object PlaylistScreen : Screen {
                   } else {
                     (navigationBarHeight - 16.dp).coerceAtLeast(0.dp)
                   },
-              ),
+              ).celestialBorder(RoundedCornerShape(16.dp)),
           )
         }
       },

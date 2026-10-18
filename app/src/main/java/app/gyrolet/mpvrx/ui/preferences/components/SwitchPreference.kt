@@ -29,14 +29,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import app.gyrolet.mpvrx.ui.components.IconSwitch
 import app.gyrolet.mpvrx.ui.preferences.LocalInsidePreferenceCard
-import app.gyrolet.mpvrx.ui.preferences.SelectedPreferenceTile
 import app.gyrolet.mpvrx.ui.player.controls.components.tvFocusHighlight
 import app.gyrolet.mpvrx.ui.theme.AppMotion
 import app.gyrolet.mpvrx.ui.theme.appPressFeedback
@@ -97,9 +95,7 @@ fun SwitchPreference(
       insideConnectedCard -> androidx.compose.ui.graphics.Color.Transparent
       // Connected rows in draggable panels need visible fills even when switched off.
       groupIndex != null && groupSize != null ->
-        if (value) MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.90f)
-        else MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.90f)
-      value -> MaterialTheme.colorScheme.secondaryContainer
+        MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.90f)
       else -> MaterialTheme.colorScheme.surfaceContainerLow
     },
     animationSpec = if (lowEnd) snap() else AppMotion.spatial(AppMotion.Effect.Color, snap()),
@@ -109,7 +105,6 @@ fun SwitchPreference(
     modifier =
       modifier
         .fillMaxWidth()
-        .then(if (insideConnectedCard && value) Modifier.layoutId(SelectedPreferenceTile) else Modifier)
         .tvFocusHighlight(shape, enabled = enabled, focusedScale = 1.01f),
     shape = shape,
     color = containerColor,

@@ -15,7 +15,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: mpvrx-release-${{ github.ref }}
+  group: replay-release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -158,7 +158,7 @@ jobs:
           jarsigner -verify "$bundle"
 
           mkdir -p release-assets
-          cp "$bundle" "release-assets/mpvRx-${ASSET_NAME}-${VERSION_TAG}.aab"
+          cp "$bundle" "release-assets/Replay-${ASSET_NAME}-${VERSION_TAG}.aab"
 
       - name: Sign and stage release APKs
         if: ${{ matrix.distribution.package == 'apk' }}
@@ -222,7 +222,7 @@ jobs:
           for abi in $APK_ABIS; do
             base="app-${APK_DIR}-${abi}-release"
             sign_apk "$out_dir" "$base" "${APK_DIR} ${abi} release"
-            cp "$out_dir/$base.apk" "release-assets/mpvRx-${ASSET_NAME:-$abi}-${VERSION_TAG}.apk"
+            cp "$out_dir/$base.apk" "release-assets/Replay-${ASSET_NAME:-$abi}-${VERSION_TAG}.apk"
           done
 
       - name: Upload release assets
@@ -260,7 +260,7 @@ jobs:
           : > checksums.txt
           variants=(universal arm64-v8a armeabi-v7a x86 x86_64 fongmi no-vulkan playstore)
           for variant in "${variants[@]}"; do
-            asset="release-assets/mpvRx-${variant}-${VERSION_TAG}.apk"
+            asset="release-assets/Replay-${variant}-${VERSION_TAG}.apk"
             if [[ ! -f "$asset" ]]; then
               echo "Missing expected release asset: $asset"
               find release-assets -type f -name '*.apk' -print || true
@@ -269,7 +269,7 @@ jobs:
             sha256sum "$asset" | tee -a checksums.txt
           done
 
-          bundle="release-assets/mpvRx-playstore-${VERSION_TAG}.aab"
+          bundle="release-assets/Replay-playstore-${VERSION_TAG}.aab"
           if [[ ! -f "$bundle" ]]; then
             echo "Missing expected Play Store bundle: $bundle"
             exit 1
@@ -300,12 +300,12 @@ jobs:
           variant_guide = """
           ### APK variants
 
-          All variants contain the same mpvRx app version, with their native backends built from [mpvlib Android](https://github.com/Riteshp2001/mpvlibAndroid). Choose the package that best matches your device:
+          All variants contain the same Replay app version, with their native backends built from [mpvlib Android](https://github.com/Riteshp2001/mpvlibAndroid). Choose the package that best matches your device:
 
-          - **Standard** (`mpvRx-<architecture>-<version>.apk`): Recommended for most devices. Available as Universal and architecture-specific APKs with the standard Vulkan-capable playback backend.
-          - **FongMi** (`mpvRx-fongmi-<version>.apk`): Universal package using the FongMi native profile for Vulkan, direct MediaCodec, and Dolby Vision playback.
-          - **Non-Vulkan** (`mpvRx-no-vulkan-<version>.apk`): Universal OpenGL-only package for devices without compatible Vulkan support or with unstable legacy GPU drivers.
-          - **Play Store** (`mpvRx-playstore-<version>.apk`): Universal APK of the Google Play build, which leaves out features Google Play does not allow, such as yt-dlp, torrent streaming, and in-app updates. `mpvRx-playstore-<version>.aab` is the same build as an app bundle for Play Console upload.
+          - **Standard** (`Replay-<architecture>-<version>.apk`): Recommended for most devices. Available as Universal and architecture-specific APKs with the standard Vulkan-capable playback backend.
+          - **FongMi** (`Replay-fongmi-<version>.apk`): Universal package using the FongMi native profile for Vulkan, direct MediaCodec, and Dolby Vision playback.
+          - **Non-Vulkan** (`Replay-no-vulkan-<version>.apk`): Universal OpenGL-only package for devices without compatible Vulkan support or with unstable legacy GPU drivers.
+          - **Play Store** (`Replay-playstore-<version>.apk`): Universal APK of the Google Play build, which leaves out features Google Play does not allow, such as yt-dlp, torrent streaming, and in-app updates. `Replay-playstore-<version>.aab` is the same build as an app bundle for Play Console upload.
           """.strip()
           Path('release-notes.md').write_text(
               latest + '\n\n---\n' + variant_guide + '\n\n### SHA-256 checksums\n\n```text\n',
@@ -319,7 +319,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.prepare.outputs.version_tag }}
-          name: mpvRx ${{ needs.prepare.outputs.version_tag }}
+          name: Replay ${{ needs.prepare.outputs.version_tag }}
           body_path: release-notes.md
           generate_release_notes: true
           draft: false

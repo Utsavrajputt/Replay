@@ -12,6 +12,8 @@ package app.gyrolet.mpvrx.ui.browser.videolist
 import android.content.Intent
 import android.os.Environment
 import android.widget.Toast
+import androidx.compose.foundation.shape.CircleShape
+import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.ui.utils.NavigationBackHandler as BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
@@ -472,11 +474,13 @@ data class VideoListScreen(
               modifier =
                 Modifier
                   .windowInsetsPadding(WindowInsets.systemBars)
-                  .padding(bottom = navigationBarHeight + miniPlayerClearance)
+                  .padding(bottom = navigationBarHeight + miniPlayerClearance + 24.dp)
                   .animateFloatingActionButton(
                     visible = isFabShouldBeVisible,
                     alignment = Alignment.BottomEnd,
-                  ),
+                  ).celestialBorder(),
+              containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+              shape = CircleShape,
               onClick = {
                 coroutineScope.launch {
                   if (scopedFolder) {

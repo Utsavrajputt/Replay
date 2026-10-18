@@ -58,7 +58,7 @@ class AppearancePreferences(
   }
 
   val darkMode = preferenceStore.getEnum("dark_mode", DarkMode.System)
-  val appTheme = preferenceStore.getEnum("app_theme", AppTheme.Dynamic)
+  val appTheme = preferenceStore.getEnum("app_theme", AppTheme.Aurora)
   val customTheme = preferenceStore.getString("custom_theme", "")
   val selectedCustomThemeName = preferenceStore.getString("selected_custom_theme_name", "")
   val customWallpaperUri = preferenceStore.getString(CUSTOM_WALLPAPER_URI_KEY, "")
@@ -119,9 +119,10 @@ class AppearancePreferences(
   )
   val showQuickPlayFab = preferenceStore.getBoolean("show_quick_play_fab", true)
   val quickPlayFabDirect = preferenceStore.getBoolean("quick_play_fab_direct", false)
+  val showCelestialEffects = preferenceStore.getBoolean("show_celestial_effects", true)
 
   // Background animation (see ui/background)
-  val backgroundType = preferenceStore.getEnum("background_type", BackgroundType.NONE)
+  val backgroundType = preferenceStore.getEnum("background_type", BackgroundType.AURORA)
   val backgroundParallax = preferenceStore.getBoolean("background_parallax", true)
   val backgroundOverWallpaper = preferenceStore.getBoolean("background_over_wallpaper", true)
   val seasonalThemes = preferenceStore.getBoolean("seasonal_themes", true)
