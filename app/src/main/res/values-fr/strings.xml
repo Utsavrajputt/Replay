@@ -942,6 +942,7 @@ Veuillez redémarrer l’application pour appliquer toutes les modifications.</s
   <string name="pref_hall_of_fame_summary">Créateurs, contributeurs et communauté</string>
   <string name="hall_of_fame_original_developer">Développeur original de mpvEx</string>
   <string name="hall_of_fame_maintainer">Responsable de mpvRx</string>
+  <string name="hall_of_fame_replay_developer">Developpeur de Replay</string>
   <string name="hall_of_fame_featured_contributors">Contributeurs à l\'honneur</string>
   <string name="hall_of_fame_active_title">Contributeurs actifs</string>
   <string name="hall_of_fame_active_period">Commits des 90 derniers jours</string>

@@ -361,7 +361,7 @@ private fun NormalTopBar(
             // expressive Google Sans Flex variable-display cut (or the user's chosen
             // display font), without overriding accessibility or language fallbacks.
             style =
-              if (forceHeadlineSmall) {
+              if (forceHeadlineSmall || onBackClick != null) {
                 MaterialTheme.typography.headlineSmallEmphasized.copy(fontWeight = FontWeight.ExtraBold)
               } else {
                 MaterialTheme.typography.headlineMediumEmphasized.copy(fontWeight = FontWeight.ExtraBold)

@@ -942,6 +942,7 @@
   <string name="pref_hall_of_fame_summary">開発者、貢献者、コミュニティ</string>
   <string name="hall_of_fame_original_developer">mpvEx のオリジナル開発者</string>
   <string name="hall_of_fame_maintainer">mpvRx のメンテナー</string>
+  <string name="hall_of_fame_replay_developer">Replay の開発者</string>
   <string name="hall_of_fame_featured_contributors">注目の貢献者</string>
   <string name="hall_of_fame_active_title">アクティブな貢献者</string>
   <string name="hall_of_fame_active_period">過去90日間のコミット</string>

@@ -998,6 +998,7 @@
   <string name="pref_hall_of_fame_summary">Автори, учасники розробки та спільнота</string>
   <string name="hall_of_fame_original_developer">Оригінальний розробник mpvEx</string>
   <string name="hall_of_fame_maintainer">Супровідник mpvRx</string>
+  <string name="hall_of_fame_replay_developer">Розробник Replay</string>
   <string name="hall_of_fame_featured_contributors">Визначні учасники</string>
   <string name="hall_of_fame_active_title">Активні учасники</string>
   <string name="hall_of_fame_active_period">Коміти за останні 90 днів</string>

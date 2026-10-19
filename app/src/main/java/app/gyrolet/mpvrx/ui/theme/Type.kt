@@ -19,11 +19,10 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import app.gyrolet.mpvrx.R
 import java.util.Locale
 
-val SystemTypography = Typography().withExpressiveEmphasis()
+val SystemTypography = Typography()
 
 private const val GoogleSansRoundedAxis = 100f
 
@@ -114,71 +113,10 @@ val GoogleSansRounded =
   )
 
 /**
- * Display cut of the bundled Google Sans Flex variable font.
- *
- * The wider (upright, no slant) axis mix gives app headings and hero copy a recognizable expressive
- * voice; body text keeps [GoogleSansRounded] for readability and predictable fallback. Multiple
- * weight instances keep the variable axes intentional instead of relying on synthetic bolding.
+ * Replay keeps headings in the same upright, regular-width Google Sans Flex cut as body text
+ * (the older look), so the display family is simply an alias of [GoogleSansRounded].
  */
-@OptIn(ExperimentalTextApi::class)
-val GoogleSansExpressiveDisplay =
-  FontFamily(
-    Font(
-      resId = R.font.gflex_variable,
-      weight = FontWeight.Medium,
-      variationSettings =
-        FontVariation.Settings(
-          FontVariation.weight(FontWeight.Medium.weight),
-          FontVariation.width(110f),
-          FontVariation.Setting("GRAD", 60f),
-          FontVariation.Setting("ROND", GoogleSansRoundedAxis),
-        ),
-    ),
-    Font(
-      resId = R.font.gflex_variable,
-      weight = FontWeight.SemiBold,
-      variationSettings =
-        FontVariation.Settings(
-          FontVariation.weight(FontWeight.SemiBold.weight),
-          FontVariation.width(111f),
-          FontVariation.Setting("GRAD", 70f),
-          FontVariation.Setting("ROND", GoogleSansRoundedAxis),
-        ),
-    ),
-    Font(
-      resId = R.font.gflex_variable,
-      weight = FontWeight.Bold,
-      variationSettings =
-        FontVariation.Settings(
-          FontVariation.weight(FontWeight.Bold.weight),
-          FontVariation.width(112f),
-          FontVariation.Setting("GRAD", 80f),
-          FontVariation.Setting("ROND", GoogleSansRoundedAxis),
-        ),
-    ),
-    Font(
-      resId = R.font.gflex_variable,
-      weight = FontWeight.ExtraBold,
-      variationSettings =
-        FontVariation.Settings(
-          FontVariation.weight(FontWeight.ExtraBold.weight),
-          FontVariation.width(112f),
-          FontVariation.Setting("GRAD", 90f),
-          FontVariation.Setting("ROND", GoogleSansRoundedAxis),
-        ),
-    ),
-    Font(
-      resId = R.font.gflex_variable,
-      weight = FontWeight.Black,
-      variationSettings =
-        FontVariation.Settings(
-          FontVariation.weight(FontWeight.Black.weight),
-          FontVariation.width(112f),
-          FontVariation.Setting("GRAD", 100f),
-          FontVariation.Setting("ROND", GoogleSansRoundedAxis),
-        ),
-    ),
-  )
+val GoogleSansExpressiveDisplay = GoogleSansRounded
 
 fun typographyWithFontFamily(
   fontFamily: FontFamily,
@@ -186,21 +124,21 @@ fun typographyWithFontFamily(
 ): Typography =
   SystemTypography.run {
     copy(
-      displayLarge = displayLarge.copy(fontFamily = displayFontFamily, fontWeight = FontWeight.Black, letterSpacing = 0.sp),
-      displayMedium = displayMedium.copy(fontFamily = displayFontFamily, fontWeight = FontWeight.ExtraBold, letterSpacing = 0.sp),
-      displaySmall = displaySmall.copy(fontFamily = displayFontFamily, fontWeight = FontWeight.Bold, letterSpacing = 0.sp),
-      headlineLarge = headlineLarge.copy(fontFamily = displayFontFamily, fontWeight = FontWeight.Bold, letterSpacing = 0.sp),
-      headlineMedium = headlineMedium.copy(fontFamily = displayFontFamily, fontWeight = FontWeight.SemiBold, letterSpacing = 0.sp),
-      headlineSmall = headlineSmall.copy(fontFamily = displayFontFamily, fontWeight = FontWeight.SemiBold, letterSpacing = 0.sp),
-      titleLarge = titleLarge.copy(fontFamily = fontFamily, fontWeight = FontWeight.Medium, letterSpacing = 0.sp),
-      titleMedium = titleMedium.copy(fontFamily = fontFamily, fontWeight = FontWeight.Medium, letterSpacing = 0.sp),
-      titleSmall = titleSmall.copy(fontFamily = fontFamily, fontWeight = FontWeight.Medium, letterSpacing = 0.sp),
-      bodyLarge = bodyLarge.copy(fontFamily = fontFamily, fontWeight = FontWeight.Normal, letterSpacing = 0.sp),
-      bodyMedium = bodyMedium.copy(fontFamily = fontFamily, fontWeight = FontWeight.Normal, letterSpacing = 0.sp),
-      bodySmall = bodySmall.copy(fontFamily = fontFamily, fontWeight = FontWeight.Normal, letterSpacing = 0.sp),
-      labelLarge = labelLarge.copy(fontFamily = fontFamily, fontWeight = FontWeight.SemiBold, letterSpacing = 0.sp),
-      labelMedium = labelMedium.copy(fontFamily = fontFamily, fontWeight = FontWeight.Medium, letterSpacing = 0.sp),
-      labelSmall = labelSmall.copy(fontFamily = fontFamily, fontWeight = FontWeight.Medium, letterSpacing = 0.sp),
+      displayLarge = displayLarge.copy(fontFamily = fontFamily),
+      displayMedium = displayMedium.copy(fontFamily = fontFamily),
+      displaySmall = displaySmall.copy(fontFamily = fontFamily),
+      headlineLarge = headlineLarge.copy(fontFamily = fontFamily),
+      headlineMedium = headlineMedium.copy(fontFamily = fontFamily),
+      headlineSmall = headlineSmall.copy(fontFamily = fontFamily),
+      titleLarge = titleLarge.copy(fontFamily = fontFamily),
+      titleMedium = titleMedium.copy(fontFamily = fontFamily),
+      titleSmall = titleSmall.copy(fontFamily = fontFamily),
+      bodyLarge = bodyLarge.copy(fontFamily = fontFamily),
+      bodyMedium = bodyMedium.copy(fontFamily = fontFamily),
+      bodySmall = bodySmall.copy(fontFamily = fontFamily),
+      labelLarge = labelLarge.copy(fontFamily = fontFamily),
+      labelMedium = labelMedium.copy(fontFamily = fontFamily),
+      labelSmall = labelSmall.copy(fontFamily = fontFamily),
     ).withExpressiveEmphasis()
   }
 

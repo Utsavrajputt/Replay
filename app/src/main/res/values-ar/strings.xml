@@ -942,6 +942,7 @@
   <string name="pref_hall_of_fame_summary">المطورون والمساهمون والمجتمع</string>
   <string name="hall_of_fame_original_developer">المطور الأصلي لـ mpvEx</string>
   <string name="hall_of_fame_maintainer">المشرف على mpvRx</string>
+  <string name="hall_of_fame_replay_developer">مطور Replay</string>
   <string name="hall_of_fame_featured_contributors">المساهمون المميزون</string>
   <string name="hall_of_fame_active_title">المساهمون النشطون</string>
   <string name="hall_of_fame_active_period">التعديلات البرمجية خلال آخر 90 يومًا</string>

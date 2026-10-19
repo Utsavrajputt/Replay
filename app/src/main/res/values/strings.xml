@@ -1108,6 +1108,7 @@
   <string name="pref_hall_of_fame_summary">Creators, contributors and community</string>
   <string name="hall_of_fame_original_developer">mpvEx original developer</string>
   <string name="hall_of_fame_maintainer">mpvRx maintainer</string>
+  <string name="hall_of_fame_replay_developer">Replay developer</string>
   <string name="hall_of_fame_featured_contributors">Featured contributors</string>
   <string name="hall_of_fame_active_title">Active contributors</string>
   <string name="hall_of_fame_active_period">Commits in the last 90 days</string>
