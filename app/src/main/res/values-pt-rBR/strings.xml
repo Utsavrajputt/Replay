@@ -951,6 +951,7 @@ Reinicie o aplicativo para que todas as alterações entrem em vigor.</string>
   <string name="pref_hall_of_fame_summary">Criadores, colaboradores e comunidade</string>
   <string name="hall_of_fame_original_developer">Desenvolvedor original do mpvEx</string>
   <string name="hall_of_fame_maintainer">Mantenedor do mpvRx</string>
+  <string name="hall_of_fame_replay_developer">Desenvolvedor do Replay</string>
   <string name="hall_of_fame_featured_contributors">Colaboradores em destaque</string>
   <string name="hall_of_fame_active_title">Colaboradores ativos</string>
   <string name="hall_of_fame_active_period">Commits nos últimos 90 dias</string>

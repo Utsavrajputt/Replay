@@ -193,11 +193,11 @@ object HallOfFameScreen : Screen {
             item(key = "creators", span = { GridItemSpan(maxLineSpan) }) {
               Column(verticalArrangement = Arrangement.spacedBy(AppConnectedShapeTokens.spacing)) {
                 HallOfFameLeadCard(
-                  name = "MarlboroAdvance",
-                  handle = "marlboro-advance",
-                  tag = stringResource(R.string.hall_of_fame_original_developer),
-                  avatarUrl = "https://avatars.githubusercontent.com/u/227117361?s=256",
-                  profileUrl = "https://github.com/marlboro-advance",
+                  name = "Ritesh Pandit",
+                  handle = "Riteshp2001",
+                  tag = stringResource(R.string.hall_of_fame_maintainer),
+                  avatarUrl = "https://avatars.githubusercontent.com/u/87899750?s=256",
+                  profileUrl = "https://github.com/Riteshp2001",
                   brush = Brush.linearGradient(
                     listOf(colors.primaryContainer, colors.secondaryContainer.copy(alpha = 0.85f)),
                   ),
@@ -205,11 +205,11 @@ object HallOfFameScreen : Screen {
                   shape = rememberConnectedShape(0, 2, ConnectedLayout.Vertical),
                 )
                 HallOfFameLeadCard(
-                  name = "Ritesh Pandit",
-                  handle = "Riteshp2001",
-                  tag = stringResource(R.string.hall_of_fame_maintainer),
-                  avatarUrl = "https://avatars.githubusercontent.com/u/87899750?s=256",
-                  profileUrl = "https://github.com/Riteshp2001",
+                  name = "Utsav Rajput",
+                  handle = "Utsavrajputt",
+                  tag = stringResource(R.string.hall_of_fame_replay_developer),
+                  avatarUrl = "https://avatars.githubusercontent.com/u/296386188?s=256",
+                  profileUrl = "https://github.com/Utsavrajputt",
                   brush = Brush.linearGradient(
                     listOf(colors.secondaryContainer.copy(alpha = 0.9f), colors.surfaceContainerHigh),
                   ),
@@ -352,13 +352,13 @@ private data class CreditsState<T>(
   val failed: Boolean = false,
 )
 
-private val leadLogins = setOf("marlboro-advance", "riteshp2001")
+private val leadLogins = setOf("marlboro-advance", "riteshp2001", "utsavrajputt")
 
 private data class FeaturedContributor(val name: String, val login: String, val avatarId: Long)
 
 private val featuredContributors = listOf(
   FeaturedContributor("Arnab Sadhukhan", "Arnab11", 25551878L),
-  FeaturedContributor("Utsav", "Utsavrajputt", 296386188L),
+  FeaturedContributor("MarlboroAdvance", "marlboro-advance", 227117361L),
   FeaturedContributor("SunnyVishnu3", "SunnyVishnu3", 196376335L),
 )
 

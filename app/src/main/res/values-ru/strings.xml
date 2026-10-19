@@ -951,6 +951,7 @@
   <string name="pref_hall_of_fame_summary">Создатели, участники и сообщество</string>
   <string name="hall_of_fame_original_developer">Первоначальный разработчик mpvEx</string>
   <string name="hall_of_fame_maintainer">Разработчик mpvRx</string>
+  <string name="hall_of_fame_replay_developer">Разработчик Replay</string>
   <string name="hall_of_fame_featured_contributors">Особая благодарность участникам</string>
   <string name="hall_of_fame_active_title">Активные участники</string>
   <string name="hall_of_fame_active_period">Коммиты за последние 90 дней</string>
