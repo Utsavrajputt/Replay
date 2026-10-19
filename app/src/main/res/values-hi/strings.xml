@@ -867,6 +867,7 @@
   <string name="pref_hall_of_fame_summary">निर्माता, योगदानकर्ता और समुदाय</string>
   <string name="hall_of_fame_original_developer">mpvEx के मूल डेवलपर</string>
   <string name="hall_of_fame_maintainer">mpvRx के अनुरक्षक</string>
+  <string name="hall_of_fame_replay_developer">Replay के डेवलपर</string>
   <string name="hall_of_fame_featured_contributors">विशेष योगदानकर्ता</string>
   <string name="hall_of_fame_active_title">सक्रिय योगदानकर्ता</string>
   <string name="hall_of_fame_active_period">पिछले 90 दिनों के कमिट</string>

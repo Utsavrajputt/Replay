@@ -955,6 +955,7 @@
   <string name="pref_hall_of_fame_summary">创作者、贡献者与社区</string>
   <string name="hall_of_fame_original_developer">mpvEx 原始开发者</string>
   <string name="hall_of_fame_maintainer">mpvRx 维护者</string>
+  <string name="hall_of_fame_replay_developer">Replay 开发者</string>
   <string name="hall_of_fame_featured_contributors">特别贡献者</string>
   <string name="hall_of_fame_active_title">活跃贡献者</string>
   <string name="hall_of_fame_active_period">最近 90 天的提交</string>

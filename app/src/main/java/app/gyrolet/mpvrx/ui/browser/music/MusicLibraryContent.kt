@@ -651,6 +651,7 @@ fun MusicLibraryContent(
               Icon(
                 imageVector = Icons.RoundedFilled.Add,
                 contentDescription = "New Playlist",
+                tint = MaterialTheme.colorScheme.primary,
               )
             }
           },
