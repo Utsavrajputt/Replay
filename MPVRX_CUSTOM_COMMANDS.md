@@ -1,15 +1,15 @@
-# mpvRx Lua and JavaScript Command Guide
+# Replay Lua and JavaScript Command Guide
 
-This file documents the public scripting surface that mpvRx exposes to mpv Lua
+This file documents the public scripting surface that Replay exposes to mpv Lua
 and JavaScript scripts.
 
-Scripts talk to mpvRx by writing string values to properties under:
+Scripts talk to Replay by writing string values to properties under:
 
 ```text
-user-data/mpvrx/*
+user-data/Replay/*
 ```
 
-mpvRx observes those properties and performs the corresponding player action.
+Replay observes those properties and performs the corresponding player action.
 Writable command properties are cleared after dispatch, except `curl_request`,
 which remains available while its asynchronous request is handled.
 `curl_response` is a read-only output property and is not cleared automatically.
@@ -34,14 +34,14 @@ The examples below use public no-auth API endpoints from:
 
 ## Quick Start
 
-1. Enable Lua/JS scripting in mpvRx advanced settings.
+1. Enable Lua/JS scripting in Replay advanced settings.
 2. Put script files in the selected mpv config folder.
-3. Prefer the `scripts/` subfolder. mpvRx also falls back to the config root.
+3. Prefer the `scripts/` subfolder. Replay also falls back to the config root.
 4. Use `.lua` for Lua scripts and `.js` for JavaScript scripts.
-5. Select the scripts in the mpvRx scripts panel.
+5. Select the scripts in the Replay scripts panel.
 6. Reopen the video if a script was added before playback started.
 
-mpvRx also syncs `script-opts/` from the selected mpv config folder.
+Replay also syncs `script-opts/` from the selected mpv config folder.
 
 ## Command Contract
 
@@ -64,22 +64,22 @@ mpvRx also syncs `script-opts/` from the selected mpv config folder.
 
 | Property | Value | What it does |
 | --- | --- | --- |
-| `user-data/mpvrx/show_text` | Any string | Shows a native mpvRx text overlay. |
-| `user-data/mpvrx/toggle_ui` | `show`, `hide`, `toggle` | Shows, hides, or toggles player controls. |
-| `user-data/mpvrx/show_panel` | Panel id | Opens a native mpvRx sheet or panel. |
-| `user-data/mpvrx/seek_to` | Integer seconds | Seeks to an absolute timestamp. |
-| `user-data/mpvrx/seek_by` | Integer seconds | Seeks relative to the current timestamp. |
-| `user-data/mpvrx/seek_to_with_text` | `seconds|message` | Absolute seek with overlay text. |
-| `user-data/mpvrx/seek_by_with_text` | `seconds|message` | Relative seek with overlay text. |
-| `user-data/mpvrx/software_keyboard` | `show`, `hide`, `toggle` | Controls the Android software keyboard. |
-| `user-data/mpvrx/curl_request` | JSON object encoded as a string | Runs an async HTTP request through the mpvRx HTTP bridge. |
+| `user-data/Replay/show_text` | Any string | Shows a native Replay text overlay. |
+| `user-data/Replay/toggle_ui` | `show`, `hide`, `toggle` | Shows, hides, or toggles player controls. |
+| `user-data/Replay/show_panel` | Panel id | Opens a native Replay sheet or panel. |
+| `user-data/Replay/seek_to` | Integer seconds | Seeks to an absolute timestamp. |
+| `user-data/Replay/seek_by` | Integer seconds | Seeks relative to the current timestamp. |
+| `user-data/Replay/seek_to_with_text` | `seconds|message` | Absolute seek with overlay text. |
+| `user-data/Replay/seek_by_with_text` | `seconds|message` | Relative seek with overlay text. |
+| `user-data/Replay/software_keyboard` | `show`, `hide`, `toggle` | Controls the Android software keyboard. |
+| `user-data/Replay/curl_request` | JSON object encoded as a string | Runs an async HTTP request through the Replay HTTP bridge. |
 
 ### Read-only Output
 
 | Property | Value | What it does |
 | --- | --- | --- |
-| `user-data/mpvrx/curl_response` | JSON string | Receives the latest completed curl response. Observe it; do not write to it. |
-| `user-data/mpvrx/original-path` | String | The original network path (e.g. `smb://host/share/path/video.mp4`) for the current playback item. Built from the stored connection details; falls back to the raw URI when the connection is unavailable. |
+| `user-data/Replay/curl_response` | JSON string | Receives the latest completed curl response. Observe it; do not write to it. |
+| `user-data/Replay/original-path` | String | The original network path (e.g. `smb://host/share/path/video.mp4`) for the current playback item. Built from the stored connection details; falls back to the raw URI when the connection is unavailable. |
 
 ### Supported Panel IDs
 
@@ -103,37 +103,37 @@ button scripts, not public commands.
 
 ## Full Working Lua Example
 
-Save this as `mpvrx_demo.lua` in your mpv `scripts/` folder.
+Save this as `Replay_demo.lua` in your mpv `scripts/` folder.
 
 It fetches a public JSONPlaceholder post, shows the post title, and includes
-key bindings for common mpvRx commands.
+key bindings for common Replay commands.
 
 ```lua
--- mpvrx_demo.lua
+-- Replay_demo.lua
 
 local utils = require("mp.utils")
 
 local request_sequence = 0
 local pending_request_id = nil
 
-local function mpvrx(command, value)
-    mp.set_property("user-data/mpvrx/" .. command, tostring(value))
+local function Replay(command, value)
+    mp.set_property("user-data/Replay/" .. command, tostring(value))
 end
 
 local function show(message)
-    mpvrx("show_text", message)
+    Replay("show_text", message)
 end
 
 local function next_request_id()
     request_sequence = request_sequence + 1
-    return "mpvrx-demo-lua-post-" .. tostring(os.time()) .. "-" .. tostring(request_sequence)
+    return "Replay-demo-lua-post-" .. tostring(os.time()) .. "-" .. tostring(request_sequence)
 end
 
 local function fetch_post()
     pending_request_id = next_request_id()
     show("Fetching JSONPlaceholder post...")
 
-    mpvrx("curl_request", utils.format_json({
+    Replay("curl_request", utils.format_json({
         id = pending_request_id,
         url = "https://jsonplaceholder.typicode.com/posts/1",
         method = "GET",
@@ -144,7 +144,7 @@ local function fetch_post()
     }))
 end
 
-mp.observe_property("user-data/mpvrx/curl_response", "string", function(_, value)
+mp.observe_property("user-data/Replay/curl_response", "string", function(_, value)
     if value == nil or value == "" then return end
 
     local res = utils.parse_json(value)
@@ -172,59 +172,59 @@ end)
 
 mp.register_event("file-loaded", fetch_post)
 
-mp.add_key_binding("J", "mpvrx-fetch-jsonplaceholder-post", fetch_post)
-mp.add_key_binding("U", "mpvrx-toggle-ui", function()
-    mpvrx("toggle_ui", "toggle")
+mp.add_key_binding("J", "Replay-fetch-jsonplaceholder-post", fetch_post)
+mp.add_key_binding("U", "Replay-toggle-ui", function()
+    Replay("toggle_ui", "toggle")
 end)
-mp.add_key_binding("V", "mpvrx-open-video-filters", function()
-    mpvrx("show_panel", "video_filters")
+mp.add_key_binding("V", "Replay-open-video-filters", function()
+    Replay("show_panel", "video_filters")
 end)
-mp.add_key_binding("RIGHT", "mpvrx-seek-forward", function()
-    mpvrx("seek_by_with_text", "30|Forward 30 seconds")
+mp.add_key_binding("RIGHT", "Replay-seek-forward", function()
+    Replay("seek_by_with_text", "30|Forward 30 seconds")
 end)
-mp.add_key_binding("LEFT", "mpvrx-seek-back", function()
-    mpvrx("seek_by_with_text", "-10|Back 10 seconds")
+mp.add_key_binding("LEFT", "Replay-seek-back", function()
+    Replay("seek_by_with_text", "-10|Back 10 seconds")
 end)
 ```
 
 ## Full Working JavaScript Example
 
-Save this as `mpvrx_demo.js` in your mpv `scripts/` folder.
+Save this as `Replay_demo.js` in your mpv `scripts/` folder.
 
 This example uses ES5-style JavaScript for mpv compatibility. It sends a POST
 request to JSONPlaceholder and shows the fake created post id returned by the
 public test API.
 
 ```javascript
-// mpvrx_demo.js
+// Replay_demo.js
 
 var requestSequence = 0;
 var pendingRequestId = null;
 
-function mpvrx(command, value) {
-    mp.set_property("user-data/mpvrx/" + command, String(value));
+function Replay(command, value) {
+    mp.set_property("user-data/Replay/" + command, String(value));
 }
 
 function show(message) {
-    mpvrx("show_text", message);
+    Replay("show_text", message);
 }
 
 function nextRequestId() {
     requestSequence += 1;
-    return "mpvrx-demo-js-create-post-" + String(new Date().getTime()) + "-" + String(requestSequence);
+    return "Replay-demo-js-create-post-" + String(new Date().getTime()) + "-" + String(requestSequence);
 }
 
 function createPost() {
     var payload = {
-        title: "mpvRx JavaScript curl test",
-        body: "Posted from an mpv JavaScript script through mpvRx curl.",
+        title: "Replay JavaScript curl test",
+        body: "Posted from an mpv JavaScript script through Replay curl.",
         userId: 1
     };
 
     pendingRequestId = nextRequestId();
     show("Posting to JSONPlaceholder...");
 
-    mpvrx("curl_request", JSON.stringify({
+    Replay("curl_request", JSON.stringify({
         id: pendingRequestId,
         url: "https://jsonplaceholder.typicode.com/posts",
         method: "POST",
@@ -238,7 +238,7 @@ function createPost() {
     }));
 }
 
-mp.observe_property("user-data/mpvrx/curl_response", "string", function(name, value) {
+mp.observe_property("user-data/Replay/curl_response", "string", function(name, value) {
     if (!value) return;
 
     var res;
@@ -272,15 +272,15 @@ mp.observe_property("user-data/mpvrx/curl_response", "string", function(name, va
     show("Created fake post #" + body.id + "\nHTTP " + res.status);
 });
 
-mp.add_key_binding("P", "mpvrx-create-jsonplaceholder-post", createPost);
-mp.add_key_binding("U", "mpvrx-toggle-ui-js", function() {
-    mpvrx("toggle_ui", "toggle");
+mp.add_key_binding("P", "Replay-create-jsonplaceholder-post", createPost);
+mp.add_key_binding("U", "Replay-toggle-ui-js", function() {
+    Replay("toggle_ui", "toggle");
 });
-mp.add_key_binding("S", "mpvrx-open-subtitle-settings-js", function() {
-    mpvrx("show_panel", "subtitle_settings");
+mp.add_key_binding("S", "Replay-open-subtitle-settings-js", function() {
+    Replay("show_panel", "subtitle_settings");
 });
-mp.add_key_binding("K", "mpvrx-show-keyboard-js", function() {
-    mpvrx("software_keyboard", "show");
+mp.add_key_binding("K", "Replay-show-keyboard-js", function() {
+    Replay("software_keyboard", "show");
 });
 ```
 
@@ -288,18 +288,18 @@ mp.add_key_binding("K", "mpvrx-show-keyboard-js", function() {
 
 ### `show_text`
 
-Shows a short native mpvRx overlay.
+Shows a short native Replay overlay.
 
 Lua:
 
 ```lua
-mp.set_property("user-data/mpvrx/show_text", "Shaders enabled")
+mp.set_property("user-data/Replay/show_text", "Shaders enabled")
 ```
 
 JavaScript:
 
 ```javascript
-mp.set_property("user-data/mpvrx/show_text", "Shaders enabled");
+mp.set_property("user-data/Replay/show_text", "Shaders enabled");
 ```
 
 ### `toggle_ui`
@@ -317,18 +317,18 @@ Other values have no effect.
 Lua:
 
 ```lua
-mp.set_property("user-data/mpvrx/toggle_ui", "hide")
+mp.set_property("user-data/Replay/toggle_ui", "hide")
 ```
 
 JavaScript:
 
 ```javascript
-mp.set_property("user-data/mpvrx/toggle_ui", "toggle");
+mp.set_property("user-data/Replay/toggle_ui", "toggle");
 ```
 
 ### `show_panel`
 
-Opens a native mpvRx sheet or panel.
+Opens a native Replay sheet or panel.
 
 Use one of the IDs in [Supported Panel IDs](#supported-panel-ids). An unknown
 ID resolves to no panel and may close the currently displayed panel.
@@ -336,15 +336,15 @@ ID resolves to no panel and may close the currently displayed panel.
 Lua:
 
 ```lua
-mp.set_property("user-data/mpvrx/show_panel", "frame_navigation")
-mp.set_property("user-data/mpvrx/show_panel", "video_filters")
+mp.set_property("user-data/Replay/show_panel", "frame_navigation")
+mp.set_property("user-data/Replay/show_panel", "video_filters")
 ```
 
 JavaScript:
 
 ```javascript
-mp.set_property("user-data/mpvrx/show_panel", "lua_scripts");
-mp.set_property("user-data/mpvrx/show_panel", "hdr_screen_output");
+mp.set_property("user-data/Replay/show_panel", "lua_scripts");
+mp.set_property("user-data/Replay/show_panel", "hdr_screen_output");
 ```
 
 ### `seek_to`
@@ -353,13 +353,13 @@ Seeks to an absolute timestamp in integer seconds. The value must parse as an
 integer; do not append units or use a decimal.
 
 ```lua
-mp.set_property("user-data/mpvrx/seek_to", "600")
+mp.set_property("user-data/Replay/seek_to", "600")
 ```
 
 JavaScript:
 
 ```javascript
-mp.set_property("user-data/mpvrx/seek_to", "600");
+mp.set_property("user-data/Replay/seek_to", "600");
 ```
 
 ### `seek_by`
@@ -368,15 +368,15 @@ Seeks relative to the current timestamp in integer seconds. Positive values
 seek forward and negative values seek backward.
 
 ```lua
-mp.set_property("user-data/mpvrx/seek_by", "30")
-mp.set_property("user-data/mpvrx/seek_by", "-10")
+mp.set_property("user-data/Replay/seek_by", "30")
+mp.set_property("user-data/Replay/seek_by", "-10")
 ```
 
 JavaScript:
 
 ```javascript
-mp.set_property("user-data/mpvrx/seek_by", "30");
-mp.set_property("user-data/mpvrx/seek_by", "-10");
+mp.set_property("user-data/Replay/seek_by", "30");
+mp.set_property("user-data/Replay/seek_by", "-10");
 ```
 
 ### `seek_to_with_text`
@@ -395,13 +395,13 @@ The first `|` separates the integer timestamp from the message. Additional
 Lua:
 
 ```lua
-mp.set_property("user-data/mpvrx/seek_to_with_text", "90|Jumping to intro")
+mp.set_property("user-data/Replay/seek_to_with_text", "90|Jumping to intro")
 ```
 
 JavaScript:
 
 ```javascript
-mp.set_property("user-data/mpvrx/seek_to_with_text", "3600|Jumping to final act");
+mp.set_property("user-data/Replay/seek_to_with_text", "3600|Jumping to final act");
 ```
 
 ### `seek_by_with_text`
@@ -411,14 +411,14 @@ Seeks relative to the current timestamp and shows custom overlay text.
 Lua:
 
 ```lua
-mp.set_property("user-data/mpvrx/seek_by_with_text", "85|Skipping opening")
-mp.set_property("user-data/mpvrx/seek_by_with_text", "-15|Back 15 seconds")
+mp.set_property("user-data/Replay/seek_by_with_text", "85|Skipping opening")
+mp.set_property("user-data/Replay/seek_by_with_text", "-15|Back 15 seconds")
 ```
 
 JavaScript:
 
 ```javascript
-mp.set_property("user-data/mpvrx/seek_by_with_text", "30|Forward 30 seconds");
+mp.set_property("user-data/Replay/seek_by_with_text", "30|Forward 30 seconds");
 ```
 
 ### `software_keyboard`
@@ -436,28 +436,28 @@ Other values have no effect.
 Lua:
 
 ```lua
-mp.set_property("user-data/mpvrx/software_keyboard", "show")
+mp.set_property("user-data/Replay/software_keyboard", "show")
 ```
 
 JavaScript:
 
 ```javascript
-mp.set_property("user-data/mpvrx/software_keyboard", "hide");
+mp.set_property("user-data/Replay/software_keyboard", "hide");
 ```
 
 ## Curl Bridge
 
 The curl bridge lets Lua and JavaScript scripts make HTTP requests through
-mpvRx's Android HTTP client. Scripts write a JSON request to:
+Replay's Android HTTP client. Scripts write a JSON request to:
 
 ```text
-user-data/mpvrx/curl_request
+user-data/Replay/curl_request
 ```
 
-mpvRx writes the response to:
+Replay writes the response to:
 
 ```text
-user-data/mpvrx/curl_response
+user-data/Replay/curl_response
 ```
 
 Requests are async. Playback continues while the request runs.
@@ -466,7 +466,7 @@ Requests are async. Playback continues while the request runs.
 
 | Field | Type | Required | Default | Notes |
 | --- | --- | --- | --- | --- |
-| `id` | string | No | UUID generated by mpvRx | Use your own id so scripts can match responses. |
+| `id` | string | No | UUID generated by Replay | Use your own id so scripts can match responses. |
 | `url` | string | Yes | none | Must not be blank. Use `http://` or `https://`. |
 | `method` | string | No | `GET` | Case-insensitive. Supported: `GET`, `HEAD`, `POST`, `PUT`, `PATCH`, `DELETE`. |
 | `headers` | object | No | `{}` | String key/value request headers. Maximum 64 headers. |
@@ -479,7 +479,7 @@ Lua request:
 ```lua
 local utils = require("mp.utils")
 
-mp.set_property("user-data/mpvrx/curl_request", utils.format_json({
+mp.set_property("user-data/Replay/curl_request", utils.format_json({
     id = "lua-httpbin-get",
     url = "https://httpbin.org/get",
     method = "GET",
@@ -493,7 +493,7 @@ mp.set_property("user-data/mpvrx/curl_request", utils.format_json({
 JavaScript request:
 
 ```javascript
-mp.set_property("user-data/mpvrx/curl_request", JSON.stringify({
+mp.set_property("user-data/Replay/curl_request", JSON.stringify({
     id: "js-httpbin-get",
     url: "https://httpbin.org/get",
     method: "GET",
@@ -519,25 +519,25 @@ Lua observer:
 ```lua
 local utils = require("mp.utils")
 
-mp.observe_property("user-data/mpvrx/curl_response", "string", function(_, value)
+mp.observe_property("user-data/Replay/curl_response", "string", function(_, value)
     if value == nil or value == "" then return end
 
     local res = utils.parse_json(value)
     if res == nil or res.id ~= "lua-httpbin-get" then return end
 
     if res.error ~= nil then
-        mp.set_property("user-data/mpvrx/show_text", "Curl error: " .. res.error)
+        mp.set_property("user-data/Replay/show_text", "Curl error: " .. res.error)
         return
     end
 
-    mp.set_property("user-data/mpvrx/show_text", "HTTP " .. tostring(res.status))
+    mp.set_property("user-data/Replay/show_text", "HTTP " .. tostring(res.status))
 end)
 ```
 
 JavaScript observer:
 
 ```javascript
-mp.observe_property("user-data/mpvrx/curl_response", "string", function(name, value) {
+mp.observe_property("user-data/Replay/curl_response", "string", function(name, value) {
     if (!value) return;
 
     var res;
@@ -550,11 +550,11 @@ mp.observe_property("user-data/mpvrx/curl_response", "string", function(name, va
     if (!res || res.id !== "js-httpbin-get") return;
 
     if (res.error) {
-        mp.set_property("user-data/mpvrx/show_text", "Curl error: " + res.error);
+        mp.set_property("user-data/Replay/show_text", "Curl error: " + res.error);
         return;
     }
 
-    mp.set_property("user-data/mpvrx/show_text", "HTTP " + res.status);
+    mp.set_property("user-data/Replay/show_text", "HTTP " + res.status);
 });
 ```
 
@@ -579,7 +579,7 @@ mp.observe_property("user-data/mpvrx/curl_response", "string", function(name, va
 
 ## Custom Buttons
 
-mpvRx custom buttons support Lua and JavaScript actions.
+Replay custom buttons support Lua and JavaScript actions.
 
 In the Custom Button editor:
 
@@ -589,40 +589,40 @@ In the Custom Button editor:
 - `On startup` is optional.
 - `Script language` can be Lua or JavaScript.
 
-Paste only the action body into the editor. mpvRx wraps it in a generated
+Paste only the action body into the editor. Replay wraps it in a generated
 script and registers the correct script message internally.
 
 Lua tap action example:
 
 ```lua
 mp.set_property("deband", "yes")
-mp.set_property("user-data/mpvrx/show_text", "Deband enabled")
+mp.set_property("user-data/Replay/show_text", "Deband enabled")
 ```
 
 Lua long press action example:
 
 ```lua
 mp.set_property("deband", "no")
-mp.set_property("user-data/mpvrx/show_text", "Deband disabled")
+mp.set_property("user-data/Replay/show_text", "Deband disabled")
 ```
 
 JavaScript tap action example:
 
 ```javascript
 mp.set_property("video-zoom", "0.25");
-mp.set_property("user-data/mpvrx/show_text", "Zoom 25%");
+mp.set_property("user-data/Replay/show_text", "Zoom 25%");
 ```
 
 JavaScript long press action example:
 
 ```javascript
 mp.set_property("video-zoom", "0");
-mp.set_property("user-data/mpvrx/show_text", "Zoom reset");
+mp.set_property("user-data/Replay/show_text", "Zoom reset");
 ```
 
 Generated custom button internals:
 
-- mpvRx writes generated scripts to the app internal `scripts/` directory.
+- Replay writes generated scripts to the app internal `scripts/` directory.
 - Lua buttons are generated into `custombuttons.lua`.
 - JavaScript buttons are generated into `custombuttons.js`.
 - Tapping a button sends `script-message call_button_<safe_id>`.
@@ -636,7 +636,7 @@ files. They exist only inside generated custom button scripts.
 
 ## Android Telemetry Properties
 
-mpvRx writes Android device state into mpv `user-data/android/*` properties at
+Replay writes Android device state into mpv `user-data/android/*` properties at
 playback startup and refreshes them every 30 seconds. Scripts can read or
 observe these values.
 
@@ -655,7 +655,7 @@ mp.observe_property("user-data/android/battery-level", "native", function(_, lev
     local charging = mp.get_property_native("user-data/android/battery-charging")
     if tonumber(level) < 15 and not charging then
         mp.set_property("deband", "no")
-        mp.set_property("user-data/mpvrx/show_text", "Low battery: deband disabled")
+        mp.set_property("user-data/Replay/show_text", "Low battery: deband disabled")
     end
 end)
 ```
@@ -669,7 +669,7 @@ mp.observe_property("user-data/android/battery-level", "native", function(name, 
     var charging = mp.get_property_native("user-data/android/battery-charging");
     if (Number(level) < 15 && !charging) {
         mp.set_property("deband", "no");
-        mp.set_property("user-data/mpvrx/show_text", "Low battery: deband disabled");
+        mp.set_property("user-data/Replay/show_text", "Low battery: deband disabled");
     }
 });
 ```
@@ -678,7 +678,7 @@ mp.observe_property("user-data/android/battery-level", "native", function(name, 
 
 If a command does nothing:
 
-- Confirm scripting is enabled in mpvRx settings.
+- Confirm scripting is enabled in Replay settings.
 - Confirm the script is selected in the scripts panel.
 - Confirm the script file extension is `.lua` or `.js`.
 - Use integer seconds for seek commands.
@@ -693,7 +693,7 @@ Lua:
 
 ```lua
 mp.register_event("file-loaded", function()
-    mp.set_property("user-data/mpvrx/show_text", "Lua script loaded")
+    mp.set_property("user-data/Replay/show_text", "Lua script loaded")
 end)
 ```
 
@@ -701,6 +701,6 @@ JavaScript:
 
 ```javascript
 mp.register_event("file-loaded", function() {
-    mp.set_property("user-data/mpvrx/show_text", "JavaScript script loaded");
+    mp.set_property("user-data/Replay/show_text", "JavaScript script loaded");
 });
 ```
