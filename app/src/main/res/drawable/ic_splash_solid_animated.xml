@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- System splash for the Solid (blue) mark: 288dp canvas, the ring sits well inside the central 192dp circular mask.
+     Uses a 3x lossless source (drawable-nodpi) so it stays sharp on xxxhdpi screens. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="176dp"
+        android:height="176dp"
+        android:gravity="center">
+        <bitmap
+            android:src="@drawable/ic_splash_solid_icon"
+            android:filter="true"
+            android:antialias="true"
+            android:gravity="fill" />
+    </item>
+</layer-list>

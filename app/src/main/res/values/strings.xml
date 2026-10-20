@@ -2626,10 +2626,11 @@
   <string name="app_icon_bg_wallpaper">Wallpaper colors</string>
 
   <string name="app_icon_logo_solid">Solid purple</string>
+  <string name="app_icon_logo_blue">Blue</string>
   <string name="app_icon_logo_gradient">Gradient purple</string>
   <string name="app_icon_logo_white">White</string>
   <string name="app_icon_logo_black">Black</string>
-  <string name="app_icon_logo_classic">Classic</string>
+  <string name="app_icon_logo_classic">Solid purple</string>
   <string name="downloads_all">All downloads</string>
   <string name="downloads_attention_section">Needs attention</string>
   <string name="downloads_search_hint">Search downloads</string>
