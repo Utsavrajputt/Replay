@@ -160,11 +160,11 @@ object AboutScreen : Screen {
                       factory = { ctx ->
                         ImageView(ctx).apply {
                           scaleType = ImageView.ScaleType.FIT_CENTER
-                          setImageResource(LauncherIconManager.current(ctx).preview)
+                          setImageResource(LauncherIconManager.current(ctx).mark.layer)
                         }
                       },
                       update = { view ->
-                        val selectedPreview = LauncherIconManager.current(view.context).preview
+                        val selectedPreview = LauncherIconManager.current(view.context).mark.layer
                         view.setImageResource(selectedPreview)
                       },
                     )

@@ -1,6 +1,6 @@
 # Code of Conduct
 
-mpvRx welcomes people with different backgrounds, experience levels, and ways of contributing. Everyone should be able to ask questions, report problems, and discuss changes without harassment or personal attacks.
+Replay welcomes people with different backgrounds, experience levels, and ways of contributing. Everyone should be able to ask questions, report problems, and discuss changes without harassment or personal attacks.
 
 ## Expected behavior
 
@@ -23,7 +23,7 @@ Disagreement and criticism are welcome when expressed constructively. A rejected
 
 ## Scope
 
-This policy applies to this repository's issues, pull requests, reviews, and other project-managed spaces. It also applies when someone is explicitly representing mpvRx in a public space.
+This policy applies to this repository's issues, pull requests, reviews, and other project-managed spaces. It also applies when someone is explicitly representing Replay in a public space.
 
 ## Reporting a concern
 

@@ -84,21 +84,9 @@ This update builds on 3.0.0 with smoother media browsing, more reliable local an
 
 **Release date:** October 18, 2026
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Riteshp2001/mpvRx/403294620e0c38b7ec965a493ff6b97efcbb4198/website/public/images/icon.png" width="160" height="160" alt="mpvRx solid purple app icon" />
-</p>
+<p align="center"><strong>A fresh face. More color. Your player.</strong><br />Material 3 Expressive · Liquid Glass · Profile Hub</p>
 
-<p align="center"><strong>A fresh face. More color. Your player.</strong><br />A revamped mpvRx icon · Material 3 Expressive · Liquid Glass · Profile Hub</p>
-
-**A new chapter deserves a new face.** mpvRx 3.0.0 arrives with a revamped app icon and a refreshed interface to match. Open the player to discover connected Material 3 Expressive layouts, more control over color, and a new home for your playlists, snapshots, and watch statistics.
-
-### 💜 Meet the new mpvRx icon
-
-**A bold purple play mark. Softer curves. A fresh identity for 3.0.0.**
-
-The revamped icon brings the player’s identity into focus: a rounded, ribbon-like play symbol with a distinctive detached tip, finished in solid purple. It gives mpvRx a recognizable new face on your home screen and introduces the expressive look waiting inside the app.
-
-This is the visual centerpiece of **mpvRx 3.0.0 — Expressive**. The Classic logo remains available in App icon settings if you prefer the familiar look.
+**A new chapter deserves a new face.** Replay 3.0.0 arrives with a refreshed interface. Open the player to discover connected Material 3 Expressive layouts, more control over color, and a new home for your playlists, snapshots, and watch statistics.
 
 ### ✨ More to explore
 
@@ -115,7 +103,7 @@ This is the visual centerpiece of **mpvRx 3.0.0 — Expressive**. The Classic lo
 
 ### 🚀 Three things to try first
 
-1. **Explore the new look.** Take the revamped icon and connected layouts for a spin, then try the new picker in custom theme colors.
+1. **Explore the new look.** Take the connected layouts for a spin, then try the new picker in custom theme colors.
 2. **Set the scene.** Explore ambient lighting and tune the player’s Liquid Glass controls.
 3. **Make yourself at home.** Visit Profile for playlists, snapshots, recent media, and watch statistics.
 
@@ -149,8 +137,6 @@ This is the visual centerpiece of **mpvRx 3.0.0 — Expressive**. The Classic lo
 - **Smoother transitions:** Tab switches, screen changes, and the jump from Home to Settings animate smoothly, without a flash at app launch.
 
 #### Icons and Splash Screen
-
-- **Revamped mpvRx icon:** A rounded play mark with a detached tip and a solid purple finish introduces the new visual identity of 3.0.0. The Classic logo remains available.
 
 - **Icon builder:** Combine supported backgrounds and logos with a live preview, connected selection tiles, and a swipe carousel. Wallpaper colors are available on Android 12 and newer; your previous icon carries over.
 - **Custom background tile:** Pick a solid color and logo, compare the requested color with the closest supported native launcher icon, then confirm the icon change. An optional home-screen shortcut preserves the exact chosen color on supported launchers.
@@ -303,7 +289,7 @@ This is the visual centerpiece of **mpvRx 3.0.0 — Expressive**. The Classic lo
 
 ### Settings and Tools
 
-- **Permission recovery:** If storage, notification, or microphone access is revoked, mpvRx asks again as soon as you return instead of leaving you to find it in system settings. All files access, which Android grants only from its settings page, opens that page directly.
+- **Permission recovery:** If storage, notification, or microphone access is revoked, Replay asks again as soon as you return instead of leaving you to find it in system settings. All files access, which Android grants only from its settings page, opens that page directly.
 - **Config editor:** Includes the mpv manual offline for documentation-driven completion, plus search and replace, go-to-line, saved drafts, syntax highlighting, and touch-friendly tools.
 - **Secure Folder settings:** A new settings screen to destroy, hide, or unhide the Secure Folder, enable biometrics behind a PIN, and choose a 4- or 6-digit PIN.
 - **Debug logs:** Logs save into your mpv configuration folder, and you can share the full log file or copy all logs.
@@ -342,7 +328,7 @@ This is the visual centerpiece of **mpvRx 3.0.0 — Expressive**. The Classic lo
 
 ### Thanks
 
-Thanks to [@ThisisWyatt](https://github.com/ThisisWyatt), [@Arnab11](https://github.com/Arnab11), [@Utsavrajputt](https://github.com/Utsavrajputt), and [@SunnyVishnu3](https://github.com/SunnyVishnu3) for their pull requests, to [@WATCHER-00](https://github.com/WATCHER-00) for the Ukrainian translation, and to everyone who reported bugs and UI issues.
+Thanks to [@ThisisWyatt](https://github.com/ThisisWyatt), [@Arnab11](https://github.com/Arnab11), [@Riteshp2001](https://github.com/Riteshp2001), and [@SunnyVishnu3](https://github.com/SunnyVishnu3) for their pull requests, to [@WATCHER-00](https://github.com/WATCHER-00) for the Ukrainian translation, and to everyone who reported bugs and UI issues.
 
 ## 2.7.2 - Hotfixes - mpvlib 1.1.1, Track Badges, Pinned Videos, and Font Sharing
 
