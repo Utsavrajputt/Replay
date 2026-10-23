@@ -2554,7 +2554,7 @@
   <string name="app_icon_logo_gradient">紫のグラデーション</string>
   <string name="app_icon_logo_white">白</string>
   <string name="app_icon_logo_black">黒</string>
-  <string name="app_icon_logo_classic">クラシック</string>
+  <string name="app_icon_logo_classic">単色の紫</string>
   <string name="pref_hidden_scan_per_mode_title">隠しフォルダ</string>
   <string name="pref_hidden_scan_enable_in">有効にする画面</string>
   <string name="pref_hidden_scan_dot">ドットフォルダ</string>

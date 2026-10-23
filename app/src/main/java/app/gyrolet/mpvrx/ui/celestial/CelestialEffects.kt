@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
@@ -391,6 +392,17 @@ private fun DrawScope.drawHeaderSweep(
  * ui/background/AuroraBackdrop.kt; used by the live background and the picker preview alike.
  */
 internal fun DrawScope.drawCelestialAurora(t: Float, tilt: Offset, p: BackdropPalette, path: Path) {
+  // Celestial drew this only in the content area (below top bar, above bottom bar); Replay's backdrop
+  // is full-screen, so inset the scene to the same region. Tune these two if the match is off.
+  inset(0f, AURORA_TOP_INSET_DP.dp.toPx(), 0f, AURORA_BOTTOM_INSET_DP.dp.toPx()) {
+    drawCelestialAuroraScene(t, p, path)
+  }
+}
+
+private const val AURORA_TOP_INSET_DP = 92f
+private const val AURORA_BOTTOM_INSET_DP = 80f
+
+private fun DrawScope.drawCelestialAuroraScene(t: Float, p: BackdropPalette, path: Path) {
   val w = size.width
   val h = size.height
   // Triangle waves reproduce the old reverse-repeat transitions (12s drift, 6s glow, 2.6s twinkle).
@@ -401,7 +413,7 @@ internal fun DrawScope.drawCelestialAurora(t: Float, tilt: Offset, p: BackdropPa
   val drift = tri(t / 24f)
   val glowPulse = tri(t / 12f)
   val twinkle = tri(t / 5.2f)
-  val parallax = Offset(tilt.x * 18.dp.toPx(), tilt.y * 12.dp.toPx())
+  val parallax = Offset.Zero // Celestial's aurora ignored device tilt
   val shift = h * 0.05f * (drift - 0.5f) + parallax.y
 
   drawRect(
@@ -450,7 +462,7 @@ internal fun DrawScope.drawCelestialAurora(t: Float, tilt: Offset, p: BackdropPa
   CELESTIAL_SPARKLES.forEachIndexed { index, (fx, fy) ->
     val phase = (twinkle + index * 0.19f) % 1f
     val a = 0.12f + 0.42f * sin(phase * Math.PI).toFloat()
-    drawCircle(p.ink.copy(alpha = a.coerceIn(0f, 1f)), radius = 1.4.dp.toPx(), center = Offset(w * fx, h * fy) + parallax * 0.3f)
+    drawCircle(Color.White.copy(alpha = a.coerceIn(0f, 1f)), radius = 1.4.dp.toPx(), center = Offset(w * fx, h * fy) + parallax * 0.3f)
   }
 }
 

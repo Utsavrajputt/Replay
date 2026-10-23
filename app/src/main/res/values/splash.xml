@@ -3,7 +3,7 @@
 
     <!-- Native animated-vector splash; the animation never delays app launch. -->
     <style name="Theme.mpvrx.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_solid_purple_animated</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_solid_animated</item>
         <item name="windowSplashScreenAnimationDuration">420</item>
         <item name="windowSplashScreenBackground">@color/splash_background</item>
         <item name="postSplashScreenTheme">@style/Theme.mpvrx</item>

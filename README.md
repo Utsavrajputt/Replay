@@ -37,11 +37,6 @@
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/player-controls.jpg" width="100%" alt="Replay player controls">
 </div>
 
-<div align="center">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/playlist-window.jpg" width="49%" alt="Replay visual playlist">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/chapter-navigation.jpg" width="49%" alt="Replay chapter navigation">
-</div>
-
 
 <div align="center">
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/pip.png" width="32%" alt="Replay picture-in-picture mode">

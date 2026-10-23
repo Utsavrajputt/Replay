@@ -999,13 +999,21 @@ private fun HallOfFameSpotlightCard(
     ) {
       AvatarWithRing(avatarUrl, size = 60.dp)
       Box(modifier = Modifier.heightIn(min = 40.dp), contentAlignment = Alignment.Center) {
+        // A single long word (e.g. "MarlboroAdvance") would otherwise break mid-word onto a second line,
+        // so shrink it until it fits on one line. Names with spaces still wrap normally.
+        var nameSize by remember(name) { mutableStateOf(14.sp) }
         Text(
           text = name,
-          style = MaterialTheme.typography.titleSmall,
+          style = MaterialTheme.typography.titleSmall.copy(fontSize = nameSize),
           fontWeight = FontWeight.Bold,
           textAlign = TextAlign.Center,
           maxLines = 2,
           overflow = TextOverflow.Ellipsis,
+          onTextLayout = { layout ->
+            if (!name.contains(' ') && layout.lineCount > 1 && nameSize > 10.sp) {
+              nameSize = (nameSize.value * 0.92f).sp
+            }
+          },
         )
       }
       Text(
