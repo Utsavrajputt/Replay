@@ -2,7 +2,11 @@
 
 These notes are written in plain English and focus on what changed for real use.
 
-## Unreleased
+## 3.0.1 — Smoother Browsing, More Reliable Playback
+
+**Release date:** October 21, 2026
+
+This update builds on 3.0.0 with smoother media browsing, more reliable local and network playback, clearer media information, and a steadier update download sheet.
 
 ## 3.0.2 — Android TV, Music and Playback Improvements
 
@@ -137,12 +141,6 @@ This release brings dedicated Android TV navigation and playback controls, a pho
 - Added BitChord and Neo Player to the app's acknowledgments, alongside the credits for TV navigation and other upstream work.
 
 **Full changelog:** [v3.0.1...v3.0.2](https://github.com/Riteshp2001/mpvRx/compare/v3.0.1...v3.0.2)
-
-## 3.0.1 — Smoother Browsing, More Reliable Playback
-
-**Release date:** October 21, 2026
-
-This update builds on 3.0.0 with smoother media browsing, more reliable local and network playback, clearer media information, and a steadier update download sheet.
 
 ### Browsing and Performance
 
