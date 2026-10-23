@@ -154,17 +154,17 @@ object AboutScreen : Screen {
                           CircleShape,
                         ),
                   )
-                  Box(modifier = Modifier.size(64.dp)) {
+                  Box(modifier = Modifier.size(67.dp)) {
                     AndroidView(
                       modifier = Modifier.matchParentSize(),
                       factory = { ctx ->
                         ImageView(ctx).apply {
                           scaleType = ImageView.ScaleType.FIT_CENTER
-                          setImageResource(LauncherIconManager.current(ctx).mark.layer)
+                          setImageResource(LauncherIconManager.current(ctx).preview)
                         }
                       },
                       update = { view ->
-                        val selectedPreview = LauncherIconManager.current(view.context).mark.layer
+                        val selectedPreview = LauncherIconManager.current(view.context).preview
                         view.setImageResource(selectedPreview)
                       },
                     )
@@ -281,11 +281,19 @@ object AboutScreen : Screen {
                 onClick = {
                   context.startActivity(Intent(Intent.ACTION_VIEW, privacyPolicyUrl.toUri()))
                 },
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                shape = RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp, bottomEnd = 24.dp, bottomStart = 24.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = cs.primary, contentColor = cs.onPrimary),
+                modifier =
+                  Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .border(1.dp, cs.primary.copy(alpha = 0.35f), RoundedCornerShape(16.dp)),
+                shape = RoundedCornerShape(16.dp),
+                colors =
+                  ButtonDefaults.buttonColors(
+                    containerColor = cs.surfaceContainerHigh.copy(alpha = 0.6f),
+                    contentColor = cs.primary,
+                  ),
               ) {
-                Icon(Icons.RoundedFilled.Security, contentDescription = null, modifier = Modifier.size(18.dp))
+                Icon(Icons.RoundedFilled.Security, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                   text = stringResource(R.string.ui_privacy_policy),
