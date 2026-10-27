@@ -392,9 +392,20 @@ private fun DrawScope.drawHeaderSweep(
  * ui/background/AuroraBackdrop.kt; used by the live background and the picker preview alike.
  */
 internal fun DrawScope.drawCelestialAurora(t: Float, tilt: Offset, p: BackdropPalette, path: Path) {
+  if (!size.width.isFinite() || !size.height.isFinite() || size.minDimension <= 0f) return
+
+  val topInset = AURORA_TOP_INSET_DP.dp.toPx()
+  val bottomInset = AURORA_BOTTOM_INSET_DP.dp.toPx()
+  // Picker thumbnails are shorter than the 172dp reserved for app bars; a negative inset size crashes.
+  // Draw those edge-to-edge. Full-screen backdrops keep the exact same inset (position unchanged).
+  if (size.height <= topInset + bottomInset) {
+    drawCelestialAuroraScene(t, p, path)
+    return
+  }
+
   // Celestial drew this only in the content area (below top bar, above bottom bar); Replay's backdrop
-  // is full-screen, so inset the scene to the same region. Tune these two if the match is off.
-  inset(0f, AURORA_TOP_INSET_DP.dp.toPx(), 0f, AURORA_BOTTOM_INSET_DP.dp.toPx()) {
+  // is full-screen, so inset the scene to the same region.
+  inset(0f, topInset, 0f, bottomInset) {
     drawCelestialAuroraScene(t, p, path)
   }
 }
