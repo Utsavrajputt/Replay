@@ -56,12 +56,11 @@ internal enum class IconMark(
   @DrawableRes val layer: Int,
   @StringRes val label: Int,
 ) {
-  Solid("Solid", R.drawable.ic_launcher_solid_foreground, R.string.app_icon_logo_blue),
+  Solid("Solid", R.drawable.ic_launcher_solid_purple_foreground, R.string.app_icon_logo_solid),
   Gradient("Gradient", R.drawable.ic_launcher_purple_foreground, R.string.app_icon_logo_gradient),
   White("White", R.drawable.ic_launcher_white_foreground, R.string.app_icon_logo_white),
   Black("Black", R.drawable.ic_launcher_black_foreground, R.string.app_icon_logo_black),
-  // Key stays "Classic" so the existing IconXxxClassic manifest aliases keep working; the mark itself is the solid purple ribbon.
-  Classic("Classic", R.drawable.ic_launcher_solid_purple_foreground, R.string.app_icon_logo_classic),
+  Classic("Classic", R.drawable.ic_launcher_classic_foreground, R.string.app_icon_logo_classic),
 }
 
 /**
@@ -144,7 +143,7 @@ internal class LauncherIcon(
       LauncherIcon(IconBackground.Wallpaper, IconMark.Black, R.mipmap.ic_launcher_wallpaper_black, R.style.Theme_mpvrx_Splash_WallpaperBlack),
     )
 
-    /** Black with the solid blue Replay icon: the shipped default. */
+    /** Black with the solid purple ribbon: what the app has always shipped with. */
     val Default: LauncherIcon = of(IconBackground.Black, IconMark.Solid)!!
 
     fun of(background: IconBackground, mark: IconMark): LauncherIcon? =
@@ -187,8 +186,7 @@ internal class LauncherIcon(
  */
 private enum class LegacyIcon(val phoneAlias: String, val tvAlias: String, val becomes: LauncherIcon) {
   SolidPurple(
-    "app.gyrolet.mpvrx.SolidPurpleLauncher", "app.gyrolet.mpvrx.TvSolidPurpleLauncher",
-    LauncherIcon.of(IconBackground.Black, IconMark.Classic)!!,
+    "app.gyrolet.mpvrx.SolidPurpleLauncher", "app.gyrolet.mpvrx.TvSolidPurpleLauncher", LauncherIcon.Default,
   ),
   Purple(
     "app.gyrolet.mpvrx.PurpleLauncher", "app.gyrolet.mpvrx.TvPurpleLauncher",
@@ -196,7 +194,7 @@ private enum class LegacyIcon(val phoneAlias: String, val tvAlias: String, val b
   ),
   Classic(
     "app.gyrolet.mpvrx.ClassicLauncher", "app.gyrolet.mpvrx.TvClassicLauncher",
-    LauncherIcon.Default,
+    LauncherIcon.of(IconBackground.Black, IconMark.Classic)!!,
   ),
 }
 
@@ -264,7 +262,7 @@ internal object LauncherIconManager {
       val icon = current(activity)
       val customMode = CustomIconShortcut.appliedMode(activity)
       val bitmap = if (customMode == "color") {
-        CustomIconShortcut.render(activity, CustomIconShortcut.savedColor(activity),
+        CustomIconShortcut.renderMasked(activity, CustomIconShortcut.savedColor(activity),
           CustomIconShortcut.savedMark(activity, icon.mark), size = 128) ?: return@runCatching
       } else {
         cachedArtwork?.takeIf { it.first == icon && icon.background != IconBackground.Wallpaper }?.second ?: run {

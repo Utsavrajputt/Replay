@@ -46,10 +46,10 @@
         android:appCategory="video"
         android:banner="@drawable/tv_banner_solid_purple"
         android:enableOnBackInvokedCallback="false"
-        android:icon="@mipmap/ic_launcher_black_solid"
+        android:icon="@mipmap/ic_launcher_solid_purple"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/ic_launcher_black_solid"
+        android:roundIcon="@mipmap/ic_launcher_solid_purple_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.mpvrx"
         android:largeHeap="true"
@@ -207,7 +207,7 @@
             android:targetActivity=".MainActivity"
             android:exported="true"
             android:enabled="true"
-            android:icon="@mipmap/ic_launcher_black_solid"
+            android:icon="@mipmap/ic_launcher_solid_purple"
             android:label="@string/app_name"
             android:banner="@drawable/tv_banner_solid_purple">
             <intent-filter>
