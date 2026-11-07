@@ -2562,11 +2562,11 @@ Veuillez redémarrer l’application pour appliquer toutes les modifications.</s
   <string name="app_icon_bg_lilac">Lilas</string>
   <string name="app_icon_bg_mint">Menthe</string>
   <string name="app_icon_bg_ember">Braise</string>
-  <string name="app_icon_logo_solid">Violet uni</string>
-  <string name="app_icon_logo_gradient">Dégradé violet</string>
+  <string name="app_icon_logo_solid">Ribbon solid</string>
+  <string name="app_icon_logo_gradient">Ribbon gradient</string>
   <string name="app_icon_logo_white">Blanc</string>
   <string name="app_icon_logo_black">Noir</string>
-  <string name="app_icon_logo_classic">Violet uni</string>
+  <string name="app_icon_logo_classic">Ribbon solid</string>
   <string name="pref_hidden_scan_per_mode_title">Dossiers masqués</string>
   <string name="pref_hidden_scan_enable_in">Activer dans</string>
   <string name="pref_hidden_scan_dot">Dossiers à point</string>

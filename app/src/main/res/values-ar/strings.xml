@@ -2608,11 +2608,11 @@
   <string name="app_icon_bg_lilac">أرجواني فاتح</string>
   <string name="app_icon_bg_mint">نعناعي</string>
   <string name="app_icon_bg_ember">جمري</string>
-  <string name="app_icon_logo_solid">بنفسجي موحّد</string>
-  <string name="app_icon_logo_gradient">بنفسجي متدرّج</string>
+  <string name="app_icon_logo_solid">Ribbon solid</string>
+  <string name="app_icon_logo_gradient">Ribbon gradient</string>
   <string name="app_icon_logo_white">أبيض</string>
   <string name="app_icon_logo_black">أسود</string>
-  <string name="app_icon_logo_classic">بنفسجي موحّد</string>
+  <string name="app_icon_logo_classic">Ribbon solid</string>
   <string name="pref_hidden_scan_per_mode_title">فحص المجلدات المخفية</string>
   <string name="pref_hidden_scan_enable_in">تفعيل في</string>
   <string name="pref_hidden_scan_dot">مجلدات تبدأ بنقطة</string>

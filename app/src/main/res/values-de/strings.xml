@@ -2562,11 +2562,11 @@ Bitte starten Sie die App neu, damit alle Änderungen wirksam werden.</string>
   <string name="app_icon_bg_lilac">Flieder</string>
   <string name="app_icon_bg_mint">Mintgrün</string>
   <string name="app_icon_bg_ember">Glut</string>
-  <string name="app_icon_logo_solid">Einfarbiges Violett</string>
-  <string name="app_icon_logo_gradient">Violetter Verlauf</string>
+  <string name="app_icon_logo_solid">Ribbon solid</string>
+  <string name="app_icon_logo_gradient">Ribbon gradient</string>
   <string name="app_icon_logo_white">Weiß</string>
   <string name="app_icon_logo_black">Schwarz</string>
-  <string name="app_icon_logo_classic">Einfarbiges Violett</string>
+  <string name="app_icon_logo_classic">Ribbon solid</string>
   <string name="pref_hidden_scan_per_mode_title">Versteckte Ordner</string>
   <string name="pref_hidden_scan_enable_in">Aktivieren in</string>
   <string name="pref_hidden_scan_dot">Punktordner</string>

@@ -2586,11 +2586,11 @@
   <string name="app_icon_bg_lilac">Сиреневый</string>
   <string name="app_icon_bg_mint">Мятный</string>
   <string name="app_icon_bg_ember">Тлеющий уголёк</string>
-  <string name="app_icon_logo_solid">Однотонный фиолетовый</string>
-  <string name="app_icon_logo_gradient">Фиолетовый градиент</string>
+  <string name="app_icon_logo_solid">Ribbon solid</string>
+  <string name="app_icon_logo_gradient">Ribbon gradient</string>
   <string name="app_icon_logo_white">Белый</string>
   <string name="app_icon_logo_black">Чёрный</string>
-  <string name="app_icon_logo_classic">Однотонный фиолетовый</string>
+  <string name="app_icon_logo_classic">Ribbon solid</string>
   <string name="pref_hidden_scan_per_mode_title">Скрытые папки</string>
   <string name="pref_hidden_scan_enable_in">Включить в</string>
   <string name="pref_hidden_scan_dot">Папки с точкой</string>
