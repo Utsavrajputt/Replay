@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- System splash for the Ribbon gradient mark: the exact supplied logo (shading included) as a static 288dp layer.
-     Logo is ~104dp tall and sits well inside the central 192dp circular mask, same size/position as the earlier ribbon splash.
+<!-- System splash for the Ribbon gradient mark: the exact supplied logo (shading included) as a static layer.
+     Sized to match the Ribbon solid splash on device. Measured from device screenshots: a static layer-list item of 288dp
+     rendered the logo 1.73x bigger than the Ribbon solid animated vector (321px vs 186px tall), so the item is 288 / 1.73 = 166dp.
+     To resize, change only the item width/height below (bigger number = bigger logo).
      Uses a 4.5x lossless source (drawable-nodpi) so it stays sharp on xxxhdpi screens. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:width="288dp"
-        android:height="288dp"
+        android:width="166dp"
+        android:height="166dp"
         android:gravity="center">
         <bitmap
             android:src="@drawable/ic_ribbon_gradient_splash"
