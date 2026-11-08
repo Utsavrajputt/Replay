@@ -60,7 +60,8 @@ internal enum class IconMark(
   Gradient("Gradient", R.drawable.ic_launcher_purple_foreground, R.string.app_icon_logo_gradient),
   White("White", R.drawable.ic_launcher_white_foreground, R.string.app_icon_logo_white),
   Black("Black", R.drawable.ic_launcher_black_foreground, R.string.app_icon_logo_black),
-  Classic("Classic", R.drawable.ic_launcher_classic_foreground, R.string.app_icon_logo_classic),
+  // Key stays "Classic" so the existing IconXxxClassic manifest aliases keep working; the mark itself is the Replay blue ring.
+  Classic("Classic", R.drawable.ic_launcher_blue_foreground, R.string.app_icon_logo_classic),
 }
 
 /**

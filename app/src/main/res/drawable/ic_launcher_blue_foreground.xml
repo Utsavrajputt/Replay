@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Replay blue mark (Classic slot): the original blue play ring as a 108dp adaptive foreground. -->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/ic_replay_blue_mark"
+    android:filter="true"
+    android:antialias="true"
+    android:gravity="fill" />

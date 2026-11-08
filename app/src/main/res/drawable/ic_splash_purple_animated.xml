@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
- android:drawable="@drawable/ic_splash_purple_foreground">
- <target android:name="logo_main" android:animation="@animator/mpvrx_splash_main"/>
- <target android:name="logo_tip" android:animation="@animator/mpvrx_splash_tip"/>
-</animated-vector>
+<!-- System splash for the Ribbon gradient mark: the exact supplied logo (shading included) as a static 288dp layer.
+     Logo is ~104dp tall and sits well inside the central 192dp circular mask, same size/position as the earlier ribbon splash.
+     Uses a 4.5x lossless source (drawable-nodpi) so it stays sharp on xxxhdpi screens. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:width="288dp"
+        android:height="288dp"
+        android:gravity="center">
+        <bitmap
+            android:src="@drawable/ic_ribbon_gradient_splash"
+            android:filter="true"
+            android:antialias="true"
+            android:gravity="fill" />
+    </item>
+</layer-list>
