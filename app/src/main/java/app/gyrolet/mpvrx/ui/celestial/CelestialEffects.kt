@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.lerp
@@ -396,9 +397,26 @@ internal fun DrawScope.drawCelestialAurora(t: Float, tilt: Offset, p: BackdropPa
 
   val topInset = AURORA_TOP_INSET_DP.dp.toPx()
   val bottomInset = AURORA_BOTTOM_INSET_DP.dp.toPx()
-  // Picker thumbnails are shorter than the 172dp reserved for app bars: draw those edge-to-edge.
+  // Picker preview/thumbnails are shorter than the 172dp reserved for app bars. Squashing the whole
+  // scene into a wide, short tile made the ribbons flat and thin, so lay the scene out on a taller
+  // virtual canvas (same width, 1.6x height, like the real screen) and show its centred band.
   if (size.height <= topInset + bottomInset) {
-    drawCelestialAuroraScene(t, tilt, p, path)
+    val tile = size
+    val virtualH = tile.width * 1.6f
+    if (virtualH <= tile.height) {
+      drawCelestialAuroraScene(t, tilt, p, path)
+      return
+    }
+    clipRect(0f, 0f, tile.width, tile.height) {
+      translate(0f, (tile.height - virtualH) * 0.5f) {
+        drawContext.size = Size(tile.width, virtualH)
+        try {
+          drawCelestialAuroraScene(t, tilt, p, path)
+        } finally {
+          drawContext.size = tile
+        }
+      }
+    }
     return
   }
 

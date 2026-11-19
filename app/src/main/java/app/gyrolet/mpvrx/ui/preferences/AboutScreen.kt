@@ -41,6 +41,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ColorScheme
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
@@ -136,6 +140,8 @@ object AboutScreen : Screen {
         ) {
           Box {
             CelestialHeaderBackground(Modifier.matchParentSize())
+            // The hero is always a dark scene, so in light mode use light-on-dark colours inside it.
+            val hs = aboutHeroColors(cs)
 
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)) {
               Row(verticalAlignment = Alignment.CenterVertically) {
@@ -149,12 +155,12 @@ object AboutScreen : Screen {
                         .size(80.dp)
                         .background(
                           Brush.radialGradient(
-                            colors = listOf(cs.primary.copy(alpha = 0.45f), Color.Transparent),
+                            colors = listOf(hs.primary.copy(alpha = 0.45f), Color.Transparent),
                           ),
                           CircleShape,
                         ),
                   )
-                  Box(modifier = Modifier.size(67.dp)) {
+                  Box(modifier = Modifier.size(67.dp).clip(CircleShape)) {
                     AndroidView(
                       modifier = Modifier.matchParentSize(),
                       factory = { ctx ->
@@ -191,7 +197,7 @@ object AboutScreen : Screen {
                   Spacer(Modifier.height(8.dp))
                   Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = cs.primary.copy(alpha = 0.16f),
+                    color = hs.primary.copy(alpha = 0.16f),
                   ) {
                     Text(
                       text =
@@ -200,7 +206,7 @@ object AboutScreen : Screen {
                       modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                       style = MaterialTheme.typography.titleSmall,
                       fontWeight = FontWeight.SemiBold,
-                      color = cs.onPrimaryContainer,
+                      color = hs.onPrimaryContainer,
                     )
                   }
                 }
@@ -212,13 +218,13 @@ object AboutScreen : Screen {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(app.gyrolet.mpvrx.ui.theme.AppConnectedShapeTokens.spacing),
               ) {
-                val btnContainer = cs.surfaceContainerHigh.copy(alpha = 0.6f)
-                val btnContent = cs.primary
+                val btnContainer = hs.surfaceContainerHigh.copy(alpha = 0.6f)
+                val btnContent = hs.primary
                 val btnModifier =
                   Modifier
                     .weight(1f)
                     .height(56.dp)
-                    .border(1.dp, cs.primary.copy(alpha = 0.35f), RoundedCornerShape(16.dp))
+                    .border(1.dp, hs.primary.copy(alpha = 0.35f), RoundedCornerShape(16.dp))
                 Button(
                   onClick = { backstack.navigateTo(LibrariesScreen) },
                   modifier = btnModifier,
@@ -275,31 +281,34 @@ object AboutScreen : Screen {
                 }
               }
 
-              Spacer(modifier = Modifier.height(app.gyrolet.mpvrx.ui.theme.AppConnectedShapeTokens.spacing))
+              // Hidden (not removed): flip SHOW_ABOUT_PRIVACY_POLICY to true to bring it back.
+              if (SHOW_ABOUT_PRIVACY_POLICY) {
+                Spacer(modifier = Modifier.height(app.gyrolet.mpvrx.ui.theme.AppConnectedShapeTokens.spacing))
 
-              Button(
-                onClick = {
-                  context.startActivity(Intent(Intent.ACTION_VIEW, privacyPolicyUrl.toUri()))
-                },
-                modifier =
-                  Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .border(1.dp, cs.primary.copy(alpha = 0.35f), RoundedCornerShape(16.dp)),
-                shape = RoundedCornerShape(16.dp),
-                colors =
-                  ButtonDefaults.buttonColors(
-                    containerColor = cs.surfaceContainerHigh.copy(alpha = 0.6f),
-                    contentColor = cs.primary,
-                  ),
-              ) {
-                Icon(Icons.RoundedFilled.Security, contentDescription = null, modifier = Modifier.size(20.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                  text = stringResource(R.string.ui_privacy_policy),
-                  style = MaterialTheme.typography.titleMedium,
-                  fontWeight = FontWeight.SemiBold,
-                )
+                Button(
+                  onClick = {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, privacyPolicyUrl.toUri()))
+                  },
+                  modifier =
+                    Modifier
+                      .fillMaxWidth()
+                      .height(56.dp)
+                      .border(1.dp, hs.primary.copy(alpha = 0.35f), RoundedCornerShape(16.dp)),
+                  shape = RoundedCornerShape(16.dp),
+                  colors =
+                    ButtonDefaults.buttonColors(
+                      containerColor = hs.surfaceContainerHigh.copy(alpha = 0.6f),
+                      contentColor = hs.primary,
+                    ),
+                ) {
+                  Icon(Icons.RoundedFilled.Security, contentDescription = null, modifier = Modifier.size(20.dp))
+                  Spacer(modifier = Modifier.width(8.dp))
+                  Text(
+                    text = stringResource(R.string.ui_privacy_policy),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                  )
+                }
               }
 
               Spacer(modifier = Modifier.height(20.dp))
@@ -310,11 +319,11 @@ object AboutScreen : Screen {
                   .clickable {
                     SafeClipboard.copyPlainText(context, "mpvrx_device_info", collectDeviceInfo())
                   }.background(
-                    cs.surfaceContainerHigh.copy(alpha = 0.5f),
+                    hs.surfaceContainerHigh.copy(alpha = 0.5f),
                     RoundedCornerShape(16.dp),
                   ).border(
                     1.dp,
-                    cs.outline.copy(alpha = 0.3f),
+                    hs.outline.copy(alpha = 0.3f),
                     RoundedCornerShape(16.dp),
                   ).padding(vertical = 12.dp, horizontal = 16.dp)
               Column(modifier = deviceInfoModifier) {
@@ -324,7 +333,7 @@ object AboutScreen : Screen {
                 ) {
                   Surface(
                     shape = CircleShape,
-                    color = cs.primary,
+                    color = hs.primary,
                   ) {
                     Box(
                       modifier = Modifier.size(28.dp),
@@ -348,7 +357,7 @@ object AboutScreen : Screen {
                         .stringResource(app.gyrolet.mpvrx.R.string.ui_device_info),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = cs.onPrimaryContainer,
+                    color = hs.onPrimaryContainer,
                   )
                 }
                 val deviceInfoLines =
@@ -365,13 +374,13 @@ object AboutScreen : Screen {
                       Text(
                         text = label,
                         style = MaterialTheme.typography.bodySmall,
-                        color = cs.onSurfaceVariant,
+                        color = hs.onSurfaceVariant,
                       )
                       Text(
                         text = value,
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Medium,
-                        color = cs.onSurface,
+                        color = hs.onSurface,
                       )
                     }
                   }
@@ -676,6 +685,22 @@ object AboutScreen : Screen {
     }
   }
 }
+
+private const val SHOW_ABOUT_PRIVACY_POLICY = false
+
+private fun aboutHeroColors(cs: ColorScheme): ColorScheme =
+  if (cs.surface.luminance() > 0.5f) {
+    cs.copy(
+      primary = lerp(cs.primary, Color.White, 0.6f),
+      onPrimaryContainer = Color.White,
+      onSurface = Color.White,
+      onSurfaceVariant = Color.White.copy(alpha = 0.7f),
+      outline = Color.White.copy(alpha = 0.6f),
+      surfaceContainerHigh = Color(0xFF2A2F3A),
+    )
+  } else {
+    cs
+  }
 
 @Composable
 private fun SystemStatRow(
