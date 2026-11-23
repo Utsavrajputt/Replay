@@ -58,6 +58,7 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -181,6 +182,9 @@ fun CelestialHeaderBackground(modifier: Modifier = Modifier) {
   val cs = MaterialTheme.colorScheme
   val primary = cs.primary
   val tertiary = cs.tertiary
+  // The hero is a dark scene in dark mode and a soft, light-tinted scene in light mode.
+  val light = cs.surface.luminance() > 0.5f
+  val base = if (light) lerp(cs.surface, primary, 0.10f) else lerp(Color.Black, primary, 0.13f)
   if (isCelestialEffectsEnabled()) {
     val transition = rememberInfiniteTransition(label = "celestial_header")
     val drift by transition.animateFloat(
@@ -214,11 +218,11 @@ fun CelestialHeaderBackground(modifier: Modifier = Modifier) {
       label = "celestial_header_twinkle",
     )
     Canvas(modifier = modifier) {
-      drawHeaderScene(primary, tertiary, drift, glowPulse, twinkle)
+      drawHeaderScene(primary, tertiary, drift, glowPulse, twinkle, light, base)
     }
   } else {
     Canvas(modifier = modifier) {
-      drawHeaderScene(primary, tertiary, 0.5f, 0.5f, 0.5f)
+      drawHeaderScene(primary, tertiary, 0.5f, 0.5f, 0.5f, light, base)
     }
   }
 }
@@ -287,14 +291,16 @@ private fun DrawScope.drawHeaderScene(
   drift: Float,
   glowPulse: Float,
   twinkle: Float,
+  light: Boolean,
+  base: Color,
 ) {
-  drawRect(color = lerp(Color.Black, primary, 0.13f), size = size)
+  drawRect(color = base, size = size)
   val fit = maxOf(size.width / HEADER_SCENE_W, size.height / HEADER_SCENE_H)
   val dx = (size.width - HEADER_SCENE_W * fit) / 2f
   val dy = (size.height - HEADER_SCENE_H * fit) / 2f
   translate(left = dx, top = dy) {
     scale(scaleX = fit, scaleY = fit, pivot = Offset.Zero) {
-      drawHeaderSweep(primary, tertiary, drift, glowPulse, twinkle)
+      drawHeaderSweep(primary, tertiary, drift, glowPulse, twinkle, light)
     }
   }
 }
@@ -305,15 +311,20 @@ private fun DrawScope.drawHeaderSweep(
   drift: Float,
   glowPulse: Float,
   twinkle: Float,
+  light: Boolean,
 ) {
-  val core = lerp(primary, Color.White, 0.40f)
+  // On a light base, glows must be deeper (not lighter) to read, and the travelling shimmer is a
+  // saturated tint instead of white.
+  val core = if (light) lerp(primary, tertiary, 0.15f) else lerp(primary, Color.White, 0.40f)
+  val shimmerColor = if (light) lerp(primary, Color.White, 0.20f) else lerp(core, Color.White, 0.5f)
+  val hazeAlpha = if (light) 0.20f else 0.34f
   val violet = lerp(primary, tertiary, 0.35f)
 
   // Blue haze on the left, like the artwork's soft background glow.
   drawCircle(
     brush =
       Brush.radialGradient(
-        colors = listOf(primary.copy(alpha = 0.34f), Color.Transparent),
+        colors = listOf(primary.copy(alpha = hazeAlpha), Color.Transparent),
         center = Offset(150f, 300f),
         radius = 480f,
       ),
@@ -371,7 +382,7 @@ private fun DrawScope.drawHeaderSweep(
   // The single main line: soft body, crisp core, and a light that travels along it.
   drawPath(headerLine(line(0f, 0f)), ramp(core, 0.70f), style = Stroke(width = 10f, cap = StrokeCap.Round))
   drawPath(headerLine(line(0f, 0f)), ramp(core, 0.80f + 0.20f * glowPulse), style = Stroke(width = 3.6f, cap = StrokeCap.Round))
-  drawPath(headerLine(line(0f, 0f)), shimmer(lerp(core, Color.White, 0.5f), 0.55f), style = Stroke(width = 2.4f, cap = StrokeCap.Round))
+  drawPath(headerLine(line(0f, 0f)), shimmer(shimmerColor, if (light) 0.80f else 0.55f), style = Stroke(width = 2.4f, cap = StrokeCap.Round))
 
   // Everything else just fades out: thin, faint lines that open up toward the right.
   drawPath(headerLine(line(-34f, -62f)), env(core, 0.50f), style = Stroke(width = 2.2f, cap = StrokeCap.Round))
@@ -400,7 +411,9 @@ internal fun DrawScope.drawCelestialAurora(t: Float, tilt: Offset, p: BackdropPa
   // Picker preview/thumbnails are shorter than the 172dp reserved for app bars. Squashing the whole
   // scene into a wide, short tile made the ribbons flat and thin, so lay the scene out on a taller
   // virtual canvas (same width, 1.6x height, like the real screen) and show its centred band.
-  if (size.height <= topInset + bottomInset) {
+  // Threshold is "not a real screen" (< 400dp tall), NOT just "shorter than the bars": the picker
+  // preview is ~195dp tall, which passed the bar check and got the scene squeezed into ~20dp (flat line).
+  if (size.height < MIN_SCREEN_HEIGHT_DP.dp.toPx() || size.height <= topInset + bottomInset) {
     val tile = size
     val virtualH = tile.width * 1.6f
     if (virtualH <= tile.height) {
@@ -434,6 +447,7 @@ internal fun DrawScope.drawCelestialAurora(t: Float, tilt: Offset, p: BackdropPa
   }
 }
 
+private const val MIN_SCREEN_HEIGHT_DP = 400f
 private const val AURORA_TOP_INSET_DP = 92f
 private const val AURORA_BOTTOM_INSET_DP = 80f
 

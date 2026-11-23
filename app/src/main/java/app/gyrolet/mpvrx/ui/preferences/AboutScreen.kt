@@ -41,10 +41,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
@@ -140,8 +138,9 @@ object AboutScreen : Screen {
         ) {
           Box {
             CelestialHeaderBackground(Modifier.matchParentSize())
-            // The hero is always a dark scene, so in light mode use light-on-dark colours inside it.
-            val hs = aboutHeroColors(cs)
+            // Hero follows the theme: dark scene + light text in dark mode, light scene + dark text in light mode.
+            val hs = cs
+            val lightHero = cs.surface.luminance() > 0.5f
 
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 20.dp)) {
               Row(verticalAlignment = Alignment.CenterVertically) {
@@ -186,13 +185,13 @@ object AboutScreen : Screen {
                         .stringResource(app.gyrolet.mpvrx.R.string.app_name),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = if (lightHero) cs.onSurface else Color.White,
                   )
                   Spacer(Modifier.height(4.dp))
                   Text(
                     text = "v$versionName $buildType",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = if (lightHero) cs.onSurfaceVariant else Color.White.copy(alpha = 0.7f),
                   )
                   Spacer(Modifier.height(8.dp))
                   Surface(
@@ -687,20 +686,6 @@ object AboutScreen : Screen {
 }
 
 private const val SHOW_ABOUT_PRIVACY_POLICY = false
-
-private fun aboutHeroColors(cs: ColorScheme): ColorScheme =
-  if (cs.surface.luminance() > 0.5f) {
-    cs.copy(
-      primary = lerp(cs.primary, Color.White, 0.6f),
-      onPrimaryContainer = Color.White,
-      onSurface = Color.White,
-      onSurfaceVariant = Color.White.copy(alpha = 0.7f),
-      outline = Color.White.copy(alpha = 0.6f),
-      surfaceContainerHigh = Color(0xFF2A2F3A),
-    )
-  } else {
-    cs
-  }
 
 @Composable
 private fun SystemStatRow(
