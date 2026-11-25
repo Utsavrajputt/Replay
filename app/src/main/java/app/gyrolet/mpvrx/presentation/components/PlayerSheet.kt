@@ -158,9 +158,9 @@ fun PlayerSheet(
   // in portrait.
   val maxWidth =
     customMaxWidth ?: if (isPortrait) {
-      (configuration.screenWidthDp - 16).dp.coerceAtMost(520.dp)
+      (configuration.screenWidthDp - 40).dp.coerceAtMost(420.dp)
     } else {
-      (configuration.screenWidthDp * 0.78f).dp.coerceIn(420.dp, 680.dp)
+      (configuration.screenWidthDp * 0.58f).dp.coerceIn(340.dp, 520.dp)
     }
   val isImeVisible = WindowInsets.ime.getBottom(density) > 0
   val maxHeight =

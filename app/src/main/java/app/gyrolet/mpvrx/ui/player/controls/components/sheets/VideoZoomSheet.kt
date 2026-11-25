@@ -45,6 +45,7 @@ import app.gyrolet.mpvrx.R
 import app.gyrolet.mpvrx.preferences.PlayerPreferences
 import app.gyrolet.mpvrx.preferences.preference.collectAsState
 import app.gyrolet.mpvrx.presentation.components.PlayerSheet
+import app.gyrolet.mpvrx.presentation.components.PlayerSheetAction
 import app.gyrolet.mpvrx.presentation.components.SliderItem
 import app.gyrolet.mpvrx.ui.icons.Icon
 import app.gyrolet.mpvrx.ui.icons.Icons
@@ -72,7 +73,28 @@ fun VideoZoomSheet(
     if (zoomControlEnabled) currentOnSetVideoZoom(zoom)
   }
 
-  PlayerSheet(onDismissRequest = onDismissRequest, title = stringResource(R.string.btn_label_zoom), titleIcon = Icons.RoundedFilled.ZoomIn) {
+  PlayerSheet(onDismissRequest = onDismissRequest, title = stringResource(R.string.btn_label_zoom),
+    actions = {
+      PlayerSheetAction(
+        icon = Icons.RoundedFilled.Bookmark,
+        label = stringResource(R.string.set_as_default),
+        onClick = { if (zoomControlEnabled) playerPreferences.defaultVideoZoom.set(zoom) },
+        enabled = zoomControlEnabled && zoom != defaultZoom,
+      )
+      PlayerSheetAction(
+        icon = Icons.RoundedFilled.Restore,
+        label = stringResource(R.string.generic_reset),
+        onClick = {
+          if (zoomControlEnabled) {
+            zoom = 0f
+            playerPreferences.defaultVideoZoom.set(0f)
+          }
+          if (panControlEnabled) onResetVideoPan()
+        },
+        enabled = (zoomControlEnabled && zoom != 0f) || panControlEnabled,
+      )
+    },
+  ) {
     ZoomVideoSheet(
       zoom = zoom,
       defaultZoom = defaultZoom,
@@ -142,7 +164,7 @@ private fun ZoomVideoSheet(
           onZoomChange(newZoom)
         },
         enabled = zoomControlEnabled,
-        modifier = Modifier.size(36.dp),
+        modifier = Modifier.size(32.dp),
       ) {
         Icon(
           Icons.RoundedFilled.Remove,
@@ -170,7 +192,7 @@ private fun ZoomVideoSheet(
           onZoomChange(newZoom)
         },
         enabled = zoomControlEnabled,
-        modifier = Modifier.size(36.dp),
+        modifier = Modifier.size(32.dp),
       ) {
         Icon(
           Icons.RoundedFilled.Add,
@@ -227,28 +249,6 @@ private fun ZoomVideoSheet(
         checked = overlaysFollowZoom,
         onCheckedChange = { preferences.overlaysFollowVideoZoom.set(it) },
       )
-
-      // Action buttons
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-      ) {
-        OutlinedButton(
-          onClick = onSetAsDefault,
-          enabled = zoomControlEnabled && !isDefault,
-          modifier = Modifier.weight(1f),
-        ) {
-          Text(stringResource(R.string.set_as_default), style = MaterialTheme.typography.labelMedium)
-        }
-
-        Button(
-          onClick = onReset,
-          enabled = (zoomControlEnabled && !isZero) || panControlEnabled,
-          modifier = Modifier.weight(1f),
-        ) {
-          Text(stringResource(R.string.generic_reset), style = MaterialTheme.typography.labelMedium)
-        }
-      }
     }
   }
 }

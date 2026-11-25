@@ -1,5 +1,6 @@
 package app.gyrolet.mpvrx.ui.player.controls.components.sheets
 
+import app.gyrolet.mpvrx.ui.icons.Icons
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,9 +37,10 @@ internal fun AudiobookSheet(sheet: Sheets, onChapterEnd: () -> Unit, onDismiss: 
           else -> R.string.audiobook_sleep_timer
         },
       ),
+    titleIcon = Icons.RoundedFilled.MenuBook,
   ) {
     LazyColumn(
-      contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+      contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
       verticalArrangement = Arrangement.spacedBy(AppConnectedShapeTokens.spacing),
     ) {
       when (sheet) {

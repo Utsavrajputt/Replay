@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -76,27 +77,32 @@ fun PlaybackSpeedSheet(
       speedHaptics.move(speed, target)
     }
   }
-  PlayerSheet(onDismissRequest = onDismissRequest, title = stringResource(R.string.btn_label_speed), titleIcon = Icons.RoundedFilled.Speed) {
+  PlayerSheet(onDismissRequest = onDismissRequest, title = stringResource(R.string.btn_label_speed), titleIcon = Icons.RoundedFilled.Speed,
+    actions = {
+      PlayerSheetAction(
+        icon = Icons.RoundedFilled.Bookmark,
+        label = stringResource(id = R.string.player_sheets_speed_make_default),
+        onClick = { onMakeDefault(speed) },
+        enabled = speedControlEnabled,
+      )
+      PlayerSheetAction(
+        icon = Icons.RoundedFilled.Restore,
+        label = stringResource(id = R.string.generic_reset),
+        onClick = {
+          onResetDefault()
+          onResetPresets()
+          onSpeedChange(1.0f)
+        },
+        enabled = speedControlEnabled,
+      )
+    },
+  ) {
     Column(
       modifier
         .verticalScroll(rememberScrollState())
         .padding(vertical = 4.dp),
-      verticalArrangement = Arrangement.spacedBy(8.dp),
+      verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-      // Slider and +/- Buttons
-
-      // Speed Label and Value
-      Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = MaterialTheme.spacing.medium),
-        horizontalAlignment = Alignment.CenterHorizontally,
-      ) {
-        Text(
-          text = "${speed.toFixed(2)}x",
-          style = MaterialTheme.typography.titleLarge,
-          fontWeight = FontWeight.Bold,
-        )
-      }
-
       // Slider and +/- Buttons
       Row(
         modifier =
@@ -104,12 +110,19 @@ fun PlaybackSpeedSheet(
             .fillMaxWidth()
             .padding(horizontal = MaterialTheme.spacing.medium),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
       ) {
+        Text(
+          text = "${speed.toFixed(2)}x",
+          modifier = Modifier.width(60.dp),
+          style = MaterialTheme.typography.titleMedium,
+          fontWeight = FontWeight.Bold,
+          maxLines = 1,
+        )
         RepeatingIconButton(
           onClick = { adjustSpeed((speed - 0.05f).coerceAtLeast(0.05f)) },
           enabled = speedControlEnabled,
-          modifier = Modifier.size(36.dp),
+          modifier = Modifier.size(32.dp),
         ) {
           Icon(Icons.RoundedFilled.Remove, null, modifier = Modifier.size(20.dp))
         }
@@ -132,7 +145,7 @@ fun PlaybackSpeedSheet(
         RepeatingIconButton(
           onClick = { adjustSpeed((speed + 0.05f).coerceAtMost(4.0f)) },
           enabled = speedControlEnabled,
-          modifier = Modifier.size(36.dp),
+          modifier = Modifier.size(32.dp),
         ) {
           Icon(Icons.RoundedFilled.Add, null, modifier = Modifier.size(20.dp))
         }
@@ -232,31 +245,6 @@ fun PlaybackSpeedSheet(
             )
           },
         )
-      }
-
-      Row(
-        modifier =
-          Modifier
-            .padding(horizontal = MaterialTheme.spacing.medium),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.smaller),
-      ) {
-        Button(
-          modifier = Modifier.weight(1f),
-          onClick = { onMakeDefault(speed) },
-          enabled = speedControlEnabled,
-        ) {
-          Text(text = stringResource(id = R.string.player_sheets_speed_make_default))
-        }
-        Button(
-          onClick = {
-            onResetDefault()
-            onResetPresets()
-            onSpeedChange(1.0f)
-          },
-          enabled = speedControlEnabled,
-        ) {
-          Text(text = stringResource(id = R.string.generic_reset))
-        }
       }
     }
   }

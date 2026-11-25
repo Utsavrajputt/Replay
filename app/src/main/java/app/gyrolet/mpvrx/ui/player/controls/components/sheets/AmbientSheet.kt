@@ -126,7 +126,7 @@ fun AmbientSheet(
     }
   PlayerSheet(
     onDismissRequest = onDismissRequest,
-    title = androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_ambience_mode),
+    title = androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_ambience_mode),    titleIcon = Icons.RoundedFilled.AutoAwesome,
   ) {
     Column(
       modifier =
@@ -512,7 +512,9 @@ private fun RowScope.ExpressivePresetButton(
     modifier =
       Modifier
         .weight(1f)
+        .height(36.dp)
         .graphicsLayer(scaleX = scale, scaleY = scale),
+    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 0.dp),
     colors =
       if (selected) {
         ButtonDefaults.filledTonalButtonColors(
@@ -523,6 +525,6 @@ private fun RowScope.ExpressivePresetButton(
         ButtonDefaults.filledTonalButtonColors()
       },
   ) {
-    Text(label, fontWeight = FontWeight.Bold)
+    Text(label, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium, maxLines = 1)
   }
 }

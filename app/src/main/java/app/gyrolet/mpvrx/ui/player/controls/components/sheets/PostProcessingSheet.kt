@@ -9,6 +9,8 @@
 
 package app.gyrolet.mpvrx.ui.player.controls.components.sheets
 
+import app.gyrolet.mpvrx.presentation.components.PlayerSheetAction
+import app.gyrolet.mpvrx.ui.icons.Icons
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
@@ -65,6 +67,16 @@ fun PostProcessingSheet(
   PlayerSheet(
     onDismissRequest = onDismissRequest,
     title = stringResource(R.string.ui_post_processing),
+    titleIcon = Icons.RoundedFilled.Tune,
+    actions = {
+      if (preset != PostProcessingPreset.None) {
+        PlayerSheetAction(
+          icon = Icons.RoundedFilled.Restore,
+          label = stringResource(R.string.generic_reset),
+          onClick = { viewModel.resetPostProcessingParams() },
+        )
+      }
+    },
   ) {
     Column(
       modifier =
@@ -79,7 +91,7 @@ fun PostProcessingSheet(
         modifier =
           Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp),
+            .padding(horizontal = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
           verticalArrangement = Arrangement.spacedBy(4.dp),
       ) {
@@ -181,22 +193,6 @@ fun PostProcessingSheet(
           FilmGrainSection(params, viewModel::updatePostProcessingParams)
           VignetteSection(params, viewModel::updatePostProcessingParams)
         }
-      }
-
-      // ── Reset Defaults Button ────────────────────────────────────────
-      if (preset != PostProcessingPreset.None) {
-        Spacer(modifier = Modifier.height(8.dp))
-        FilledTonalButton(
-          onClick = { viewModel.resetPostProcessingParams() },
-          modifier =
-            Modifier
-              .fillMaxWidth()
-              .padding(horizontal = MaterialTheme.spacing.medium),
-          colors = ButtonDefaults.filledTonalButtonColors(),
-        ) {
-          Text(text = stringResource(R.string.generic_reset), fontWeight = FontWeight.Bold)
-        }
-        Spacer(modifier = Modifier.height(8.dp))
       }
     }
   }
