@@ -111,9 +111,14 @@ internal fun Modifier.animatedPlayerSheetBackground(
 data class TrackBadge(
   val text: String,
   val emphasized: Boolean = false,
+  /** Status flags (Default, Forced, External...) stay small chips; everything else is joined in one line. */
+  val flag: Boolean = false,
 )
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3ExpressiveApi::class)
+/**
+ * Compact one-line track details: "ENG · AAC · mono · 192 kbps" followed by small status chips
+ * (Default / Forced / External ...). Replaces the old wrapping chip row.
+ */
 @Composable
 fun TrackBadgeFlow(
   badges: List<TrackBadge>,
@@ -121,12 +126,23 @@ fun TrackBadgeFlow(
   modifier: Modifier = Modifier,
 ) {
   if (badges.isEmpty()) return
-  FlowRow(
+  val (chips, info) = badges.partition { it.emphasized || it.flag }
+  Row(
     modifier = modifier,
-    horizontalArrangement = Arrangement.spacedBy(4.dp),
-    verticalArrangement = Arrangement.spacedBy(4.dp),
+    horizontalArrangement = Arrangement.spacedBy(6.dp),
+    verticalAlignment = Alignment.CenterVertically,
   ) {
-    badges.forEach { badge ->
+    if (info.isNotEmpty()) {
+      Text(
+        text = info.joinToString(" · ") { it.text },
+        style = MaterialTheme.typography.labelSmall,
+        color = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+        maxLines = 1,
+        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+        modifier = Modifier.weight(1f, fill = false),
+      )
+    }
+    chips.forEach { badge ->
       val containerColor =
         when {
           badge.emphasized -> MaterialTheme.colorScheme.primary
@@ -140,14 +156,15 @@ fun TrackBadgeFlow(
           else -> MaterialTheme.colorScheme.onSurfaceVariant
         }
       Surface(
-        shape = MaterialTheme.shapes.small,
+        shape = MaterialTheme.shapes.extraSmall,
         color = containerColor,
         contentColor = contentColor,
       ) {
         Text(
           text = badge.text,
-          style = MaterialTheme.typography.labelSmallEmphasized,
-          modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+          style = MaterialTheme.typography.labelSmall,
+          maxLines = 1,
+          modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp),
         )
       }
     }

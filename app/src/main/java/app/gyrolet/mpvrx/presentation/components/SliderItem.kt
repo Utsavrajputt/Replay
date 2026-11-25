@@ -41,6 +41,9 @@ import app.gyrolet.mpvrx.ui.theme.spacing
 import app.gyrolet.mpvrx.ui.utils.rememberAdjustmentHaptics
 import kotlin.math.roundToInt
 
+/** Set to true by PlayerSheet so every slider inside a player dialog uses the compact layout. */
+val LocalCompactSheetContent = androidx.compose.runtime.compositionLocalOf { false }
+
 @Composable
 fun SliderItem(
   label: String,
@@ -63,16 +66,16 @@ fun SliderItem(
       modifier
         .fillMaxWidth()
         .padding(
-          horizontal = MaterialTheme.spacing.medium,
-          vertical = MaterialTheme.spacing.smaller,
+          horizontal = if (LocalCompactSheetContent.current) 12.dp else MaterialTheme.spacing.medium,
+          vertical = if (LocalCompactSheetContent.current) 0.dp else MaterialTheme.spacing.smaller,
         ),
     verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.large),
+    horizontalArrangement = Arrangement.spacedBy(if (LocalCompactSheetContent.current) 10.dp else MaterialTheme.spacing.large),
   ) {
     icon()
     Column(
       modifier = Modifier.weight(1f),
-      verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+      verticalArrangement = Arrangement.spacedBy(if (LocalCompactSheetContent.current) 0.dp else MaterialTheme.spacing.extraSmall),
     ) {
       SliderItemHeader(label = label, valueText = valueText)
 
@@ -122,16 +125,16 @@ fun SliderItem(
       modifier
         .fillMaxWidth()
         .padding(
-          horizontal = MaterialTheme.spacing.medium,
-          vertical = MaterialTheme.spacing.smaller,
+          horizontal = if (LocalCompactSheetContent.current) 12.dp else MaterialTheme.spacing.medium,
+          vertical = if (LocalCompactSheetContent.current) 0.dp else MaterialTheme.spacing.smaller,
         ),
     verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.large),
+    horizontalArrangement = Arrangement.spacedBy(if (LocalCompactSheetContent.current) 10.dp else MaterialTheme.spacing.large),
   ) {
     icon()
     Column(
       modifier = Modifier.weight(1f),
-      verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
+      verticalArrangement = Arrangement.spacedBy(if (LocalCompactSheetContent.current) 0.dp else MaterialTheme.spacing.extraSmall),
     ) {
       SliderItemHeader(label = label, valueText = valueText)
 
@@ -175,13 +178,13 @@ internal fun SliderItemHeader(
     Text(
       text = label,
       modifier = Modifier.align(Alignment.CenterVertically),
-      style = MaterialTheme.typography.bodyMedium,
+      style = if (LocalCompactSheetContent.current) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
     )
     Text(
       text = valueText,
       modifier = Modifier.weight(1f).align(Alignment.CenterVertically),
       color = MaterialTheme.colorScheme.onSurfaceVariant,
-      style = MaterialTheme.typography.labelLargeEmphasized,
+      style = if (LocalCompactSheetContent.current) MaterialTheme.typography.labelMedium else MaterialTheme.typography.labelLargeEmphasized,
       textAlign = TextAlign.End,
     )
   }

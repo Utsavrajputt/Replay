@@ -133,8 +133,8 @@ fun AmbientSheet(
         Modifier
           .fillMaxWidth()
           .verticalScroll(rememberScrollState())
-          .padding(vertical = 8.dp),
-      verticalArrangement = Arrangement.spacedBy(16.dp),
+          .padding(vertical = 4.dp),
+      verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
       Row(
         modifier =

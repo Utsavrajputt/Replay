@@ -346,57 +346,51 @@ fun SubtitlesSheet(
   PlayerSheet(
     onDismissRequest = onDismissRequest,
     title = stringResource(R.string.btn_label_subtitles),
+    titleIcon = Icons.RoundedFilled.Subtitles,
+    actions = {
+      // Add stays leftmost, then search / AI / style / delay.
+      PlayerSheetAction(Icons.RoundedFilled.Add, stringResource(R.string.player_sheets_add_ext_sub), onAddSubtitle)
+        PlayerSheetAction(Icons.RoundedFilled.Search, stringResource(R.string.settings_search_title), onOpenOnlineSearch)
+        if (aiEnabled && realtimeSubsEnabled) {
+          PlayerSheetAction(
+            icon = if (isRealtimeSubsActive) Icons.RoundedFilled.Close else Icons.RoundedFilled.Translate,
+            label = stringResource(R.string.pref_stt_title),
+            onClick = {
+              if (isRealtimeSubsActive) {
+                onStopRealtimeSubtitle()
+              } else if (configuredLanguages.isEmpty()) {
+                onStartRealtimeSubtitle("")
+              } else if (configuredLanguages.size == 1) {
+                onStartRealtimeSubtitle(codeToName[configuredLanguages.first()] ?: configuredLanguages.first())
+              } else {
+                showRealtimeLanguagePicker = true
+              }
+            },
+          )
+          PlayerSheetAction(
+            icon = Icons.RoundedFilled.Subtitles,
+            label = stringResource(R.string.ui_include_auto_generated_subtitles),
+            onClick = onGenerateSubtitle,
+            enabled = !isGeneratingSubtitles,
+          )
+        }
+        PlayerSheetAction(
+          icon = Icons.RoundedFilled.Palette,
+          label = stringResource(R.string.player_sheets_subtitles_settings_title),
+          onClick = onOpenSubtitleSettings,
+        )
+        PlayerSheetAction(
+          icon = Icons.RoundedFilled.AvTimer,
+          label = stringResource(R.string.player_sheets_sub_delay_card_title),
+          onClick = onOpenSubtitleDelay,
+          enabled = delayControlEnabled,
+        )
+    },
   ) {
     LazyColumn(
       modifier = modifier.fillMaxWidth(),
-      contentPadding = PaddingValues(bottom = 8.dp),
+      contentPadding = PaddingValues(bottom = 4.dp),
     ) {
-      item(key = "subtitle_actions") {
-        AddTrackRow(
-          stringResource(R.string.player_sheets_add_ext_sub),
-          onAddSubtitle,
-          modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-          shape = rememberConnectedShape(index = 0, itemCount = 2, layout = ConnectedLayout.Vertical),
-          actions = {
-            PlayerSheetAction(Icons.RoundedFilled.Search, stringResource(R.string.settings_search_title), onOpenOnlineSearch)
-            if (aiEnabled && realtimeSubsEnabled) {
-              PlayerSheetAction(
-                icon = if (isRealtimeSubsActive) Icons.RoundedFilled.Close else Icons.RoundedFilled.Translate,
-                label = stringResource(R.string.pref_stt_title),
-                onClick = {
-                  if (isRealtimeSubsActive) {
-                    onStopRealtimeSubtitle()
-                  } else if (configuredLanguages.isEmpty()) {
-                    onStartRealtimeSubtitle("")
-                  } else if (configuredLanguages.size == 1) {
-                    onStartRealtimeSubtitle(codeToName[configuredLanguages.first()] ?: configuredLanguages.first())
-                  } else {
-                    showRealtimeLanguagePicker = true
-                  }
-                },
-              )
-              PlayerSheetAction(
-                icon = Icons.RoundedFilled.Subtitles,
-                label = stringResource(R.string.ui_include_auto_generated_subtitles),
-                onClick = onGenerateSubtitle,
-                enabled = !isGeneratingSubtitles,
-              )
-            }
-            PlayerSheetAction(
-              icon = Icons.RoundedFilled.Palette,
-              label = stringResource(R.string.player_sheets_subtitles_settings_title),
-              onClick = onOpenSubtitleSettings,
-            )
-            PlayerSheetAction(
-              icon = Icons.RoundedFilled.AvTimer,
-              label = stringResource(R.string.player_sheets_sub_delay_card_title),
-              onClick = onOpenSubtitleDelay,
-              enabled = delayControlEnabled,
-            )
-          },
-        )
-      }
-
       if (aiEnabled && isTranslating) {
         item(key = "translation_progress") {
         Column(
@@ -522,7 +516,7 @@ fun SubtitlesSheet(
                 modifier =
                   Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 2.dp)
+                    .padding(horizontal = 10.dp, vertical = 1.dp)
                     .tvInitialFocus(initialFocusRequester)
                     .tvFocusHighlight(shape)
                     .clip(shape)
@@ -535,7 +529,7 @@ fun SubtitlesSheet(
                   animatedPlayerSheetSelectionColor(subtitlesOff, frosted = isFrostedOff, label = "subtitlesOffSelection"),
               ) {
                 Row(
-                  modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).padding(horizontal = 12.dp, vertical = 10.dp),
+                  modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp).padding(horizontal = 10.dp, vertical = 6.dp),
                   verticalAlignment = Alignment.CenterVertically,
                   horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
@@ -546,7 +540,7 @@ fun SubtitlesSheet(
                   }
                   Text(
                     stringResource(R.string.player_sheets_off),
-                    style = if (subtitlesOff) MaterialTheme.typography.bodyLargeEmphasized else MaterialTheme.typography.bodyLarge,
+                    style = if (subtitlesOff) MaterialTheme.typography.bodyMediumEmphasized else MaterialTheme.typography.bodyMedium,
                     color = if (subtitlesOff) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f),
                   )
@@ -608,7 +602,7 @@ fun SubtitleTrackRow(
     modifier =
       modifier
         .fillMaxWidth()
-        .padding(horizontal = 8.dp, vertical = 2.dp)
+        .padding(horizontal = 10.dp, vertical = 1.dp)
         .tvFocusHighlight(shape)
         .clip(shape)
         .toggleable(value = isSelected, role = Role.Checkbox) { selected ->
@@ -619,7 +613,7 @@ fun SubtitleTrackRow(
     color = containerColor,
   ) {
     Row(
-      modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+      modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 5.dp),
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
@@ -628,10 +622,12 @@ fun SubtitleTrackRow(
       } else {
         Checkbox(checked = isSelected, onCheckedChange = null)
       }
-      Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+      Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
         Text(
           text = getTrackTitle(track),
-          style = if (isSelected) MaterialTheme.typography.bodyLargeEmphasized else MaterialTheme.typography.bodyLarge,
+          maxLines = 1,
+          overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+          style = if (isSelected) MaterialTheme.typography.bodyMediumEmphasized else MaterialTheme.typography.bodyMedium,
           color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
         )
         TrackBadgeFlow(badges = badges, selected = isSelected)
@@ -681,10 +677,10 @@ private fun subtitleTrackBadges(
       track.effectiveLang?.takeIf(String::isNotBlank)?.let { add(TrackBadge(it.uppercase(Locale.ROOT))) }
       (track.codec?.takeIf(String::isNotBlank) ?: track.codecDesc?.takeIf(String::isNotBlank))
         ?.let { add(TrackBadge(it.uppercase(Locale.ROOT))) }
-      if (track.default == true) add(TrackBadge(defaultLabel))
-      if (track.forced == true) add(TrackBadge(forcedLabel))
-      if (track.hearingImpaired == true) add(TrackBadge("SDH"))
-      if (isExternal) add(TrackBadge(externalLabel))
+      if (track.default == true) add(TrackBadge(defaultLabel, flag = true))
+      if (track.forced == true) add(TrackBadge(forcedLabel, flag = true))
+      if (track.hearingImpaired == true) add(TrackBadge("SDH", flag = true))
+      if (isExternal) add(TrackBadge(externalLabel, flag = true))
     }.distinctBy(TrackBadge::text)
   }
 }

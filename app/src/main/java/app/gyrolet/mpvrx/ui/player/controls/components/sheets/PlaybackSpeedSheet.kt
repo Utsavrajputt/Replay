@@ -76,12 +76,12 @@ fun PlaybackSpeedSheet(
       speedHaptics.move(speed, target)
     }
   }
-  PlayerSheet(onDismissRequest = onDismissRequest, title = stringResource(R.string.btn_label_speed)) {
+  PlayerSheet(onDismissRequest = onDismissRequest, title = stringResource(R.string.btn_label_speed), titleIcon = Icons.RoundedFilled.Speed) {
     Column(
       modifier
         .verticalScroll(rememberScrollState())
-        .padding(vertical = 8.dp),
-      verticalArrangement = Arrangement.spacedBy(16.dp),
+        .padding(vertical = 4.dp),
+      verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
       // Slider and +/- Buttons
 
@@ -92,7 +92,7 @@ fun PlaybackSpeedSheet(
       ) {
         Text(
           text = "${speed.toFixed(2)}x",
-          style = MaterialTheme.typography.headlineMedium,
+          style = MaterialTheme.typography.titleLarge,
           fontWeight = FontWeight.Bold,
         )
       }
@@ -109,9 +109,9 @@ fun PlaybackSpeedSheet(
         RepeatingIconButton(
           onClick = { adjustSpeed((speed - 0.05f).coerceAtLeast(0.05f)) },
           enabled = speedControlEnabled,
-          modifier = Modifier.size(48.dp),
+          modifier = Modifier.size(36.dp),
         ) {
-          Icon(Icons.RoundedFilled.Remove, null, modifier = Modifier.size(24.dp))
+          Icon(Icons.RoundedFilled.Remove, null, modifier = Modifier.size(20.dp))
         }
 
         Slider(
@@ -132,9 +132,9 @@ fun PlaybackSpeedSheet(
         RepeatingIconButton(
           onClick = { adjustSpeed((speed + 0.05f).coerceAtMost(4.0f)) },
           enabled = speedControlEnabled,
-          modifier = Modifier.size(48.dp),
+          modifier = Modifier.size(36.dp),
         ) {
-          Icon(Icons.RoundedFilled.Add, null, modifier = Modifier.size(24.dp))
+          Icon(Icons.RoundedFilled.Add, null, modifier = Modifier.size(20.dp))
         }
       }
 
@@ -185,7 +185,7 @@ fun PlaybackSpeedSheet(
         val isCurrentSpeedSaved = speedPresets.any { kotlin.math.abs(it - speed) < 0.001f }
         val isDefaultPreset = defaultPresets.any { kotlin.math.abs(it - speed) < 0.001f }
 
-        androidx.compose.foundation.layout.Box(Modifier.size(48.dp)) {
+        androidx.compose.foundation.layout.Box(Modifier.size(40.dp)) {
           if (isCurrentSpeedSaved && !isDefaultPreset) {
             PlayerSheetAction(
               icon = Icons.RoundedFilled.Remove,

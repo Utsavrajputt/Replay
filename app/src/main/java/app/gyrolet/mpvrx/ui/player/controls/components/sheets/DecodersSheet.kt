@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import app.gyrolet.mpvrx.BuildConfig
 import app.gyrolet.mpvrx.R
 import app.gyrolet.mpvrx.presentation.components.PlayerSheet
+import app.gyrolet.mpvrx.ui.icons.Icons
 import app.gyrolet.mpvrx.ui.player.Decoder
 import app.gyrolet.mpvrx.ui.player.PlaybackSession
 import app.gyrolet.mpvrx.ui.player.RendererBackendPolicy
@@ -40,10 +41,10 @@ fun DecodersSheet(
       buildSupportsMediaCodecVulkan = BuildConfig.MPV_SUPPORTS_MEDIACODEC_VULKAN,
     )
 
-  PlayerSheet(onDismissRequest, title = stringResource(R.string.btn_label_decoder)) {
+  PlayerSheet(onDismissRequest, title = stringResource(R.string.btn_label_decoder), titleIcon = Icons.RoundedFilled.Memory) {
     val decoders = Decoder.entries.minusElement(Decoder.Auto)
     LazyColumn(
-      contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+      contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
       verticalArrangement = Arrangement.spacedBy(AppConnectedShapeTokens.spacing),
     ) {
       itemsIndexed(decoders, key = { _, decoder -> decoder.name }) { index, decoder ->

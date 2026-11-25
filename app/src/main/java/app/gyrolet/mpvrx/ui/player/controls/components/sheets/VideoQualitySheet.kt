@@ -45,11 +45,11 @@ fun VideoQualitySheet(
   onDownload: ((TrackNode) -> Unit)? = null,
   onDismissRequest: () -> Unit,
 ) {
-  PlayerSheet(onDismissRequest, title = stringResource(R.string.player_video_quality)) {
+  PlayerSheet(onDismissRequest, title = stringResource(R.string.player_video_quality), titleIcon = Icons.RoundedFilled.Videocam) {
     val haptics = rememberAppHaptics()
     Column(modifier = Modifier.fillMaxWidth()) {
       LazyColumn(
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
         verticalArrangement = Arrangement.spacedBy(AppConnectedShapeTokens.spacing),
       ) {
         itemsIndexed(tracks, key = { _, track -> track.id }) { index, track ->
@@ -76,22 +76,22 @@ fun VideoQualitySheet(
               modifier =
                 Modifier
                   .fillMaxWidth()
-                  .heightIn(min = 64.dp)
+                  .heightIn(min = 44.dp)
                   .selectable(selected = track.isSelected, role = Role.RadioButton) {
                     onSelect(track)
                     if (!track.isSelected) haptics.selection(true)
                     onDismissRequest()
-                  }.padding(start = 16.dp, end = if (onDownload == null) 16.dp else 4.dp, top = 10.dp, bottom = 10.dp),
+                  }.padding(start = 12.dp, end = if (onDownload == null) 12.dp else 2.dp, top = 6.dp, bottom = 6.dp),
             ) {
               RadioButton(
                 selected = track.isSelected,
                 onClick = null,
               )
-              Spacer(Modifier.width(12.dp))
-              Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+              Spacer(Modifier.width(10.dp))
+              Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
                 Text(
                   text = qualityLabel(track),
-                  style = MaterialTheme.typography.bodyLarge,
+                  style = MaterialTheme.typography.bodyMedium,
                   fontWeight = if (track.isSelected) FontWeight.SemiBold else FontWeight.Normal,
                 )
                 qualityDetails(track)?.let { details ->

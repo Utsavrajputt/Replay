@@ -53,6 +53,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -121,6 +122,7 @@ fun PlayerSheet(
   isSwipeActive: Boolean = false,
   swipeOffset: Float = 0f,
   title: String? = null,
+  titleIcon: AppIcon? = null,
   actions: @Composable RowScope.() -> Unit = {},
   useFrostedGlass: Boolean = true,
   content: @Composable () -> Unit,
@@ -150,14 +152,22 @@ fun PlayerSheet(
   }
   val density = LocalDensity.current
   val latestOnDismissRequest by rememberUpdatedState(onDismissRequest)
-  val maxWidth = customMaxWidth ?: 640.dp
+  val configuration = LocalConfiguration.current
+  val isPortrait = configuration.orientation == ORIENTATION_PORTRAIT
+  // Compact bottom sheet (anchored to the bottom, content-height): wide in landscape, near full width
+  // in portrait.
+  val maxWidth =
+    customMaxWidth ?: if (isPortrait) {
+      (configuration.screenWidthDp - 16).dp.coerceAtMost(520.dp)
+    } else {
+      (configuration.screenWidthDp * 0.78f).dp.coerceIn(420.dp, 680.dp)
+    }
   val isImeVisible = WindowInsets.ime.getBottom(density) > 0
   val maxHeight =
     customMaxHeight ?: when {
-      isImeVisible -> LocalConfiguration.current.screenHeightDp.dp
-      LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT ->
-        LocalConfiguration.current.screenHeightDp.dp * .85f
-      else -> LocalConfiguration.current.screenHeightDp.dp
+      isImeVisible -> configuration.screenHeightDp.dp
+      isPortrait -> configuration.screenHeightDp.dp * .75f
+      else -> configuration.screenHeightDp.dp * .80f
     }
 
   val screenHeightPx =
@@ -237,9 +247,7 @@ fun PlayerSheet(
         },
     contentAlignment = Alignment.BottomCenter,
   ) {
-    val sheetShape =
-      if (television) MaterialTheme.shapes.extraLargeIncreased
-      else MaterialTheme.shapes.extraLargeIncreased.copy(bottomEnd = ZeroCornerSize, bottomStart = ZeroCornerSize)
+    val sheetShape = RoundedCornerShape(24.dp)
     val baseContainerColor = surfaceColor ?: MaterialTheme.colorScheme.surfaceContainerHigh
     val expressiveContainerColor =
       baseContainerColor.copy(alpha = 1f)
@@ -253,6 +261,8 @@ fun PlayerSheet(
     Surface(
       modifier =
         Modifier
+          .navigationBarsPadding()
+          .padding(horizontal = 8.dp, vertical = 8.dp)
           .sizeIn(maxWidth = maxWidth, maxHeight = maxHeight)
           .fillMaxWidth()
           // While typing, use all the room above the keyboard so the field and results stay visible.
@@ -290,14 +300,14 @@ fun PlayerSheet(
       color = if (isFrosted) Color.Transparent else expressiveContainerColor,
       tonalElevation = if (isFrosted) 0.dp else tonalElevation,
       border =
-        if (isFrosted) {
-          null
-        } else {
-          BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.28f),
-          )
-        },
+        BorderStroke(
+          1.dp,
+          if (isFrosted) {
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.22f)
+          } else {
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.28f)
+          },
+        ),
       content = {
         BackHandler(
           enabled = anchoredDraggableState.targetValue == 0,
@@ -305,22 +315,23 @@ fun PlayerSheet(
         )
         CompositionLocalProvider(
           LocalPlayerGlassSurfaceActive provides isFrosted,
+          LocalCompactSheetContent provides true,
           LocalMotionPolicy provides MotionPolicy(reduceMotion = reducedMotion),
           androidx.compose.material3.LocalContentColor provides MaterialTheme.colorScheme.onSurface,
         ) {
           Column(
             // The keyboard already covers the navigation bar; its padding would push content under the IME.
             modifier =
-              if (isImeVisible) {
-                Modifier.fillMaxWidth()
-              } else {
-                Modifier.fillMaxWidth().navigationBarsPadding().padding(bottom = 12.dp)
-              },
+              Modifier.fillMaxWidth().padding(bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
           ) {
-            PlayerSheetDragHandle()
             if (title != null) {
-              PlayerSheetHeader(title = title, actions = actions)
+              PlayerSheetHeader(title = title, icon = titleIcon, actions = actions)
+              HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 12.dp),
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+              )
             }
             Box(Modifier.fillMaxWidth().weight(1f, fill = false)) {
               content()
@@ -403,19 +414,30 @@ fun PlayerSheetDragHandle() {
 fun PlayerSheetHeader(
   title: String,
   modifier: Modifier = Modifier,
+  icon: AppIcon? = null,
   actions: @Composable RowScope.() -> Unit = {},
 ) {
   Row(
-    modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+    modifier = modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
+    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp),
     verticalAlignment = Alignment.CenterVertically,
   ) {
+    if (icon != null) {
+      Icon(
+        icon,
+        contentDescription = null,
+        modifier = Modifier.size(20.dp),
+        tint = MaterialTheme.colorScheme.primary,
+      )
+    }
     if (title.isNotBlank()) {
       Text(
         text = title,
         modifier = Modifier.weight(1f).semantics { heading() },
-        style = MaterialTheme.typography.headlineSmall,
+        style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onSurface,
+        maxLines = 1,
+        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
       )
     } else {
       androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
@@ -437,20 +459,20 @@ fun PlayerSheetSectionHeader(
     modifier =
       modifier
         .fillMaxWidth()
-        .padding(horizontal = 20.dp, vertical = 12.dp)
+        .padding(horizontal = 16.dp, vertical = 6.dp)
         .semantics { heading() },
-    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp),
+    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
     verticalAlignment = Alignment.CenterVertically,
   ) {
     Surface(
-      modifier = Modifier.size(width = 4.dp, height = 24.dp),
+      modifier = Modifier.size(width = 3.dp, height = 16.dp),
       shape = MaterialTheme.shapes.extraSmall,
       color = MaterialTheme.colorScheme.primary,
       content = {},
     )
     Text(
       text = title,
-      style = MaterialTheme.typography.labelLargeEmphasized,
+      style = MaterialTheme.typography.labelMedium,
       color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
   }
@@ -473,9 +495,9 @@ fun PlayerSheetAction(
       onClick = onClick,
       enabled = enabled,
       shapes = IconButtonDefaults.shapes(),
-      modifier = Modifier.size(48.dp),
+      modifier = Modifier.size(40.dp),
     ) {
-      Icon(icon, contentDescription = label, modifier = Modifier.size(24.dp))
+      Icon(icon, contentDescription = label, modifier = Modifier.size(20.dp))
     }
   }
 }

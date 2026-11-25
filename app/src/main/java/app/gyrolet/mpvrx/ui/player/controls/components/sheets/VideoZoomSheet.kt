@@ -72,7 +72,7 @@ fun VideoZoomSheet(
     if (zoomControlEnabled) currentOnSetVideoZoom(zoom)
   }
 
-  PlayerSheet(onDismissRequest = onDismissRequest, title = stringResource(R.string.btn_label_zoom)) {
+  PlayerSheet(onDismissRequest = onDismissRequest, title = stringResource(R.string.btn_label_zoom), titleIcon = Icons.RoundedFilled.ZoomIn) {
     ZoomVideoSheet(
       zoom = zoom,
       defaultZoom = defaultZoom,
@@ -124,8 +124,8 @@ private fun ZoomVideoSheet(
       modifier
         .fillMaxWidth()
         .verticalScroll(rememberScrollState())
-        .padding(vertical = 8.dp),
-      verticalArrangement = Arrangement.spacedBy(16.dp),
+        .padding(vertical = 4.dp),
+      verticalArrangement = Arrangement.spacedBy(8.dp),
   ) {
     // Zoom slider with +/- buttons
     Row(
@@ -142,14 +142,14 @@ private fun ZoomVideoSheet(
           onZoomChange(newZoom)
         },
         enabled = zoomControlEnabled,
-        modifier = Modifier.size(48.dp),
+        modifier = Modifier.size(36.dp),
       ) {
         Icon(
           Icons.RoundedFilled.Remove,
           contentDescription =
             androidx.compose.ui.res
               .stringResource(app.gyrolet.mpvrx.R.string.ui_decrease_zoom),
-          modifier = Modifier.size(24.dp),
+          modifier = Modifier.size(20.dp),
         )
       }
 
@@ -170,7 +170,7 @@ private fun ZoomVideoSheet(
           onZoomChange(newZoom)
         },
         enabled = zoomControlEnabled,
-        modifier = Modifier.size(48.dp),
+        modifier = Modifier.size(36.dp),
       ) {
         Icon(
           Icons.RoundedFilled.Add,

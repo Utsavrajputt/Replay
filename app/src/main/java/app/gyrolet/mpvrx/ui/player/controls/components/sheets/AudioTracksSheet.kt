@@ -93,34 +93,34 @@ fun AudioTracksSheet(
   PlayerSheet(
     onDismissRequest = onDismissRequest,
     title = stringResource(R.string.ui_audio_tab),
+    titleIcon = Icons.RoundedFilled.Audiotrack,
+    actions = {
+      // Add stays leftmost; delay and equalizer follow.
+      PlayerSheetAction(
+        icon = Icons.RoundedFilled.Add,
+        label = stringResource(R.string.player_sheets_add_ext_audio),
+        onClick = onAddAudioTrack,
+      )
+      PlayerSheetAction(
+        icon = Icons.RoundedFilled.AvTimer,
+        label = stringResource(R.string.player_sheets_audio_delay_card_title),
+        onClick = onOpenDelayPanel,
+        enabled = delayControlEnabled,
+      )
+      if (onOpenEqualizerSheet != null) {
+        PlayerSheetAction(
+          icon = Icons.RoundedFilled.Equalizer,
+          label = stringResource(R.string.btn_label_equalizer),
+          onClick = onOpenEqualizerSheet,
+          enabled = equalizerControlEnabled,
+        )
+      }
+    },
   ) {
       LazyColumn(
         modifier = modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(bottom = 8.dp),
+        contentPadding = PaddingValues(bottom = 4.dp),
       ) {
-        item(key = "add_audio_track") {
-          AddTrackRow(
-            title = stringResource(R.string.player_sheets_add_ext_audio),
-            onClick = onAddAudioTrack,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-            actions = {
-              if (onOpenEqualizerSheet != null) {
-                PlayerSheetAction(
-                  icon = Icons.RoundedFilled.Equalizer,
-                  label = stringResource(R.string.btn_label_equalizer),
-                  onClick = onOpenEqualizerSheet,
-                  enabled = equalizerControlEnabled,
-                )
-              }
-              PlayerSheetAction(
-                icon = Icons.RoundedFilled.AvTimer,
-                label = stringResource(R.string.player_sheets_audio_delay_card_title),
-                onClick = onOpenDelayPanel,
-                enabled = delayControlEnabled,
-              )
-            },
-          )
-        }
         if (embeddedTracks.isNotEmpty()) {
           item(key = "embedded_audio_tracks_header") {
             PlayerSheetSectionHeader(stringResource(R.string.player_sheets_embedded_audio_tracks))
@@ -155,8 +155,8 @@ fun AudioTracksSheet(
           Column(modifier = Modifier.fillMaxWidth()) {
             PlayerSheetSectionHeader(stringResource(R.string.pref_audio_channels))
             FlowRow(
-              modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-              horizontalArrangement = Arrangement.spacedBy(8.dp),
+              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+              horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
               AudioChannels.entries.forEach {
                 FilterChip(
@@ -186,29 +186,29 @@ fun AudioTracksSheet(
 
             PlayerSheetSectionHeader(stringResource(R.string.pref_audio_effects))
             Row(
-              modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 2.dp).heightIn(min = 56.dp)
+              modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 1.dp).heightIn(min = 44.dp)
                 .animatedPlayerSheetBackground(volumeNormalization, MaterialTheme.shapes.medium)
                 .toggleable(value = volumeNormalization, enabled = audioEffectsEnabled, role = Role.Switch,
                   onValueChange = audioPreferences.volumeNormalization::set)
-                .padding(horizontal = 20.dp, vertical = 8.dp),
-              horizontalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(horizontal = 14.dp, vertical = 4.dp),
+              horizontalArrangement = Arrangement.spacedBy(12.dp),
               verticalAlignment = Alignment.CenterVertically,
             ) {
               Text(stringResource(R.string.pref_audio_volume_normalization_title), modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyLarge)
+                style = MaterialTheme.typography.bodyMedium)
               IconSwitch(checked = volumeNormalization, onCheckedChange = null, enabled = audioEffectsEnabled)
             }
             Row(
-              modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 2.dp).heightIn(min = 56.dp)
+              modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 1.dp).heightIn(min = 44.dp)
                 .animatedPlayerSheetBackground(drcEnabled, MaterialTheme.shapes.medium)
                 .toggleable(value = drcEnabled, enabled = audioEffectsEnabled, role = Role.Switch,
                   onValueChange = audioPreferences.drcEnabled::set)
-                .padding(horizontal = 20.dp, vertical = 8.dp),
-              horizontalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(horizontal = 14.dp, vertical = 4.dp),
+              horizontalArrangement = Arrangement.spacedBy(12.dp),
               verticalAlignment = Alignment.CenterVertically,
             ) {
               Text(stringResource(R.string.pref_audio_drc_title), modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyLarge)
+                style = MaterialTheme.typography.bodyMedium)
               IconSwitch(checked = drcEnabled, onCheckedChange = null, enabled = audioEffectsEnabled)
             }
           }
@@ -248,7 +248,7 @@ fun AudioTrackCard(
     modifier =
       modifier
         .fillMaxWidth()
-        .padding(horizontal = 8.dp, vertical = 2.dp)
+        .padding(horizontal = 10.dp, vertical = 1.dp)
         .tvFocusHighlight(shape, enabled = enabled)
         .selectable(selected = isSelected, enabled = enabled, role = Role.RadioButton) {
           onClick()
@@ -258,7 +258,7 @@ fun AudioTrackCard(
     color = containerColor,
   ) {
     Row(
-      modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+      modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 5.dp),
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
@@ -267,10 +267,12 @@ fun AudioTrackCard(
         onClick = null,
         enabled = enabled,
       )
-      Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+      Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
         Text(
           text = getTrackTitle(track),
-          style = MaterialTheme.typography.bodyMedium,
+          style = MaterialTheme.typography.bodySmall,
+          maxLines = 1,
+          overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
           fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
           color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
         )
@@ -314,7 +316,7 @@ fun AudioTrackRow(
     modifier =
       modifier
         .fillMaxWidth()
-        .then(if (isGrouped) Modifier else Modifier.padding(horizontal = 8.dp, vertical = 3.dp))
+        .then(if (isGrouped) Modifier else Modifier.padding(horizontal = 10.dp, vertical = 2.dp))
         .tvFocusHighlight(shape, enabled = enabled)
         .clip(shape)
         .selectable(selected = isSelected, enabled = enabled, role = Role.RadioButton) {
@@ -325,15 +327,15 @@ fun AudioTrackRow(
     color = containerColor,
   ) {
     Row(
-      modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+      modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 6.dp),
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
       RadioButton(selected = isSelected, onClick = null, enabled = enabled)
-      Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+      Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
         Text(
           text = title,
-          style = if (isSelected) MaterialTheme.typography.bodyLargeEmphasized else MaterialTheme.typography.bodyLarge,
+          style = if (isSelected) MaterialTheme.typography.bodyMediumEmphasized else MaterialTheme.typography.bodyMedium,
           color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
         )
         details?.let { value ->
@@ -378,10 +380,10 @@ private fun audioTrackBadges(track: TrackNode): List<TrackBadge> {
       track.effectiveBitrate
         ?.takeIf { it > 0L }
         ?.let { bitsPerSecond -> add(TrackBadge("${bitsPerSecond / 1_000L} kbps")) }
-      if (track.default == true) add(TrackBadge(defaultLabel))
-      if (track.forced == true) add(TrackBadge(forcedLabel))
-      if (track.external == true) add(TrackBadge(externalLabel))
-      if (track.visualImpaired == true) add(TrackBadge(descriptiveLabel))
+      if (track.default == true) add(TrackBadge(defaultLabel, flag = true))
+      if (track.forced == true) add(TrackBadge(forcedLabel, flag = true))
+      if (track.external == true) add(TrackBadge(externalLabel, flag = true))
+      if (track.visualImpaired == true) add(TrackBadge(descriptiveLabel, flag = true))
     }.distinctBy(TrackBadge::text)
   }
 }

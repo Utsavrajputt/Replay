@@ -85,7 +85,7 @@ fun ChaptersSheet(
     LazyColumn(
       modifier = modifier.fillMaxWidth(),
       state = listState,
-      contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+      contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
       verticalArrangement = Arrangement.spacedBy(AppConnectedShapeTokens.spacing),
     ) {
       if (chapters.isEmpty()) {
@@ -152,7 +152,7 @@ fun ChapterTrack(
           .fillMaxWidth()
           .heightIn(min = 64.dp)
           .clickable(onClick = onClick)
-          .padding(vertical = 10.dp, horizontal = 16.dp),
+          .padding(vertical = 6.dp, horizontal = 12.dp),
       horizontalArrangement = Arrangement.spacedBy(12.dp),
       verticalAlignment = Alignment.CenterVertically,
     ) {

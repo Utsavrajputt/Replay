@@ -89,7 +89,7 @@ fun AspectRatioSheet(
         modifier
           .fillMaxWidth()
           .verticalScroll(rememberScrollState())
-          .padding(bottom = 8.dp),
+          .padding(bottom = 4.dp),
     ) {
       val autoCropSummary =
         when {
@@ -139,8 +139,8 @@ fun AspectRatioSheet(
       PlayerSheetSectionHeader(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.ui_presets))
 
       androidx.compose.foundation.layout.FlowRow(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
       ) {
         presetRatios.forEach { ratio ->
           InputChip(
@@ -162,8 +162,8 @@ fun AspectRatioSheet(
         PlayerSheetSectionHeader(androidx.compose.ui.res.stringResource(app.gyrolet.mpvrx.R.string.pref_gesture_double_tap_custom))
 
         androidx.compose.foundation.layout.FlowRow(
-          modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-          horizontalArrangement = Arrangement.spacedBy(8.dp),
+          modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+          horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
           customRatios.forEach { ratio ->
             InputChip(
