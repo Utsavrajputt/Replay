@@ -157,10 +157,12 @@ fun PlayerSheet(
   // Compact bottom sheet (anchored to the bottom, content-height): wide in landscape, near full width
   // in portrait.
   val maxWidth =
+    // Fixed dp sizes: the app UI scale (densityDpi override) scales dp, so the sheet grows/shrinks
+    // with it; the screen-width clamp keeps it on screen at large scales.
     customMaxWidth ?: if (isPortrait) {
-      (configuration.screenWidthDp - 40).dp.coerceAtMost(420.dp)
+      392.dp.coerceAtMost((configuration.screenWidthDp - 16).dp)
     } else {
-      (configuration.screenWidthDp * 0.58f).dp.coerceIn(340.dp, 520.dp)
+      420.dp.coerceAtMost((configuration.screenWidthDp * 0.92f).dp)
     }
   val isImeVisible = WindowInsets.ime.getBottom(density) > 0
   val maxHeight =
@@ -485,16 +487,27 @@ fun PlayerSheetAction(
   label: String,
   onClick: () -> Unit,
   enabled: Boolean = true,
+  /** Highlights the button (tonal container + primary tint) to show an on/saved state. */
+  active: Boolean = false,
 ) {
+  val haptics = app.gyrolet.mpvrx.ui.utils.rememberAppHaptics()
   TooltipBox(
     positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
     tooltip = { PlainTooltip { Text(label) } },
     state = rememberTooltipState(),
   ) {
     IconButton(
-      onClick = onClick,
+      onClick = {
+        haptics.selection(true)
+        onClick()
+      },
       enabled = enabled,
       shapes = IconButtonDefaults.shapes(),
+      colors =
+        IconButtonDefaults.iconButtonColors(
+          containerColor = if (active) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+          contentColor = if (active) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+        ),
       modifier = Modifier.size(40.dp),
     ) {
       Icon(icon, contentDescription = label, modifier = Modifier.size(20.dp))

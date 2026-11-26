@@ -126,7 +126,7 @@ fun ChapterTrack(
   trailingContent: @Composable () -> Unit = {},
 ) {
   val shape =
-    rememberConnectedShape(
+    rememberPlainSheetShape(
       index = index,
       itemCount = chapterCount,
       layout = ConnectedLayout.Vertical,

@@ -90,7 +90,7 @@ fun LyricsSheet(
     Column(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(horizontal = 20.dp, vertical = 8.dp),
+        .padding(horizontal = 14.dp, vertical = 8.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
       // Header title + Source Switcher
@@ -219,7 +219,7 @@ fun LyricsSheet(
           .height(340.dp)
           .clip(RoundedCornerShape(16.dp))
           .background(MaterialTheme.colorScheme.surfaceContainerLowest.copy(alpha = 0.7f))
-          .padding(horizontal = 16.dp, vertical = 12.dp),
+          .padding(horizontal = 12.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center,
       ) {
         val activeLyrics = state.lyrics

@@ -72,10 +72,10 @@ fun LyricsProviderSheet(
 ) {
   val state by viewModel.lyricsUiState.collectAsState()
 
-  PlayerSheet(onDismissRequest, title = stringResource(R.string.lyrics_provider_sheet_title)) {
+  PlayerSheet(onDismissRequest, title = stringResource(R.string.lyrics_provider_sheet_title), titleIcon = Icons.RoundedFilled.Lyrics) {
     LazyColumn(
       modifier = modifier.fillMaxWidth(),
-      contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+      contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
       verticalArrangement = Arrangement.spacedBy(AppConnectedShapeTokens.spacing),
     ) {
       item(key = "auto") {
@@ -185,7 +185,7 @@ private fun ProviderRow(
   // A finished empty answer cannot be improved by asking again; a failure can.
   val tappable = enabled && !current && status != ProviderStatus.MISSING
   val container = animatedPlayerSheetSelectionColor(current, label = "lyricsProviderRow")
-  val shape = rememberConnectedShape(index = groupIndex, itemCount = groupSize, layout = ConnectedLayout.Vertical)
+  val shape = rememberPlainSheetShape(index = groupIndex, itemCount = groupSize, layout = ConnectedLayout.Vertical)
   val dim = status == ProviderStatus.MISSING
 
   Surface(

@@ -58,14 +58,18 @@ internal fun playerSheetSelectionColor(
   selected: Boolean,
   frosted: Boolean = LocalPlayerGlassSurfaceActive.current,
 ): Color {
+  // Plain (non-expressive) selection: transparent rows, a soft primary tint when selected.
   val colors = MaterialTheme.colorScheme
-  return when {
-    selected && frosted -> colors.secondaryContainer.copy(alpha = 0.65f)
-    selected -> colors.secondaryContainer
-    frosted -> colors.surfaceContainerLow.copy(alpha = 0.35f)
-    else -> colors.surfaceContainerHigh
-  }
+  return if (selected) colors.primary.copy(alpha = 0.16f) else Color.Transparent
 }
+
+/** Plain rounded row shape (replaces the expressive connected-card corners inside player sheets). */
+@Composable
+internal fun rememberPlainSheetShape(
+  index: Int = 0,
+  itemCount: Int = 1,
+  layout: app.gyrolet.mpvrx.ui.theme.ConnectedLayout = app.gyrolet.mpvrx.ui.theme.ConnectedLayout.Vertical,
+): Shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
 
 /** Every player option gets its own animated Material 3 state surface. */
 @Composable

@@ -57,7 +57,7 @@ fun AudioPropertiesSheet(
     ) {
       properties.forEachIndexed { index, prop ->
         val shape =
-          rememberConnectedShape(
+          rememberPlainSheetShape(
             index = index,
             itemCount = properties.size,
             layout = ConnectedLayout.Vertical,
@@ -68,7 +68,7 @@ fun AudioPropertiesSheet(
           color = playerSheetSelectionColor(false),
         ) {
           Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
           ) {
             Text(
               text = prop.label,

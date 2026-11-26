@@ -80,6 +80,7 @@ fun VideoZoomSheet(
         label = stringResource(R.string.set_as_default),
         onClick = { if (zoomControlEnabled) playerPreferences.defaultVideoZoom.set(zoom) },
         enabled = zoomControlEnabled && zoom != defaultZoom,
+        active = zoom == defaultZoom,
       )
       PlayerSheetAction(
         icon = Icons.RoundedFilled.Restore,

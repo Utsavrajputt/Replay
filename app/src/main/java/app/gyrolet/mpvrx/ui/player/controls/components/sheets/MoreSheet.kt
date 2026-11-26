@@ -55,6 +55,7 @@ import app.gyrolet.mpvrx.domain.anime4k.Anime4KManager
 import app.gyrolet.mpvrx.preferences.AdvancedPreferences
 import app.gyrolet.mpvrx.preferences.preference.collectAsState
 import app.gyrolet.mpvrx.presentation.components.PlayerSheet
+import app.gyrolet.mpvrx.presentation.components.PlayerSheetAction
 import app.gyrolet.mpvrx.ui.icons.Icon
 import app.gyrolet.mpvrx.ui.icons.Icons
 import app.gyrolet.mpvrx.ui.player.anime4k.Anime4KUiState
@@ -84,128 +85,62 @@ fun MoreSheet(
   val mpvConfStorageLocation by advancedPreferences.mpvConfStorageUri.collectAsState()
   val showActionLabels = LocalConfiguration.current.orientation != Configuration.ORIENTATION_PORTRAIT
 
+  var isSleepTimerDialogShown by remember { mutableStateOf(false) }
   PlayerSheet(
     onDismissRequest,
     modifier,
+    title = stringResource(R.string.player_sheets_more_title),
+    titleIcon = Icons.RoundedFilled.MoreVert,
+    actions = {
+      PlayerSheetAction(
+        icon = Icons.RoundedFilled.Timer,
+        label =
+          if (remainingTime == 0) {
+            stringResource(R.string.timer_title)
+          } else {
+            stringResource(R.string.timer_remaining, DateUtils.formatElapsedTime(remainingTime.toLong()))
+          },
+        onClick = { isSleepTimerDialogShown = true },
+        active = remainingTime != 0,
+      )
+      if (onEnterEqualizerSheet != null) {
+        PlayerSheetAction(
+          icon = Icons.RoundedFilled.Equalizer,
+          label = stringResource(id = R.string.btn_label_equalizer),
+          onClick = onEnterEqualizerSheet,
+          enabled = equalizerEnabled,
+        )
+      }
+      PlayerSheetAction(
+        icon = Icons.RoundedFilled.Tune,
+        label = stringResource(id = R.string.player_sheets_filters_title),
+        onClick = onEnterFiltersPanel,
+        enabled = filtersEnabled,
+      )
+      PlayerSheetAction(
+        icon = Icons.RoundedFilled.Code,
+        label = if (selectedLuaScripts.isEmpty()) "Scripts" else "Scripts (${selectedLuaScripts.size})",
+        onClick = onEnterLuaScriptsPanel,
+        enabled = mpvConfStorageLocation.isNotBlank(),
+        active = enableLuaScripts && selectedLuaScripts.isNotEmpty(),
+      )
+    },
   ) {
+    if (isSleepTimerDialogShown) {
+      TimePickerDialog(
+        remainingTime = remainingTime,
+        onDismissRequest = { isSleepTimerDialogShown = false },
+        onTimeSelect = onStartTimer,
+      )
+    }
     Column(
       modifier =
         Modifier
           .fillMaxWidth()
           .verticalScroll(rememberScrollState())
-          .padding(horizontal = 20.dp, vertical = 8.dp),
-      verticalArrangement = Arrangement.spacedBy(16.dp),
+          .padding(horizontal = 14.dp, vertical = 8.dp),
+      verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-      Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-      ) {
-        Text(
-          text = stringResource(R.string.player_sheets_more_title),
-          style = MaterialTheme.typography.titleLarge,
-        )
-        Row(verticalAlignment = Alignment.CenterVertically) {
-          var isSleepTimerDialogShown by remember { mutableStateOf(false) }
-          TextButton(onClick = { isSleepTimerDialogShown = true }) {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
-            ) {
-              Icon(
-                imageVector = Icons.RoundedFilled.Timer,
-                contentDescription = stringResource(R.string.timer_title),
-              )
-              if (showActionLabels) {
-                Text(
-                  text =
-                    if (remainingTime == 0) {
-                      stringResource(R.string.timer_title)
-                    } else {
-                      stringResource(
-                        R.string.timer_remaining,
-                        DateUtils.formatElapsedTime(remainingTime.toLong()),
-                      )
-                    },
-                )
-              }
-              if (isSleepTimerDialogShown) {
-                TimePickerDialog(
-                  remainingTime = remainingTime,
-                  onDismissRequest = { isSleepTimerDialogShown = false },
-                  onTimeSelect = onStartTimer,
-                )
-              }
-            }
-          }
-          if (onEnterEqualizerSheet != null) {
-            TextButton(onClick = onEnterEqualizerSheet, enabled = equalizerEnabled) {
-              Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
-              ) {
-                Icon(
-                  imageVector = Icons.RoundedFilled.Equalizer,
-                  contentDescription = stringResource(id = R.string.btn_label_equalizer),
-                )
-                if (showActionLabels) {
-                  Text(text = stringResource(id = R.string.btn_label_equalizer))
-                }
-              }
-            }
-          }
-          TextButton(onClick = onEnterFiltersPanel, enabled = filtersEnabled) {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
-            ) {
-              Icon(
-                imageVector = Icons.RoundedFilled.Tune,
-                contentDescription = stringResource(id = R.string.player_sheets_filters_title),
-              )
-              if (showActionLabels) {
-                Text(text = stringResource(id = R.string.player_sheets_filters_title))
-              }
-            }
-          }
-          TextButton(
-            onClick = onEnterLuaScriptsPanel,
-            enabled = mpvConfStorageLocation.isNotBlank(),
-          ) {
-            Row(
-              verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.extraSmall),
-            ) {
-              Icon(
-                imageVector = Icons.RoundedFilled.Code,
-                contentDescription = "Scripts",
-                tint =
-                  if (enableLuaScripts && selectedLuaScripts.isNotEmpty()) {
-                    MaterialTheme.colorScheme.primary
-                  } else {
-                    LocalContentColor.current
-                  },
-              )
-              if (showActionLabels) {
-                Text(
-                  text =
-                    if (selectedLuaScripts.isEmpty()) {
-                      "Scripts"
-                    } else {
-                      "Scripts (${selectedLuaScripts.size})"
-                    },
-                  color =
-                    if (enableLuaScripts && selectedLuaScripts.isNotEmpty()) {
-                      MaterialTheme.colorScheme.primary
-                    } else {
-                      LocalContentColor.current
-                    },
-                )
-              }
-            }
-          }
-        }
-      }
       Text(
         text = stringResource(R.string.player_sheets_stats_page_title),
         style = MaterialTheme.typography.titleMedium,
@@ -358,7 +293,7 @@ fun TimePickerDialog(
     text = {
       Column(
         modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
       ) {
         TimeInput(state = state)
 

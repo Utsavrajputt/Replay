@@ -31,7 +31,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -65,7 +69,7 @@ import kotlinx.collections.immutable.ImmutableList
 import org.koin.compose.koinInject
 import java.util.Locale
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun AudioTracksSheet(
   tracks: ImmutableList<TrackNode>,
@@ -154,29 +158,47 @@ fun AudioTracksSheet(
         item {
           Column(modifier = Modifier.fillMaxWidth()) {
             PlayerSheetSectionHeader(stringResource(R.string.pref_audio_channels))
-            FlowRow(
-              modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-              horizontalArrangement = Arrangement.spacedBy(6.dp),
+            // One-line segmented selector: short labels, full name stays in the accessibility description.
+            androidx.compose.material3.SingleChoiceSegmentedButtonRow(
+              modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 2.dp),
             ) {
-              AudioChannels.entries.forEach {
-                FilterChip(
-                  selected = audioChannels == it,
-                  enabled = if (it == AudioChannels.ReverseStereo) reverseStereoEnabled else audioChannelsEnabled,
+              val channelOptions = AudioChannels.entries
+              channelOptions.forEachIndexed { index, option ->
+                val fullName = stringResource(id = option.title)
+                val shortName =
+                  when (option) {
+                    AudioChannels.Auto -> "Auto"
+                    AudioChannels.AutoSafe -> "Safe"
+                    AudioChannels.Mono -> "Mono"
+                    AudioChannels.Stereo -> "Stereo"
+                    AudioChannels.ReverseStereo -> "Rev"
+                  }
+                SegmentedButton(
+                  selected = audioChannels == option,
+                  enabled = if (option == AudioChannels.ReverseStereo) reverseStereoEnabled else audioChannelsEnabled,
                   onClick = {
-                    audioPreferences.audioChannels.set(it)
-                    if (it == AudioChannels.ReverseStereo) {
+                    audioPreferences.audioChannels.set(option)
+                    if (option == AudioChannels.ReverseStereo) {
                       PlaybackSession.setPropertyString(AudioChannels.AutoSafe.property, AudioChannels.AutoSafe.value)
                     } else {
-                      PlaybackSession.setPropertyString(it.property, it.value)
+                      PlaybackSession.setPropertyString(option.property, option.value)
                     }
                   },
-                  label = { Text(text = stringResource(id = it.title)) },
-                  leadingIcon = null,
-                  colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
-                  containerColor = playerSheetSelectionColor(false),
-                  selectedContainerColor = playerSheetSelectionColor(true),
-                  selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                ),
+                  shape =
+                    androidx.compose.material3.SegmentedButtonDefaults.itemShape(
+                      index = index,
+                      count = channelOptions.size,
+                    ),
+                  icon = {},
+                  contentPadding = PaddingValues(horizontal = 4.dp),
+                  modifier = Modifier.height(36.dp).semantics { contentDescription = fullName },
+                  label = {
+                    Text(
+                      text = shortName,
+                      style = MaterialTheme.typography.labelMedium,
+                      maxLines = 1,
+                    )
+                  },
                 )
               }
             }
@@ -231,7 +253,7 @@ fun AudioTrackCard(
   val reducedMotion = AppMotion.playerReducedMotion()
   val shape =
     if (groupIndex != null && groupSize != null && groupSize > 0) {
-      rememberConnectedShape(
+      rememberPlainSheetShape(
         index = groupIndex,
         itemCount = groupSize,
         layout = ConnectedLayout.Vertical,
@@ -300,7 +322,7 @@ fun AudioTrackRow(
   val isGrouped = groupIndex != null && groupSize != null && groupSize > 0
   val shape =
     if (isGrouped) {
-      rememberConnectedShape(
+      rememberPlainSheetShape(
         index = requireNotNull(groupIndex),
         itemCount = requireNotNull(groupSize),
         layout = ConnectedLayout.Vertical,

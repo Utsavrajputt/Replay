@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.gyrolet.mpvrx.R
 import app.gyrolet.mpvrx.preferences.AudioPreferences
+import app.gyrolet.mpvrx.preferences.PlayerPreferences
 import app.gyrolet.mpvrx.preferences.preference.collectAsState
 import app.gyrolet.mpvrx.presentation.components.PlayerSheet
 import app.gyrolet.mpvrx.presentation.components.PlayerSheetAction
@@ -77,13 +78,18 @@ fun PlaybackSpeedSheet(
       speedHaptics.move(speed, target)
     }
   }
+  val playerPreferences = koinInject<app.gyrolet.mpvrx.preferences.PlayerPreferences>()
+  val savedDefaultSpeed by playerPreferences.defaultSpeed.collectAsState()
+  val isDefaultSpeed = kotlin.math.abs(savedDefaultSpeed - speed) < 0.001f
   PlayerSheet(onDismissRequest = onDismissRequest, title = stringResource(R.string.btn_label_speed), titleIcon = Icons.RoundedFilled.Speed,
     actions = {
+      // Highlighted when the current speed is already the saved default.
       PlayerSheetAction(
         icon = Icons.RoundedFilled.Bookmark,
         label = stringResource(id = R.string.player_sheets_speed_make_default),
         onClick = { onMakeDefault(speed) },
-        enabled = speedControlEnabled,
+        enabled = speedControlEnabled && !isDefaultSpeed,
+        active = isDefaultSpeed,
       )
       PlayerSheetAction(
         icon = Icons.RoundedFilled.Restore,
@@ -93,7 +99,7 @@ fun PlaybackSpeedSheet(
           onResetPresets()
           onSpeedChange(1.0f)
         },
-        enabled = speedControlEnabled,
+        enabled = speedControlEnabled && (speed != 1.0f || savedDefaultSpeed != 1.0f),
       )
     },
   ) {
@@ -159,7 +165,7 @@ fun PlaybackSpeedSheet(
       ) {
         val defaultPresets =
           remember {
-            listOf(0.25f, 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f, 2.5f, 3.0f, 3.5f, 4.0f)
+            listOf(0.5f, 1.0f, 1.25f, 1.5f, 2.0f)
           }
 
         LazyRow(

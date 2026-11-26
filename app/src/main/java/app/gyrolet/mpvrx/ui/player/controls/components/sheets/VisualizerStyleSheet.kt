@@ -9,6 +9,7 @@
 
 package app.gyrolet.mpvrx.ui.player.controls.components.sheets
 
+import app.gyrolet.mpvrx.ui.icons.Icons
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,10 +31,10 @@ fun VisualizerStyleSheet(
   onDismissRequest: () -> Unit,
   modifier: Modifier = Modifier,
 ) {
-  PlayerSheet(onDismissRequest, title = stringResource(R.string.pref_audio_visualizer_style_title)) {
+  PlayerSheet(onDismissRequest, title = stringResource(R.string.pref_audio_visualizer_style_title), titleIcon = Icons.RoundedFilled.Tune) {
     LazyColumn(
       modifier = modifier.fillMaxWidth(),
-      contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+      contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
       verticalArrangement = Arrangement.spacedBy(AppConnectedShapeTokens.spacing),
     ) {
       itemsIndexed(AudioVisualizerStyle.entries, key = { _, style -> style.name }) { index, style ->

@@ -203,7 +203,7 @@ fun OnlineSubtitleSearchSheet(
             modifier =
               Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 14.dp)
                 .padding(bottom = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
           ) {
@@ -228,7 +228,7 @@ fun OnlineSubtitleSearchSheet(
           modifier =
             Modifier
               .fillMaxWidth()
-              .padding(horizontal = 20.dp, vertical = 8.dp),
+              .padding(horizontal = 14.dp, vertical = 8.dp),
           verticalAlignment = Alignment.CenterVertically,
           horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small),
         ) {

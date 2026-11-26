@@ -60,7 +60,7 @@ fun VideoQualitySheet(
             label = "videoQualitySelection",
           )
           val shape =
-            rememberConnectedShape(
+            rememberPlainSheetShape(
               index = index,
               itemCount = tracks.size,
               layout = ConnectedLayout.Vertical,

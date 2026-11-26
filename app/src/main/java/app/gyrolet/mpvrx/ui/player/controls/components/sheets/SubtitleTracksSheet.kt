@@ -510,7 +510,7 @@ fun SubtitlesSheet(
             }
             is SubtitleItem.Off -> {
               val haptics = rememberAppHaptics()
-              val shape = rememberConnectedShape(index = 1, itemCount = 2, layout = ConnectedLayout.Vertical)
+              val shape = rememberPlainSheetShape(index = 1, itemCount = 2, layout = ConnectedLayout.Vertical)
               val isFrostedOff = LocalPlayerGlassSurfaceActive.current
               Surface(
                 modifier =
@@ -583,7 +583,7 @@ fun SubtitleTrackRow(
   val haptics = rememberAppHaptics()
   val shape =
     if (groupIndex != null && groupSize != null && groupSize > 0) {
-      rememberConnectedShape(
+      rememberPlainSheetShape(
         index = groupIndex,
         itemCount = groupSize,
         layout = ConnectedLayout.Vertical,
