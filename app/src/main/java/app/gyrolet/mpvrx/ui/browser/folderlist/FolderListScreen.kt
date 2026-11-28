@@ -20,6 +20,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import app.gyrolet.mpvrx.ui.browser.fab.fabLongPress
 import app.gyrolet.mpvrx.ui.browser.fab.FabPlacement
 import app.gyrolet.mpvrx.ui.celestial.celestialBorder
 import app.gyrolet.mpvrx.ui.celestial.celestialFabColors
@@ -801,12 +802,12 @@ object FolderListScreen : Screen {
 
           FloatingActionButtonMenu(
             modifier = Modifier.padding(bottom = FabPlacement.scaffoldBottomPadding()),
-            expanded = isFabExpanded.value && !quickPlayFabDirect,
+            expanded = isFabExpanded.value,
             button = {
               TooltipBox(
                 positionProvider =
                   TooltipDefaults.rememberTooltipPositionProvider(
-                    if (isFabExpanded.value && !quickPlayFabDirect) {
+                    if (isFabExpanded.value) {
                       TooltipAnchorPosition.Start
                     } else {
                       TooltipAnchorPosition.Above
@@ -830,10 +831,10 @@ object FolderListScreen : Screen {
                     Modifier.animateFloatingActionButton(
                       visible = isFabShouldBeVisible,
                       alignment = Alignment.BottomEnd,
-                    ).celestialBorder().focusableWhen(isFabShouldBeVisible),
-                  checked = isFabExpanded.value && !quickPlayFabDirect,
+                    ).celestialBorder().focusableWhen(isFabShouldBeVisible).fabLongPress { isFabExpanded.value = true },
+                  checked = isFabExpanded.value,
                   onCheckedChange = {
-                    if (quickPlayFabDirect) {
+                    if (!isFabExpanded.value) {
                       coroutineScope.launch {
                         val lastPlayed =
                           app.gyrolet.mpvrx.utils.history.RecentlyPlayedOps
@@ -847,6 +848,9 @@ object FolderListScreen : Screen {
                               lastPlayed.videoTitle?.takeIf { it.isNotBlank() }
                                 ?: lastPlayed.fileName.takeIf { it.isNotBlank() },
                           )
+                        } else {
+                          // Nothing played yet: a single tap opens the menu instead.
+                          isFabExpanded.value = true
                         }
                       }
                     } else {
@@ -856,19 +860,19 @@ object FolderListScreen : Screen {
                 ) {
                   val imageVector by remember {
                     derivedStateOf {
-                      if (checkedProgress > 0.5f && !quickPlayFabDirect) Icons.RoundedFilled.Close else Icons.RoundedFilled.PlayArrow
+                      if (checkedProgress > 0.5f) Icons.RoundedFilled.Close else Icons.RoundedFilled.PlayArrow
                     }
                   }
                   Icon(
                     imageVector = imageVector,
                     contentDescription = null,
-                    modifier = Modifier.animateIcon({ if (quickPlayFabDirect) 0f else checkedProgress }),
+                    modifier = Modifier.animateIcon({ checkedProgress }),
                   )
                 }
               }
             },
           ) {
-            if (!quickPlayFabDirect) {
+            run {
               FloatingActionButtonMenuItem(
                 onClick = {
                   isFabExpanded.value = false
@@ -1043,7 +1047,7 @@ object FolderListScreen : Screen {
           }
 
           FabScrollHelper.FabScrim(
-            visible = isFabExpanded.value && !quickPlayFabDirect,
+            visible = isFabExpanded.value,
             onDismiss = { isFabExpanded.value = false },
           )
         }

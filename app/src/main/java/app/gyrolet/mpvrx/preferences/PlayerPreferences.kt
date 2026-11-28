@@ -79,7 +79,7 @@ class PlayerPreferences(
   val defaultSpeed = preferenceStore.getFloat("default_speed", 1f)
   val speedPresets =
     preferenceStore.getStringSet(
-      "default_speed_presets_v2",
+      "default_speed_presets_v4",
       setOf("0.5", "1.0", "1.25", "1.5", "2.0"),
     )
   val displayVolumeAsPercentage = preferenceStore.getBoolean("display_volume_as_percentage", true)

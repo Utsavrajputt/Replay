@@ -23,6 +23,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import app.gyrolet.mpvrx.ui.theme.AppMotion
+import app.gyrolet.mpvrx.ui.browser.fab.fabLongPress
 import app.gyrolet.mpvrx.ui.browser.fab.FabPlacement
 import app.gyrolet.mpvrx.ui.browser.fab.FabScrollHelper
 import app.gyrolet.mpvrx.ui.components.InlineSearchBar
@@ -382,9 +383,9 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
     context.startActivity(intent)
   }
 
-  BackHandler(enabled = selectionManager.isInSelectionMode || isSearching || (isFabExpanded.value && !quickPlayFabDirect)) {
+  BackHandler(enabled = selectionManager.isInSelectionMode || isSearching || (isFabExpanded.value)) {
     when {
-      isFabExpanded.value && !quickPlayFabDirect -> isFabExpanded.value = false
+      isFabExpanded.value -> isFabExpanded.value = false
       selectionManager.isInSelectionMode -> selectionManager.clear()
       isSearching -> {
         isSearching = false
@@ -499,12 +500,12 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
 
       FloatingActionButtonMenu(
         modifier = Modifier.padding(bottom = FabPlacement.scaffoldBottomPadding()),
-        expanded = isFabExpanded.value && !quickPlayFabDirect,
+        expanded = isFabExpanded.value,
         button = {
           TooltipBox(
             positionProvider =
               TooltipDefaults.rememberTooltipPositionProvider(
-                if (isFabExpanded.value && !quickPlayFabDirect) {
+                if (isFabExpanded.value) {
                   TooltipAnchorPosition.Start
                 } else {
                   TooltipAnchorPosition.Above
@@ -527,10 +528,10 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
                 Modifier.animateFloatingActionButton(
                   visible = isFabShouldBeVisible,
                   alignment = Alignment.BottomEnd,
-                ).celestialBorder().focusableWhen(isFabShouldBeVisible),
-              checked = isFabExpanded.value && !quickPlayFabDirect,
+                ).celestialBorder().focusableWhen(isFabShouldBeVisible).fabLongPress { isFabExpanded.value = true },
+              checked = isFabExpanded.value,
                 onCheckedChange = {
-                  if (quickPlayFabDirect) {
+                  if (!isFabExpanded.value) {
                     coroutineScope.launch {
                       val recentlyPlayedVideos = RecentlyPlayedOps.getRecentlyPlayed(limit = 1)
                       val lastPlayed = recentlyPlayedVideos.firstOrNull()
@@ -550,19 +551,19 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
               ) {
                 val imageVector by remember {
                   derivedStateOf {
-                    if (checkedProgress > 0.5f && !quickPlayFabDirect) Icons.RoundedFilled.Close else Icons.RoundedFilled.PlayArrow
+                    if (checkedProgress > 0.5f) Icons.RoundedFilled.Close else Icons.RoundedFilled.PlayArrow
                   }
                 }
                 Icon(
                   imageVector = imageVector,
                   contentDescription = null,
-                  modifier = Modifier.animateIcon({ if (quickPlayFabDirect) 0f else checkedProgress }),
+                  modifier = Modifier.animateIcon({ checkedProgress }),
                 )
               }
             }
           },
         ) {
-          if (!quickPlayFabDirect) {
+          run {
             FloatingActionButtonMenuItem(
               onClick = {
                 isFabExpanded.value = false
@@ -699,7 +700,7 @@ fun MediaLibraryContent(forceAudio: Boolean = false) {
         }
 
         FabScrollHelper.FabScrim(
-          visible = isFabExpanded.value && !quickPlayFabDirect,
+          visible = isFabExpanded.value,
           onDismiss = { isFabExpanded.value = false },
         )
       }

@@ -30,6 +30,8 @@ import androidx.compose.material3.MaterialTheme
 import app.gyrolet.mpvrx.ui.components.AppSlider as Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.draw.clip
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -229,6 +231,13 @@ fun PlaybackSpeedSheet(
         // Audio Pitch Correction
         val pitchCorrection by audioPreferences.audioPitchCorrection.collectAsState()
 
+        Box(
+          modifier =
+            Modifier
+              .fillMaxWidth()
+              .padding(horizontal = 10.dp)
+              .clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
+        ) {
         SwitchPreference(
           value = pitchCorrection,
           enabled = pitchCorrectionEnabled,
@@ -251,6 +260,7 @@ fun PlaybackSpeedSheet(
             )
           },
         )
+        }
       }
     }
   }
